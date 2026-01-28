@@ -1,26 +1,103 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
+@theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-surface: var(--surface);
+  --color-surface-alt: var(--surface-alt);
+
+  --color-border: var(--border);
+  --color-input: var(--border);
+  --color-ring: var(--primary);
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  /* Luxury Color Palette */
+
+  /* Primary: Deep Navy/Charcoal - Trust, Authority */
+  --primary: #0F172A;
+  /* Slate 900 */
+  --primary-foreground: #F8FAFC;
+  /* Slate 50 */
+
+  /* Secondary: Elegant Dark Grey - Sophistication */
+  --secondary: #334155;
+  /* Slate 700 */
+  --secondary-foreground: #F1F5F9;
+  /* Slate 100 */
+
+  /* Accent: Gold/Bronze - Premium, Exclusive */
+  --accent: #B49B57;
+  /* Muted Gold */
+  --accent-foreground: #FFFFFF;
+
+  /* Backgrounds */
+  --background: #FFFFFF;
+  --foreground: #1E293B;
+  /* Slate 800 */
+
+  --surface: #F8F9FB;
+  /* Very light cool grey */
+  --surface-alt: #F1F5F9;
+
+  /* Text */
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+  /* Slate 500 */
+
+  /* Borders */
+  --border: #E2E8F0;
+
+  /* Status */
+  --success: #10B981;
+  --error: #EF4444;
+  --warning: #F59E0B;
+
+  /* Radius */
+  --radius: 0.5rem;
 }
 
 body {
-  background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--background);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
 }
