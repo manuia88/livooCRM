@@ -1,6 +1,7 @@
+```
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
-import { signOut } from "./actions";
+import { logout } from "./actions";
 import { LogOut, Home, Building2, Users, FileText, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
