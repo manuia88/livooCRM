@@ -3,8 +3,8 @@
 
 import { useState } from 'react'
 import { useConversations } from '@/hooks/useConversations'
-import { InboxSidebar } from '@/components/conversations/InboxSidebar'
-import { ChatWindow } from '@/components/conversations/ChatWindow'
+import { ChatList } from '@/components/inbox/ChatList'
+import { ChatWindow } from '@/components/inbox/ChatWindow'
 import { MessageSquareDashed } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 
@@ -17,16 +17,20 @@ export default function InboxPage() {
     return (
         <div className="flex h-[calc(100vh-64px)] overflow-hidden border rounded-lg bg-white shadow-sm m-4">
             {/* Sidebar List */}
-            <InboxSidebar
-                conversations={conversations}
-                selectedId={selectedId || undefined}
-                onSelect={setSelectedId}
-            />
+            <div className="w-80 border-r flex flex-col">
+                <ChatList
+                    selectedId={selectedId}
+                    onSelect={(c) => setSelectedId(c.id)}
+                />
+            </div>
 
             {/* Main Chat Area */}
             <div className="flex-1 flex flex-col bg-gray-50 relative">
                 {selectedConversation ? (
-                    <ChatWindow conversation={selectedConversation} />
+                    <ChatWindow
+                        conversationId={selectedConversation.id}
+                        conversation={selectedConversation}
+                    />
                 ) : (
                     <div className="flex flex-col items-center justify-center h-full text-gray-400 space-y-4">
                         <div className="bg-gray-100 p-6 rounded-full">

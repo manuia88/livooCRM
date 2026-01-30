@@ -2,10 +2,10 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Send, Phone, Video, MoreVertical, Paperclip, Image as ImageIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { MessageBubble } from './MessageBubble';
 import { useMessages, useSendMessage } from '@/hooks/useConversations';
 import { TemplatePicker } from './templates/TemplatePicker';
@@ -101,7 +101,7 @@ export function ChatWindow({ conversationId, conversation }: ChatWindowProps) {
             {/* Messages Area */}
             <div className="flex-1 overflow-hidden relative">
                 {/* Background Pattern could go here */}
-                <ScrollArea className="h-full p-4" ref={scrollRef}>
+                <div className="h-full p-4 overflow-y-auto" ref={scrollRef}>
                     <div className="flex flex-col justify-end min-h-full space-y-2 pb-4">
                         {isLoading ? (
                             <div className="text-center py-10 text-muted-foreground text-sm">
@@ -119,7 +119,7 @@ export function ChatWindow({ conversationId, conversation }: ChatWindowProps) {
                         )}
                         <div ref={endRef} />
                     </div>
-                </ScrollArea>
+                </div>
             </div>
 
             {/* Input Area */}

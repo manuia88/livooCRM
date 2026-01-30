@@ -19,6 +19,7 @@ export interface Conversation {
     metadata?: Record<string, any>;
     created_at: string;
     updated_at: string;
+    last_message_preview?: string;
 
     // Joins (optional for now, depending on query)
     contact?: {

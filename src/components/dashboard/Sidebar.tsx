@@ -5,13 +5,13 @@ import { usePathname } from 'next/navigation';
 import { LayoutDashboard, MessageSquare, Home, Users, BarChart, Settings, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 
 export function Sidebar() {
     const pathname = usePathname();
     const router = useRouter();
-    const supabase = createClientComponentClient();
+    const supabase = createClient();
 
     const handleSignOut = async () => {
         await supabase.auth.signOut();

@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { Search, Circle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -60,7 +59,7 @@ export function ChatList({ selectedId, onSelect }: ChatListProps) {
             </div>
 
             {/* List */}
-            <ScrollArea className="flex-1">
+            <div className="flex-1 overflow-y-auto">
                 <div className="flex flex-col p-2 gap-1">
                     {filteredConversations?.length === 0 ? (
                         <div className="text-center py-8 text-muted-foreground text-sm">
@@ -117,7 +116,7 @@ export function ChatList({ selectedId, onSelect }: ChatListProps) {
                                         <div className={cn(
                                             "w-1.5 h-1.5 rounded-full",
                                             conv.channel === 'whatsapp' ? "bg-green-500" :
-                                                conv.channel === 'facebook' ? "bg-blue-600" :
+                                                conv.channel === 'facebook_messenger' ? "bg-blue-600" :
                                                     "bg-gray-400"
                                         )} />
                                         <span className="text-[10px] text-muted-foreground/70 capitalize">
@@ -129,7 +128,7 @@ export function ChatList({ selectedId, onSelect }: ChatListProps) {
                         );
                     })}
                 </div>
-            </ScrollArea>
+            </div>
         </div>
     );
 }
