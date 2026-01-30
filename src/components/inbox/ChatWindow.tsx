@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { MessageBubble } from './MessageBubble';
 import { useMessages, useSendMessage } from '@/hooks/useConversations';
+import { TemplatePicker } from './templates/TemplatePicker';
 import type { Conversation } from '@/types/inbox';
 
 interface ChatWindowProps {
@@ -130,6 +131,20 @@ export function ChatWindow({ conversationId, conversation }: ChatWindowProps) {
                     <Button type="button" variant="ghost" size="icon" className="shrink-0 text-muted-foreground hover:text-foreground">
                         <ImageIcon className="h-5 w-5" />
                     </Button>
+
+                    {/* Template Picker Integration */}
+                    <div className="relative">
+                        <TemplatePicker onSelect={(content) => {
+                            let processed = content;
+                            if (conversation?.contact) {
+                                processed = processed
+                                    .replace(/{first_name}/g, conversation.contact.first_name || '')
+                                    .replace(/{last_name}/g, conversation.contact.last_name || '')
+                                    .replace(/{full_name}/g, (conversation.contact.first_name + ' ' + (conversation.contact.last_name || '')).trim());
+                            }
+                            setInputValue(processed);
+                        }} />
+                    </div>
 
                     <Input
                         value={inputValue}
