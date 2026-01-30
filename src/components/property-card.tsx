@@ -3,15 +3,17 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Property } from "@/types/property";
-import { MapPin, BedDouble, Bath, Ruler, Heart } from "lucide-react";
+import { MapPin, BedDouble, Bath, Ruler, Heart, Handshake } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { SharingModal } from "@/features/mls/components/sharing-modal";
 
 interface PropertyCardProps {
     property: Property;
+    isMls?: boolean;
 }
 
-export function PropertyCard({ property }: PropertyCardProps) {
+export function PropertyCard({ property, isMls = false }: PropertyCardProps) {
     const [isFavorite, setIsFavorite] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -42,7 +44,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
 
     return (
         <div className="group bg-white rounded-2xl overflow-hidden border border-[#E5E3DB] hover:shadow-2xl hover:shadow-[#2C3E2C]/10 transition-all duration-300 flex flex-col h-full hover:border-[#B8975A]/30">
-            <Link href={`/propiedades/${property.id}`}>
+            <Link href={isMls ? `/mls/${property.id}` : `/propiedades/${property.id}`}>
                 {/* Image Container with carousel */}
                 <div className="relative h-56 overflow-hidden bg-[#F8F7F4]">
                     <Image
@@ -68,20 +70,38 @@ export function PropertyCard({ property }: PropertyCardProps) {
                         </div>
                     )}
 
-                    {/* Favorite Button */}
-                    <button
-                        onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setIsFavorite(!isFavorite);
-                        }}
-                        className="absolute top-3 right-3 w-9 h-9 bg-white/95 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-colors shadow-md border border-[#E5E3DB]"
-                    >
-                        <Heart
-                            className={`w-5 h-5 transition-colors ${isFavorite ? 'fill-[#B85C5C] text-[#B85C5C]' : 'text-[#6B7B6B]'
-                                }`}
-                        />
-                    </button>
+                    {/* Commission Badge */}
+                    {property.commission?.shared && (
+                        <div className="absolute top-3 right-14 bg-emerald-100 text-emerald-800 border border-emerald-200 px-2 py-1 rounded-lg shadow-md flex items-center gap-1">
+                            <Handshake className="w-3 h-3" />
+                            <span className="text-xs font-bold">
+                                {property.commission.percentage}%
+                            </span>
+                        </div>
+                    )}
+
+                    {/* Actions: Favorite & Share */}
+                    <div className="absolute top-3 right-3 flex flex-col gap-2">
+                        <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                            <SharingModal property={property} />
+                        </div>
+
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setIsFavorite(!isFavorite);
+                            }}
+                            className="w-9 h-9 bg-white/95 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-colors shadow-md border border-[#E5E3DB]"
+                        >
+                            <Heart
+                                className={`w-5 h-5 transition-colors ${isFavorite ? 'fill-[#B85C5C] text-[#B85C5C]' : 'text-[#6B7B6B]'
+                                    }`}
+                            />
+                        </button>
+                    </div>
+
+                    {/* Image Navigation Dots */}
 
                     {/* Image Navigation Dots */}
                     {property.images.length > 1 && (
@@ -95,8 +115,8 @@ export function PropertyCard({ property }: PropertyCardProps) {
                                         setCurrentImageIndex(index);
                                     }}
                                     className={`h-1.5 rounded-full transition-all ${index === currentImageIndex
-                                            ? 'bg-white w-6'
-                                            : 'bg-white/60 hover:bg-white/80 w-1.5'
+                                        ? 'bg-white w-6'
+                                        : 'bg-white/60 hover:bg-white/80 w-1.5'
                                         }`}
                                 />
                             ))}

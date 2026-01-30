@@ -34,8 +34,10 @@ export default function AuthPage() {
                 {/* Auth Card */}
                 <div className="bg-white/5 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/10 overflow-hidden">
                     {/* Tabs */}
-                    <div className="flex border-b border-white/10">
+                    <div className="flex border-b border-white/10" role="tablist">
                         <button
+                            role="tab"
+                            aria-selected={mode === "login"}
                             onClick={() => setMode("login")}
                             className={`flex-1 py-4 text-center font-semibold transition-all text-sm ${mode === "login"
                                 ? "text-[#B8975A] bg-white/10 border-b-2 border-[#B8975A]"
@@ -45,6 +47,8 @@ export default function AuthPage() {
                             Iniciar Sesión
                         </button>
                         <button
+                            role="tab"
+                            aria-selected={mode === "register"}
                             onClick={() => setMode("register")}
                             className={`flex-1 py-4 text-center font-semibold transition-all text-sm ${mode === "register"
                                 ? "text-[#B8975A] bg-white/10 border-b-2 border-[#B8975A]"
@@ -54,6 +58,8 @@ export default function AuthPage() {
                             Registrarse
                         </button>
                         <button
+                            role="tab"
+                            aria-selected={mode === "magic"}
                             onClick={() => setMode("magic")}
                             className={`flex-1 py-4 text-center font-semibold transition-all text-sm ${mode === "magic"
                                 ? "text-[#B8975A] bg-white/10 border-b-2 border-[#B8975A]"
@@ -63,6 +69,8 @@ export default function AuthPage() {
                             Magic Link
                         </button>
                         <button
+                            role="tab"
+                            aria-selected={mode === "reset"}
                             onClick={() => setMode("reset")}
                             className={`flex-1 py-4 text-center font-semibold transition-all text-sm ${mode === "reset"
                                 ? "text-[#B8975A] bg-white/10 border-b-2 border-[#B8975A]"
