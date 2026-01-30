@@ -30,26 +30,29 @@ export function Sidebar({ user, logoutAction }: SidebarProps) {
 
     const menuGroups = [
         {
+            label: "Gestión Principal",
             items: [
-                { label: "Inicio", href: "/backoffice", icon: LayoutGrid },
+                { label: "Dashboard", href: "/backoffice", icon: LayoutGrid },
                 { label: "Propiedades", href: "/backoffice/propiedades", icon: Home },
-                { label: "Contactos", href: "/backoffice/usuarios", icon: Users },
+                { label: "Contactos", href: "/backoffice/contactos", icon: Users },
+                { label: "Tareas", href: "/backoffice/tareas", icon: ListChecks },
             ]
         },
         {
+            label: "Operaciones",
             items: [
                 { label: "Búsquedas", href: "/backoffice/busquedas", icon: Target },
                 { label: "Captaciones", href: "/backoffice/captaciones", icon: Magnet },
-                { label: "Tareas", href: "/dashboard/tasks", icon: ListChecks },
                 { label: "Inventario", href: "/backoffice/inventario", icon: Building },
-                { label: "Operaciones", href: "/backoffice/operaciones", icon: Activity },
+                { label: "Actividad", href: "/backoffice/operaciones", icon: Activity },
             ]
         },
         {
+            label: "Análisis y Config",
             items: [
+                { label: "Reportes", href: "/backoffice/reportes", icon: BarChart3 },
                 { label: "Marketing", href: "/backoffice/marketing", icon: Megaphone },
-                { label: "Estadísticas", href: "/backoffice/reportes", icon: BarChart3 },
-                { label: "Academia", href: "/backoffice/academia", icon: Bookmark },
+                { label: "Usuarios", href: "/backoffice/usuarios", icon: Users },
             ]
         }
     ];
