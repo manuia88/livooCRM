@@ -37,6 +37,9 @@ interface PropertyRow {
         whatsapp: string;
         is_verified: boolean;
     };
+    commission_shared?: boolean;
+    commission_percentage?: number;
+    mls_views?: number;
 }
 
 // Helper to map DB Row -> Property Type
@@ -77,7 +80,14 @@ function mapRowToProperty(row: PropertyRow): Property {
             verified: row.agents?.is_verified || false
         },
         featured: row.is_featured,
-        createdAt: row.created_at
+        createdAt: row.created_at,
+        commission: {
+            shared: row.commission_shared || false,
+            percentage: row.commission_percentage ? Number(row.commission_percentage) : undefined
+        },
+        mls: {
+            views: row.mls_views || 0
+        }
     };
 }
 
@@ -135,6 +145,26 @@ export async function getFeaturedProperties(): Promise<Property[]> {
 
     if (error) {
         console.error("Error fetching featured:", error);
+        return [];
+    }
+
+    return data.map(mapRowToProperty);
+}
+
+export async function getMlsProperties(): Promise<Property[]> {
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
+        .from('properties')
+        .select(`
+            *,
+            property_features!inner(*),
+            agents!inner(*)
+        `)
+        .eq('commission_shared', true);
+
+    if (error) {
+        console.error("Error fetching MLS properties:", error);
         return [];
     }
 

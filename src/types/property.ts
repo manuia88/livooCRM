@@ -44,4 +44,11 @@ export interface Property {
     agent: Agent;
     featured?: boolean;
     createdAt: string;
+    commission?: {
+        shared: boolean;
+        percentage?: number;
+    };
+    mls?: {
+        views: number;
+    };
 }

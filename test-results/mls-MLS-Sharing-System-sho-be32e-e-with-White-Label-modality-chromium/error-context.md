@@ -1,0 +1,81 @@
+# Page snapshot
+
+```yaml
+- generic:
+  - generic [active]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - navigation [ref=e6]:
+            - button "previous" [disabled] [ref=e7]:
+              - img "previous" [ref=e8]
+            - generic [ref=e10]:
+              - generic [ref=e11]: 1/
+              - text: "1"
+            - button "next" [disabled] [ref=e12]:
+              - img "next" [ref=e13]
+          - img
+        - generic [ref=e15]:
+          - generic [ref=e16]:
+            - img [ref=e17]
+            - generic "Latest available version is detected (16.1.6)." [ref=e19]: Next.js 16.1.6
+            - generic [ref=e20]: Turbopack
+          - img
+      - dialog "Build Error" [ref=e22]:
+        - generic [ref=e25]:
+          - generic [ref=e26]:
+            - generic [ref=e27]:
+              - generic [ref=e29]: Build Error
+              - generic [ref=e30]:
+                - button "Copy Error Info" [ref=e31] [cursor=pointer]:
+                  - img [ref=e32]
+                - link "Go to related documentation" [ref=e34] [cursor=pointer]:
+                  - /url: https://nextjs.org/docs/messages/module-not-found
+                  - img [ref=e35]
+                - button "Attach Node.js inspector" [ref=e37] [cursor=pointer]:
+                  - img [ref=e38]
+            - generic [ref=e47]: "Module not found: Can't resolve './AuthAdminApi'"
+          - generic [ref=e49]:
+            - generic [ref=e51]:
+              - img [ref=e53]
+              - generic [ref=e55]: ./node_modules/@supabase/auth-js/dist/module/index.js (3:1)
+              - button "Open in editor" [ref=e56] [cursor=pointer]:
+                - img [ref=e58]
+            - generic [ref=e61]:
+              - generic [ref=e62]: Module not found
+              - generic [ref=e63]: ": Can't resolve"
+              - text: "'./AuthAdminApi'"
+              - generic [ref=e64]: 1 |
+              - text: import GoTrueAdminApi from './GoTrueAdminApi';
+              - generic [ref=e65]: 2 |
+              - text: import GoTrueClient from './GoTrueClient'; >
+              - generic [ref=e66]: 3 |
+              - text: import AuthAdminApi from './AuthAdminApi';
+              - generic [ref=e67]: "|"
+              - text: ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              - generic [ref=e68]: 4 |
+              - text: import AuthClient from './AuthClient';
+              - generic [ref=e69]: 5 |
+              - text: export
+              - generic [ref=e70]: "{"
+              - text: GoTrueAdminApi, GoTrueClient, AuthAdminApi, AuthClient
+              - generic [ref=e71]: "}"
+              - text: ;
+              - generic [ref=e72]: 6 |
+              - text: export * from './lib/types';
+              - generic [ref=e73]:
+                - text: "Import trace: Edge Middleware: ./node_modules/@supabase/auth-js/dist/module/index.js ./node_modules/@supabase/supabase-js/dist/index.mjs ./node_modules/@supabase/ssr/dist/module/createServerClient.js ./src/middleware.ts"
+                - link "https://nextjs.org/docs/messages/module-not-found" [ref=e74] [cursor=pointer]:
+                  - /url: https://nextjs.org/docs/messages/module-not-found
+        - generic [ref=e75]: "1"
+        - generic [ref=e76]: "2"
+    - generic [ref=e81] [cursor=pointer]:
+      - button "Open Next.js Dev Tools" [ref=e82]:
+        - img [ref=e83]
+      - button "Open issues overlay" [ref=e87]:
+        - generic [ref=e88]:
+          - generic [ref=e89]: "0"
+          - generic [ref=e90]: "1"
+        - generic [ref=e91]: Issue
+  - alert [ref=e92]
+```
