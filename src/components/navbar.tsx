@@ -110,14 +110,16 @@ export function Navbar() {
 
                     {/* Right side buttons */}
                     <div className="hidden lg:flex items-center gap-3">
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-[#2C3E2C] hover:text-[#B8975A] hover:bg-[#F8F7F4]"
-                        >
-                            <User className="w-4 h-4 mr-2" />
-                            Para Entrar
-                        </Button>
+                        <Link href="/auth">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-[#2C3E2C] hover:text-[#B8975A] hover:bg-[#F8F7F4]"
+                            >
+                                <User className="w-4 h-4 mr-2" />
+                                Iniciar Sesión
+                            </Button>
+                        </Link>
                         <Button
                             size="sm"
                             className="bg-gradient-to-r from-[#B8975A] to-[#C4A872] hover:from-[#A38449] hover:to-[#B8975A] text-white rounded-lg shadow-md hover:shadow-lg transition-all font-semibold"
@@ -174,14 +176,16 @@ export function Navbar() {
                         </div>
 
                         <div className="mt-4 pt-4 border-t border-[#E5E3DB] space-y-2 px-4">
-                            <Button
-                                variant="outline"
-                                className="w-full justify-start border-[#E5E3DB] hover:bg-[#F8F7F4] hover:text-[#B8975A]"
-                                onClick={() => setMobileMenuOpen(false)}
-                            >
-                                <User className="w-4 h-4 mr-2" />
-                                Para Entrar
-                            </Button>
+                            <Link href="/auth" className="block">
+                                <Button
+                                    variant="outline"
+                                    className="w-full justify-start border-[#E5E3DB] hover:bg-[#F8F7F4] hover:text-[#B8975A]"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                >
+                                    <User className="w-4 h-4 mr-2" />
+                                    Iniciar Sesión
+                                </Button>
+                            </Link>
                             <Button
                                 className="w-full bg-gradient-to-r from-[#B8975A] to-[#C4A872] hover:from-[#A38449] hover:to-[#B8975A] text-white"
                                 onClick={() => setMobileMenuOpen(false)}
