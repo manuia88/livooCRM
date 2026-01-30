@@ -1,6 +1,6 @@
 import { UpdatePasswordForm } from '@/components/auth/UpdatePasswordForm'
 
-export default function ResetPassword Page() {
+export default function ResetPasswordPage() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a1a1a] via-[#2C3E2C] to-[#1a1a1a] relative overflow-hidden">
             {/* Animated background */}
