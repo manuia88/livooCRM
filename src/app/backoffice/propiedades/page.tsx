@@ -261,10 +261,12 @@ export default function BackofficePropertiesPage() {
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
-                                                <DropdownMenuItem>
-                                                    <Eye className="w-4 h-4 mr-2" />
-                                                    Ver detalles
-                                                </DropdownMenuItem>
+                                                <Link href={`/backoffice/propiedades/${property.id}`}>
+                                                    <DropdownMenuItem>
+                                                        <Eye className="w-4 h-4 mr-2" />
+                                                        Ver detalles
+                                                    </DropdownMenuItem>
+                                                </Link>
                                                 <DropdownMenuItem>
                                                     <Edit className="w-4 h-4 mr-2" />
                                                     Editar
