@@ -23,6 +23,7 @@
   - Validación de login
   - Validación de registro
   - Password requirements enforced
+  - Integrado en componentes modulares
 - [x] **CAPA 6: Audit Logging** (90%)
   - Tabla `audit_logs` creada
   - RLS policies implementadas
@@ -33,6 +34,16 @@
   - RLS policies básicas
   - Triggers automáticos
   - Helper functions
+- [x] **CAPA 3: CORS** (100%)
+  - Configurado en next.config.ts
+  - Headers para /api/* endpoints
+  - Access-Control policies definidas
+- [x] **Componentes Auth Modulares** (90%)
+  - LoginForm con React Hook Form
+  - RegisterForm con Zod validation
+  - MagicLinkForm para OTP
+  - OAuthButtons para Google
+  - Auth page refactorizada
 
 ### In Progress 🔄
 - [ ] **CAPA 1: RLS - Tablas adicionales** (0%)
