@@ -5,9 +5,10 @@ import Link from "next/link";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { RegisterForm } from "@/components/auth/RegisterForm";
 import { MagicLinkForm } from "@/components/auth/MagicLinkForm";
+import { ResetPasswordForm } from "@/components/auth/ResetPasswordForm";
 import { OAuthButtons } from "@/components/auth/OAuthButtons";
 
-type AuthMode = "login" | "register" | "magic";
+type AuthMode = "login" | "register" | "magic" | "reset";
 
 export default function AuthPage() {
     const [mode, setMode] = useState<AuthMode>("login");
@@ -26,6 +27,7 @@ export default function AuthPage() {
                         {mode === "login" && "¡Bienvenido de nuevo!"}
                         {mode === "register" && "Únete a nosotros"}
                         {mode === "magic" && "Acceso sin contraseña"}
+                        {mode === "reset" && "Recupera tu acceso"}
                     </p>
                 </div>
 
@@ -35,30 +37,39 @@ export default function AuthPage() {
                     <div className="flex border-b border-white/10">
                         <button
                             onClick={() => setMode("login")}
-                            className={`flex-1 py-4 text-center font-semibold transition-all ${mode === "login"
-                                    ? "text-[#B8975A] bg-white/10 border-b-2 border-[#B8975A]"
-                                    : "text-white/60 hover:bg-white/5"
+                            className={`flex-1 py-4 text-center font-semibold transition-all text-sm ${mode === "login"
+                                ? "text-[#B8975A] bg-white/10 border-b-2 border-[#B8975A]"
+                                : "text-white/60 hover:bg-white/5"
                                 }`}
                         >
                             Iniciar Sesión
                         </button>
                         <button
                             onClick={() => setMode("register")}
-                            className={`flex-1 py-4 text-center font-semibold transition-all ${mode === "register"
-                                    ? "text-[#B8975A] bg-white/10 border-b-2 border-[#B8975A]"
-                                    : "text-white/60 hover:bg-white/5"
+                            className={`flex-1 py-4 text-center font-semibold transition-all text-sm ${mode === "register"
+                                ? "text-[#B8975A] bg-white/10 border-b-2 border-[#B8975A]"
+                                : "text-white/60 hover:bg-white/5"
                                 }`}
                         >
                             Registrarse
                         </button>
                         <button
                             onClick={() => setMode("magic")}
-                            className={`flex-1 py-4 text-center font-semibold transition-all ${mode === "magic"
-                                    ? "text-[#B8975A] bg-white/10 border-b-2 border-[#B8975A]"
-                                    : "text-white/60 hover:bg-white/5"
+                            className={`flex-1 py-4 text-center font-semibold transition-all text-sm ${mode === "magic"
+                                ? "text-[#B8975A] bg-white/10 border-b-2 border-[#B8975A]"
+                                : "text-white/60 hover:bg-white/5"
                                 }`}
                         >
                             Magic Link
+                        </button>
+                        <button
+                            onClick={() => setMode("reset")}
+                            className={`flex-1 py-4 text-center font-semibold transition-all text-sm ${mode === "reset"
+                                ? "text-[#B8975A] bg-white/10 border-b-2 border-[#B8975A]"
+                                : "text-white/60 hover:bg-white/5"
+                                }`}
+                        >
+                            Recuperar
                         </button>
                     </div>
 
@@ -79,6 +90,8 @@ export default function AuthPage() {
                         )}
 
                         {mode === "magic" && <MagicLinkForm />}
+
+                        {mode === "reset" && <ResetPasswordForm onBack={() => setMode("login")} />}
                     </div>
                 </div>
 

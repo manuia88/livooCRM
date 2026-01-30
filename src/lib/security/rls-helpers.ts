@@ -9,20 +9,20 @@ export async function getUserProfile() {
 
     if (!user) return null
 
-    // TODO: Once user_profiles table is created in Supabase
-    // const { data } = await supabase
-    //   .from('user_profiles')
-    //   .select('role, agency_id, full_name')
-    //   .eq('id', user.id)
-    //   .single()
+    // Fetch from user_profiles table
+    const { data } = await supabase
+        .from('user_profiles')
+        .select('role, agency_id, full_name')
+        .eq('id', user.id)
+        .single()
 
-    // For now, return basic user info
+    // Return profile with fallback to user metadata
     return {
         id: user.id,
         email: user.email,
-        full_name: user.user_metadata?.full_name || 'Usuario',
-        // role: data?.role || 'agent',
-        // agency_id: data?.agency_id
+        full_name: data?.full_name || user.user_metadata?.full_name || 'Usuario',
+        role: data?.role || 'agent',
+        agency_id: data?.agency_id
     }
 }
 
@@ -36,10 +36,10 @@ export async function requireRole(allowedRoles: string[]) {
         throw new Error('No autenticado')
     }
 
-    // TODO: Uncomment when user_profiles exists
-    // if (!allowedRoles.includes(profile.role)) {
-    //   throw new Error('No tienes permisos para esta acción')
-    // }
+    // Check if user has required role
+    if (profile.role && !allowedRoles.includes(profile.role)) {
+        throw new Error('No tienes permisos para esta acción')
+    }
 
     return profile
 }

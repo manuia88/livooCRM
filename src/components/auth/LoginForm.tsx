@@ -74,6 +74,16 @@ export function LoginForm() {
             >
                 {isPending ? 'Iniciando sesión...' : 'Iniciar Sesión'}
             </button>
+
+            <div className="text-center">
+                <button
+                    type="button"
+                    onClick={() => window.location.href = '/auth'}
+                    className="text-sm text-white/60 hover:text-[#B8975A] transition-colors"
+                >
+                    ¿Olvidaste tu contraseña?
+                </button>
+            </div>
         </form>
     )
 }
