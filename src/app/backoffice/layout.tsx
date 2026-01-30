@@ -1,4 +1,3 @@
-```
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import { logout } from "./actions";
@@ -74,7 +73,7 @@ export default async function BackofficeLayout({
                             {user.email}
                         </p>
                     </div>
-                    <form action={signOut}>
+                    <form action={logout}>
                         <Button
                             type="submit"
                             variant="outline"
