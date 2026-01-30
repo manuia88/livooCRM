@@ -55,9 +55,11 @@ Multi-agent real estate CRM development with 8 parallel teams.
 - conversations, messages, whatsapp_sessions, email_templates, sms_logs
 - **8 Channels**: WhatsApp, Instagram DM, Facebook, SMS, Email, Webchat, Telegram, TikTok
 
-#### ✅ Module 7: Tasks - Pulppo-style (3 tables)
-- tasks, task_templates, task_rules
-- **Auto-generation**: Rule-based task automation
+#### ✅ Module 7: Tasks - Intelligent System (5 tables)
+- tasks, task_templates, task_automation_rules, task_comments, task_performance_metrics
+- **Auto-generation**: Rule-based task automation, metrics and follow-up
+- **Backend & Database**: Completado ✅
+- **Frontend & UI**: Implementado (Dashboard, Cola de Tareas, Métricas) ✅
 
 #### ✅ Module 8: Visits & Offers (4 tables)
 - visits, visit_feedback, offers, transactions

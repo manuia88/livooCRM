@@ -220,40 +220,41 @@ erDiagram
 
 ---
 
-### Module 7: Tasks (Pulppo-style - 3 tables)
+### Module 7: Tasks (Intelligent System - 5 tables)
 
-Intelligent task system with templates and automation rules.
+Complete tasks system with auto-generation, templates, and performance metrics.
 
 ```mermaid
 erDiagram
     tasks }o--|| task_templates : created_from
-    task_rules }o--|| task_templates : generates
-    tasks }o--|| properties : relates_to
+    task_automation_rules }o--|| task_templates : triggers
+    tasks ||--o{ task_comments : has
+    tasks }o--|| user_profiles : assigned_to
     tasks }o--|| contacts : relates_to
+    tasks }o--|| properties : relates_to
     
     tasks {
         uuid id PK
+        uuid agency_id FK
         text task_type
-        text priority
         text status
-        boolean auto_generated
+        text priority
         timestamptz due_date
-    }
-    
-    task_rules {
-        uuid id PK
-        text trigger_event
-        jsonb conditions
-        boolean is_active
+        boolean auto_generated
     }
 ```
 
-**Auto-generation Triggers:**
-- `property_created` → "Upload photos" task
-- `property_published` → "Share on portals" task
-- `contact_created` → "Initial contact" task
-- `visit_scheduled` → "Prepare property" task
-- `offer_received` → "Review and respond" task
+**Key Tables:**
+- [tasks](file:///Users/manuelacosta/Desktop/Antigravity/LivooCRMAG/supabase/migrations/0010_tasks_system.sql#L10-L69) - Central task management
+- [task_comments](file:///Users/manuelacosta/Desktop/Antigravity/LivooCRMAG/supabase/migrations/0010_tasks_system.sql#L114-L122) - Collaboration on tasks
+- [task_templates](file:///Users/manuelacosta/Desktop/Antigravity/LivooCRMAG/supabase/migrations/0010_tasks_system.sql#L141-L160) - Blueprints for recurring tasks
+- [task_automation_rules](file:///Users/manuelacosta/Desktop/Antigravity/LivooCRMAG/supabase/migrations/0010_tasks_system.sql#L167-L197) - Logic for auto-generating tasks
+- [task_performance_metrics](file:///Users/manuelacosta/Desktop/Antigravity/LivooCRMAG/supabase/migrations/0010_tasks_system.sql#L205-L232) - monthly agent KPIs
+
+**Automation Triggers:**
+- `calculate_task_metrics()`: Computes monthly stats per agent.
+- `auto_generate_client_followup_task()`: Creates tasks for inactive leads.
+- `check_overdue_tasks()`: Cron-style status updates.
 
 **Example Usage:**
 ```sql
@@ -272,13 +273,14 @@ VALUES (
 
 ---
 
-### Module 8: Visits & Offers (4 tables)
+### Module 8: Visits & Offers (5 tables)
 
-Visit scheduling, feedback collection, offer management, and transaction tracking.
+Visit scheduling, consultations, feedback, and offer management.
 
-- [visits](file:///Users/manuelacosta/Desktop/Antigravity/LivooCRMAG/supabase/migrations/0001_initial_schema.sql#L843-L866) - In-person or virtual visits
-- [visit_feedback](file:///Users/manuelacosta/Desktop/Antigravity/LivooCRMAG/supabase/migrations/0001_initial_schema.sql#L868-L880) - Post-visit notes and ratings
-- [offers](file:///Users/manuelacosta/Desktop/Antigravity/LivooCRMAG/supabase/migrations/0001_initial_schema.sql#L882-L920) - Offer negotiation with counteroffers
+- [visits](file:///Users/manuelacosta/Desktop/Antigravity/LivooCRMAG/supabase/migrations/0010_tasks_system.sql#L7-L15) - In-person property tours
+- [property_consultations](file:///Users/manuelacosta/Desktop/Antigravity/LivooCRMAG/supabase/migrations/0010_tasks_system.sql#L18-L24) - Lead inquiries and consultations
+- [visit_feedback](file:///Users/manuelacosta/Desktop/Antigravity/LivooCRMAG/supabase/migrations/0001_initial_schema.sql#L868-L880) - Post-visit analysis
+- [offers](file:///Users/manuelacosta/Desktop/Antigravity/LivooCRMAG/supabase/migrations/0001_initial_schema.sql#L882-L920) - Negotiation history
 - [transactions](file:///Users/manuelacosta/Desktop/Antigravity/LivooCRMAG/supabase/migrations/0001_initial_schema.sql#L922-L957) - Closed deals
 
 ---
