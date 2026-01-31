@@ -1,43 +1,44 @@
 'use client';
 
-import React from 'react';
-import { cn } from '@/lib/utils'; // Assuming cn exists, if not I'll just use template literals or import clsx/tailwind-merge
+import { useState } from 'react';
+import { ChatList } from './ChatList';
+import { ChatWindow } from './ChatWindow';
+import type { Conversation } from '@/types/inbox';
 
-interface InboxLayoutProps {
-    filtersPanel: React.ReactNode;
-    chatListPanel: React.ReactNode;
-    threadPanel: React.ReactNode;
-    infoPanel: React.ReactNode;
-    className?: string;
-}
+export default function InboxLayout() {
+    const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
+    const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
 
-export function InboxLayout({
-    filtersPanel,
-    chatListPanel,
-    threadPanel,
-    infoPanel,
-    className
-}: InboxLayoutProps) {
+    const handleSelect = (conv: Conversation) => {
+        setSelectedConversationId(conv.id);
+        setSelectedConversation(conv);
+    };
+
     return (
-        <div className={cn("flex h-[calc(100vh-4rem)] w-full overflow-hidden bg-background", className)}>
-            {/* 1. Filters & Search Panel (Small Sidebar) */}
-            <div className="w-16 md:w-64 border-r flex flex-col hidden md:flex">
-                {filtersPanel}
+        <div className="flex h-[calc(100vh-4rem)] overflow-hidden bg-background">
+            {/* Sidebar List */}
+            <div className="w-full md:w-80 lg:w-96 flex-shrink-0 border-r md:block hidden">
+                <ChatList
+                    selectedId={selectedConversationId}
+                    onSelect={handleSelect}
+                />
             </div>
 
-            {/* 2. Chat List Panel */}
-            <div className="w-full md:w-80 border-r flex flex-col bg-muted/10">
-                {chatListPanel}
+            {/* Mobile List (Hidden on desktop) */}
+            <div className={`w-full md:hidden flex-shrink-0 ${selectedConversationId ? 'hidden' : 'block'}`}>
+                <ChatList
+                    selectedId={selectedConversationId}
+                    onSelect={handleSelect}
+                />
             </div>
 
-            {/* 3. Message Thread Panel (Main Content) */}
-            <div className="flex-1 flex flex-col min-w-0 bg-background relative z-0">
-                {threadPanel}
-            </div>
-
-            {/* 4. Info Panel (Right Sidebar) */}
-            <div className="w-80 border-l hidden xl:flex flex-col bg-muted/10">
-                {infoPanel}
+            {/* Main Window */}
+            <div className={`flex-1 flex flex-col md:flex ${!selectedConversationId ? 'hidden md:flex' : 'flex'}`}>
+                {/* Mobile Back Button could go here or inside ChatWindow */}
+                <ChatWindow
+                    conversationId={selectedConversationId}
+                    conversation={selectedConversation}
+                />
             </div>
         </div>
     );

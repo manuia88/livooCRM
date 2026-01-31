@@ -43,6 +43,8 @@ export function Sidebar({ user, logoutAction }: SidebarProps) {
             items: [
                 { label: "Búsquedas", href: "/backoffice/busquedas", icon: Target },
                 { label: "Captaciones", href: "/backoffice/captaciones", icon: Magnet },
+                { label: "Inbox", href: "/backoffice/inbox", icon: Headphones },
+                { label: "Analytics", href: "/backoffice/analytics", icon: BarChart3 },
                 { label: "Inventario", href: "/backoffice/inventario", icon: Building },
                 { label: "Actividad", href: "/backoffice/operaciones", icon: Activity },
             ]

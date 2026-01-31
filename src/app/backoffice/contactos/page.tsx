@@ -36,6 +36,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import Link from 'next/link';
 
 interface Contact {
     id: string;
@@ -326,10 +327,12 @@ export default function BackofficeContactsPage() {
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
-                                                <DropdownMenuItem>
-                                                    <Eye className="w-4 h-4 mr-2" />
-                                                    Ver perfil
-                                                </DropdownMenuItem>
+                                                <Link href={`/backoffice/contactos/${contact.id}`}>
+                                                    <DropdownMenuItem>
+                                                        <Eye className="w-4 h-4 mr-2" />
+                                                        Ver perfil
+                                                    </DropdownMenuItem>
+                                                </Link>
                                                 <DropdownMenuItem>
                                                     <MessageSquare className="w-4 h-4 mr-2" />
                                                     Enviar mensaje
