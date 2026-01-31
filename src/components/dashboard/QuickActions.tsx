@@ -1,3 +1,4 @@
+// /components/dashboard/QuickActions.tsx
 'use client'
 
 import { Card } from '@/components/ui/card'

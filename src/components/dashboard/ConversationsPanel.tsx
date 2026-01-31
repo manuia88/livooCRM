@@ -1,3 +1,4 @@
+// /components/dashboard/ConversationsPanel.tsx
 'use client'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -10,8 +11,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 
 export function ConversationsPanel() {
-    const { data: allConversations } = useConversations('open')
-    const conversations = allConversations?.slice(0, 10)
+    const { data: conversations } = useConversations({ limit: 10 })
 
     return (
         <Card className="h-[calc(100vh-200px)] flex flex-col">
@@ -47,7 +47,7 @@ export function ConversationsPanel() {
                                         {conv.contact?.first_name} {conv.contact?.last_name}
                                     </p>
                                     <span className="text-xs text-gray-500">
-                                        {conv.last_message_at && formatDistanceToNow(new Date(conv.last_message_at), {
+                                        {formatDistanceToNow(new Date(conv.last_message_at), {
                                             addSuffix: true,
                                             locale: es
                                         })}
@@ -61,12 +61,12 @@ export function ConversationsPanel() {
                                 <div className="flex items-center space-x-2">
                                     <Badge variant="secondary" className="text-xs">
                                         {conv.channel === 'whatsapp' && '📱 WhatsApp'}
-                                        {conv.channel === 'facebook_messenger' && '📘 Facebook'}
+                                        {conv.channel === 'facebook' && '📘 Facebook'}
                                     </Badge>
-                                    {(conv.status as string) === 'descartado' && (
+                                    {conv.status === 'descartado' && (
                                         <span className="text-xs text-gray-500">descartado</span>
                                     )}
-                                    {(conv.status as string) === 'perdido' && (
+                                    {conv.status === 'perdido' && (
                                         <span className="text-xs text-red-600">perdido</span>
                                     )}
                                 </div>
