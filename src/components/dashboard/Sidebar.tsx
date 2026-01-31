@@ -19,7 +19,7 @@ export function Sidebar() {
     };
 
     const links = [
-        { href: '/dashboard', label: 'Inicio', icon: LayoutDashboard },
+        { href: '/dashboard/inicio', label: 'Inicio', icon: LayoutDashboard },
         { href: '/dashboard/properties', label: 'Propiedades', icon: Home },
         { href: '/dashboard/inbox', label: 'Mensajes', icon: MessageSquare },
         { href: '/dashboard/contacts', label: 'Contactos', icon: Users },

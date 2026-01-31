@@ -1,92 +1,76 @@
-// /src/hooks/useDashboard.ts
+// src/hooks/useDashboard.ts
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/utils/supabase/client'
 
-const supabase = createClient()
-
 export function useDashboardSummary() {
+    const supabase = createClient()
+
     return useQuery({
-        queryKey: ['dashboard-summary'],
+        queryKey: ['dashboard', 'summary'],
         queryFn: async () => {
             const { data: { user } } = await supabase.auth.getUser()
-            if (!user) throw new Error("No user")
+            if (!user) throw new Error('Not authenticated')
 
-            // Fetch profile for name and level
-            const { data: profile } = await supabase
-                .from('user_profiles')
-                .select('*')
-                .eq('id', user.id)
-                .single()
+            const { data, error } = await supabase
+                .rpc('get_dashboard_summary', { p_user_id: user.id })
 
-            // Fetch metrics (reuse analytics logic or dedicated RPC)
-            // For now, we'll mock or simple fetch
-            const { count: activeProperties } = await supabase
-                .from('properties')
-                .select('*', { count: 'exact', head: true })
-                .eq('status', 'disponible')
-                .eq('producer_id', user.id)
-
-            const { count: pendingTasks } = await supabase
-                .from('tasks')
-                .select('*', { count: 'exact', head: true })
-                .eq('assigned_to', user.id)
-                .eq('status', 'pendiente')
-
-            return {
-                user: {
-                    name: profile?.first_name || user.email?.split('@')[0],
-                    level: profile?.role || 'Agente', // Mock level
-                    progress: 75 // Mock progress to next level
-                },
-                metrics: {
-                    activeProperties: activeProperties || 0,
-                    pendingTasks: pendingTasks || 0,
-                    closedDeals: 0 // Mock, requires complex query
-                }
-            }
-        }
+            if (error) throw error
+            return data
+        },
+        staleTime: 60000, // 1 minuto
     })
 }
 
 export function usePriorityActions() {
+    const supabase = createClient()
+
     return useQuery({
-        queryKey: ['dashboard-priority-actions'],
+        queryKey: ['priority-actions'],
         queryFn: async () => {
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) return []
 
-            // Example actions: Overdue tasks
-            const { data: overdueTasks } = await supabase
-                .from('tasks')
+            // Generar acciones automáticamente
+            await supabase.rpc('generate_priority_actions', { p_user_id: user.id })
+
+            // Obtener acciones pendientes
+            const { data, error } = await supabase
+                .from('priority_actions')
                 .select('*')
-                .eq('assigned_to', user.id)
-                .eq('status', 'vencida')
-                .limit(3)
+                .eq('status', 'pending')
+                .order('priority_level', { ascending: false })
+                .limit(10)
 
-            const actions = overdueTasks?.map(task => ({
-                id: task.id,
-                type: 'overdue_task',
-                title: 'Tarea Vencida',
-                description: task.title,
-                priority: 'high',
-                actionUrl: '/backoffice/tasks'
-            })) || []
+            if (error) throw error
+            return data
+        },
+        staleTime: 30000, // 30 segundos
+    })
+}
 
-            // Add mock "Complete Profile" action if needed
-            if (actions.length === 0) {
-                actions.push({
-                    id: 'complete-profile',
-                    type: 'system',
-                    title: 'Completa tu Perfil',
-                    description: 'Sube tu foto para generar confianza.',
-                    priority: 'medium',
-                    actionUrl: '/backoffice/configuracion'
+export function useCompleteAction() {
+    const queryClient = useQueryClient()
+    const supabase = createClient()
+
+    return useMutation({
+        mutationFn: async (actionId: string) => {
+            const { data, error } = await supabase
+                .from('priority_actions')
+                .update({
+                    status: 'completed',
+                    completed_at: new Date().toISOString()
                 })
-            }
+                .eq('id', actionId)
+                .select()
+                .single()
 
-            return actions
+            if (error) throw error
+            return data
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['priority-actions'] })
         }
     })
 }
