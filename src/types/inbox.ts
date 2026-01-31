@@ -37,6 +37,7 @@ export interface Message {
     direction: MessageDirection;
     sender_id?: string;
     content: string;
+    message_type: 'text' | 'image' | 'video' | 'audio' | 'document' | 'location';
     media_urls?: string[];
     platform_message_id?: string;
     status: MessageStatus;

@@ -48,9 +48,9 @@ export async function POST(request: Request) {
         let sentCount = 0;
         let failedCount = 0;
 
-        for (const recipient of recipients) {
-            const contact = recipient.contact; // flattened by Supabase usually? OR nested object
-            // Typescript check needed if using types, here using 'any' implicit
+        for (const recipient of (recipients || [])) {
+            // Supabase returns relation as array if not uniquely linked or due to query structure
+            const contact: any = Array.isArray(recipient.contact) ? recipient.contact[0] : recipient.contact;
             const phone = contact?.whatsapp;
 
             if (!phone) {
@@ -82,14 +82,15 @@ export async function POST(request: Request) {
         }
 
         // Update Broadcast Stats
-        await supabase.rpc('increment_broadcast_stats', {
-            b_id: broadcast_id,
-            sent: sentCount,
-            failed: failedCount
-        }).catch(async () => {
+        try {
+            const { error: rpcError } = await supabase.rpc('increment_broadcast_stats', {
+                b_id: broadcast_id,
+                sent: sentCount,
+                failed: failedCount
+            });
+            if (rpcError) throw rpcError;
+        } catch (err) {
             // Fallback manual update if RPC missing
-            // In real app, create the RPC function. 
-            // Here we just increment simply manually, might have race conditions but okay for MVP
             const { data: current } = await supabase.from('broadcasts').select('sent_count, failed_count').eq('id', broadcast_id).single();
             if (current) {
                 await supabase.from('broadcasts').update({
@@ -97,7 +98,7 @@ export async function POST(request: Request) {
                     failed_count: (current.failed_count || 0) + failedCount
                 }).eq('id', broadcast_id);
             }
-        });
+        }
 
         // 4. Continue?
         // If we processed a full batch, we might trigger again recursively or wait for next cron

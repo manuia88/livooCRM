@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { SidebarProvider } from '@/components/ui/sidebar'; // Assuming standard sidebar layout if available, or just div
 import { ChatAssistant } from '@/components/ai/ChatAssistant';
 import { SentimentIndicator } from '@/components/ai/SentimentIndicator';
 import { LeadScoreCard } from '@/components/ai/LeadScoreCard';

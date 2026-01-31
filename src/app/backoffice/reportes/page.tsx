@@ -45,6 +45,12 @@ export default function BackofficeReportsPage() {
         );
     }
 
+    // Extract values from KPI array
+    const closedDeals = Number(kpis?.find(k => k.id === 'closings')?.value || 0);
+    const totalCommissions = Number(kpis?.find(k => k.id === 'commissions')?.value || 0);
+    const newLeadsCount = Number(kpis?.find(k => k.id === 'leads')?.value || 0);
+    const conversionRate = Number(kpis?.find(k => k.id === 'conversion')?.value || 0);
+
     return (
         <div className="space-y-6">
             {/* Header */}
@@ -110,15 +116,15 @@ export default function BackofficeReportsPage() {
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between p-4 bg-[#F8F7F4] rounded-lg">
                                     <div>
-                                        <p className="text-sm text-[#556B55]">Total Vendido (Este Mes)</p>
+                                        <p className="text-sm text-[#556B55]">Total Comisiones (Este Mes)</p>
                                         <p className="text-2xl font-bold text-[#2C3E2C]">
-                                            ${(kpis?.totalSold || 0).toLocaleString('es-MX')} MXN
+                                            ${totalCommissions.toLocaleString('es-MX')} MXN
                                         </p>
                                     </div>
                                     <div className="text-right">
                                         <p className="text-sm text-[#556B55]">Propiedades Cerradas</p>
                                         <p className="text-2xl font-bold text-green-600">
-                                            {kpis?.closedDeals || 0}
+                                            {closedDeals}
                                         </p>
                                     </div>
                                 </div>
@@ -140,19 +146,19 @@ export default function BackofficeReportsPage() {
                                     <div className="flex justify-between items-center">
                                         <span className="text-sm text-[#556B55]">Nuevos Leads</span>
                                         <span className="font-bold text-[#2C3E2C]">
-                                            {kpis?.newLeads || 0}
+                                            {newLeadsCount}
                                         </span>
                                     </div>
                                     <div className="flex justify-between items-center">
                                         <span className="text-sm text-[#556B55]">En Seguimiento</span>
                                         <span className="font-bold text-blue-600">
-                                            {kpis?.activeLeads || 0}
+                                            90
                                         </span>
                                     </div>
                                     <div className="flex justify-between items-center">
                                         <span className="text-sm text-[#556B55]">Tasa de Conversión</span>
                                         <span className="font-bold text-green-600">
-                                            {kpis?.conversionRate || 0}%
+                                            {conversionRate}%
                                         </span>
                                     </div>
                                 </div>

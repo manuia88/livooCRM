@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import type { Property } from '@/types/properties';
@@ -33,36 +34,39 @@ function buildPropertyParams(filters?: FilterState, page = 1, limit = 10): URLSe
     return params;
 }
 
-// Fetch properties with React Query
-export function useProperties(params: FetchPropertiesParams = {}) {
-    const { filters, page = 1, limit = 10 } = params;
+/**
+ * Unified Hook for Properties (Facade pattern expected by PropertiesView)
+ */
+export function useProperties() {
+    const queryClient = useQueryClient();
+    const [currentFilters, setCurrentFilters] = useState<FilterState | undefined>();
+    const [page, setPage] = useState(1);
 
-    return useQuery({
-        queryKey: ['properties', filters, page, limit],
+    const { data, isLoading: loading, refetch } = useQuery({
+        queryKey: ['properties', currentFilters, page],
         queryFn: async () => {
-            const urlParams = buildPropertyParams(filters, page, limit);
+            const urlParams = buildPropertyParams(currentFilters, page);
             const response = await fetch(`/api/properties?${urlParams.toString()}`);
 
             if (!response.ok) {
                 throw new Error('Error fetching properties');
             }
 
-            const { data, meta } = await response.json();
-            return { properties: data as Property[], total: meta.total };
+            const result = await response.json();
+            return {
+                properties: (result.data || []) as Property[],
+                total: result.meta?.total || 0
+            };
         },
-        staleTime: 60000, // 1 minute
-        retry: 2,
-        onError: () => {
-            toast.error('Error al cargar propiedades');
-        }
+        staleTime: 60000,
     });
-}
 
-// Create property mutation
-export function useCreateProperty() {
-    const queryClient = useQueryClient();
+    const fetchProperties = useCallback((filters?: FilterState) => {
+        setCurrentFilters(filters);
+        setPage(1);
+    }, []);
 
-    return useMutation({
+    const createMutation = useMutation({
         mutationFn: async ({ data, isDraft = false }: { data: PropertyWizardData; isDraft?: boolean }) => {
             const payload = {
                 ...data,
@@ -90,13 +94,8 @@ export function useCreateProperty() {
             toast.error(error.message || 'Error al crear propiedad');
         }
     });
-}
 
-// Update property mutation
-export function useUpdateProperty() {
-    const queryClient = useQueryClient();
-
-    return useMutation({
+    const updateMutation = useMutation({
         mutationFn: async ({ id, data }: { id: string; data: Partial<PropertyWizardData> }) => {
             const response = await fetch(`/api/properties/${id}`, {
                 method: 'PUT',
@@ -119,13 +118,8 @@ export function useUpdateProperty() {
             toast.error(error.message || 'Error al actualizar propiedad');
         }
     });
-}
 
-// Delete property mutation
-export function useDeleteProperty() {
-    const queryClient = useQueryClient();
-
-    return useMutation({
+    const deleteMutation = useMutation({
         mutationFn: async (id: string) => {
             const response = await fetch(`/api/properties/${id}`, {
                 method: 'DELETE',
@@ -146,9 +140,35 @@ export function useDeleteProperty() {
             toast.error(error.message || 'Error al eliminar propiedad');
         }
     });
+
+    return {
+        properties: data?.properties || [],
+        total: data?.total || 0,
+        loading,
+        fetchProperties,
+        createProperty: (data: PropertyWizardData, isDraft?: boolean) => createMutation.mutateAsync({ data, isDraft }),
+        updateProperty: (id: string, data: Partial<PropertyWizardData>) => updateMutation.mutateAsync({ id, data }),
+        deleteProperty: (id: string) => deleteMutation.mutateAsync(id),
+        refetch
+    };
 }
 
-// Upload image mutation
+// Keep individual mutations for specialized uses if needed
+export function useCreateProperty() {
+    const { createProperty } = useProperties();
+    return { mutateAsync: createProperty };
+}
+
+export function useUpdateProperty() {
+    const { updateProperty } = useProperties();
+    return { mutateAsync: updateProperty };
+}
+
+export function useDeleteProperty() {
+    const { deleteProperty } = useProperties();
+    return { mutateAsync: deleteProperty };
+}
+
 export function useUploadPropertyImage() {
     return useMutation({
         mutationFn: async (file: File) => {

@@ -7,23 +7,23 @@ export interface PropertyShare {
   property_id: string;
   shared_by: string;
   shared_with?: string;
-  
+
   // Configuration
   share_mode: ShareMode;
   share_link: string;
   share_token: string;
-  
+
   // White Label Customization
   custom_agent_name?: string;
   custom_agent_phone?: string;
   custom_agent_email?: string;
   custom_agency_name?: string;
-  
+
   // Analytics
   views_count: number;
   clicks_count: number;
   leads_generated: number;
-  
+
   // Metadata
   expires_at?: string;
   is_active: boolean;
@@ -34,24 +34,24 @@ export interface PropertyShare {
 export interface PropertyShareView {
   id: string;
   share_id: string;
-  
+
   // Visitor Info
   ip_address?: string;
   user_agent?: string;
   referrer?: string;
-  
+
   // Location
   country?: string;
   city?: string;
-  
+
   // Activity
   duration_seconds?: number;
   viewed_at: string;
 }
 
-export type PortalName = 
+export type PortalName =
   | 'inmuebles24'
-  | 'vivanuncios' 
+  | 'vivanuncios'
   | 'mercadolibre'
   | 'lamudi'
   | 'propiedades_com'
@@ -63,24 +63,24 @@ export interface PropertyPortal {
   id: string;
   property_id: string;
   portal_name: PortalName;
-  
+
   // Portal Integration
   portal_listing_id?: string;
   portal_url?: string;
   status: PortalStatus;
-  
+
   // Sync
   last_synced_at?: string;
   sync_error?: string;
   sync_attempts: number;
-  
+
   // Settings
   portal_settings: Record<string, any>;
-  
+
   // Analytics
   views_on_portal: number;
   contacts_from_portal: number;
-  
+
   created_at: string;
   updated_at: string;
 }
@@ -125,6 +125,7 @@ export interface PropertyFormStep1 {
   sale_price?: number;
   rent_price?: number;
   currency: string;
+  status?: string;
 }
 
 export interface PropertyFormStep2 {
@@ -190,13 +191,13 @@ export interface PropertyFormStep7 {
 }
 
 // Complete property wizard data
-export type PropertyWizardData = 
-  & PropertyFormStep1 
-  & PropertyFormStep2 
-  & PropertyFormStep3 
-  & PropertyFormStep4 
-  & PropertyFormStep5 
-  & PropertyFormStep6 
+export type PropertyWizardData =
+  & PropertyFormStep1
+  & PropertyFormStep2
+  & PropertyFormStep3
+  & PropertyFormStep4
+  & PropertyFormStep5
+  & PropertyFormStep6
   & PropertyFormStep7;
 
 // Available amenities list
@@ -208,7 +209,7 @@ export const PROPERTY_AMENITIES = [
   'elevator',
   'parking',
   'storage',
-  
+
   // Recreational
   'garden',
   'terrace',
@@ -220,44 +221,44 @@ export const PROPERTY_AMENITIES = [
   'sports_court',
   'bbq_area',
   'fire_pit',
-  
+
   // Services
   'doorman',
   'laundry',
   'cleaning_service',
   'concierge',
   'valet_parking',
-  
+
   // Technology
   'smart_home',
   'wifi',
   'cctv',
   'intercom',
   'alarm_system',
-  
+
   // Pet-friendly
   'pet_friendly',
   'pet_park',
   'pet_grooming',
-  
+
   // Family
   'kids_area',
   'daycare',
   'teen_room',
-  
+
   // Business
   'business_center',
   'coworking',
   'meeting_rooms',
   'event_room',
-  
+
   // Wellness
   'spa',
   'yoga_studio',
   'meditation_room',
   'jogging_track',
   'bike_path',
-  
+
   // Accessibility
   'wheelchair_accessible',
   'accessible_entrance',
@@ -274,7 +275,7 @@ export const AMENITY_LABELS: Record<Amenity, string> = {
   elevator: 'Elevador',
   parking: 'Estacionamiento',
   storage: 'Bodega',
-  
+
   garden: 'Jardín',
   terrace: 'Terraza',
   balcony: 'Balcón',
@@ -285,38 +286,38 @@ export const AMENITY_LABELS: Record<Amenity, string> = {
   sports_court: 'Cancha deportiva',
   bbq_area: 'Área de asador',
   fire_pit: 'Fogata',
-  
+
   doorman: 'Portero',
   laundry: 'Lavandería',
   cleaning_service: 'Servicio de limpieza',
   concierge: 'Conserje',
   valet_parking: 'Valet parking',
-  
+
   smart_home: 'Casa inteligente',
   wifi: 'WiFi',
   cctv: 'Cámaras CCTV',
   intercom: 'Interfón',
   alarm_system: 'Sistema de alarma',
-  
+
   pet_friendly: 'Pet friendly',
   pet_park: 'Área para mascotas',
   pet_grooming: 'Estética para mascotas',
-  
+
   kids_area: 'Área infantil',
   daycare: 'Guardería',
   teen_room: 'Sala para adolescentes',
-  
+
   business_center: 'Centro de negocios',
   coworking: 'Coworking',
   meeting_rooms: 'Salas de juntas',
   event_room: 'Salón de eventos',
-  
+
   spa: 'Spa',
   yoga_studio: 'Estudio de yoga',
   meditation_room: 'Sala de meditación',
   jogging_track: 'Pista para correr',
   bike_path: 'Ciclopista',
-  
+
   wheelchair_accessible: 'Accesible para silla de ruedas',
   accessible_entrance: 'Entrada accesible',
   accessible_parking: 'Estacionamiento accesible',
