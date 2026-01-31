@@ -5,20 +5,27 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 import { useCurrentUser } from './useCurrentUser'
 
+/**
+ * Interface for the Dashboard Summary returned by RPC
+ */
 export interface DashboardSummary {
-    summary: {
-        user_level: string
-        objective: {
-            period: string
-            target: number
-            current: number
-            percentage: number
-        }
+    level: string
+    objective: {
+        period: string
+        target: number
+        current: number
+        percentage: number
+    }
+    metrics: {
+        properties_active: number
+        new_leads: number
+        sales_this_month: number
+        tasks_pending: number
     }
     user: {
         id: string
-        name: string
-        avatar: string
+        full_name: string
+        avatar_url: string
     }
 }
 
@@ -60,26 +67,11 @@ export function useDashboardSummary() {
                 throw error
             }
 
-            // Transformar para que coincida con lo que espera page.tsx
-            return {
-                summary: {
-                    user_level: data.level || 'Broker Inicial',
-                    objective: {
-                        period: data.objective?.period || 'Mensual',
-                        target: data.objective?.target || 0,
-                        current: data.objective?.current || 0,
-                        percentage: data.objective?.percentage || 0
-                    }
-                },
-                user: {
-                    id: data.user?.id || currentUser.id,
-                    name: data.user?.full_name || currentUser.full_name,
-                    avatar: currentUser.avatar_url || '/avatars/user.jpg' // Usamos avatar del perfil
-                }
-            } as DashboardSummary
+            // Return raw data as it matches the expectations of the new dashboard_page.tsx
+            return data as DashboardSummary
         },
         enabled: !!currentUser,
-        staleTime: 60 * 1000, // 1 minuto
+        staleTime: 60 * 1000,
     })
 }
 
@@ -110,7 +102,7 @@ export function usePriorityActions() {
             return data
         },
         enabled: !!currentUser,
-        staleTime: 30 * 1000, // 30 segundos
+        staleTime: 30 * 1000,
     })
 }
 
@@ -128,7 +120,6 @@ export function useAgencyMetrics() {
         queryFn: async () => {
             if (!currentUser || !isAdmin) return null
 
-            // Obtener métricas globales de la agencia
             const { count: propCount, error: propError } = await supabase
                 .from('properties')
                 .select('id', { count: 'exact', head: true })
@@ -158,13 +149,11 @@ export function useAgencyMetrics() {
                 .eq('is_active', true)
 
             if (propError || leadsError || opsError || agentsError) {
-                console.error('Error fetching agency metrics')
                 throw new Error('Error fetching metrics')
             }
 
             const totalSales = operations?.reduce((sum, op) => sum + Number(op.sale_price), 0) || 0
 
-            // Obtener performance por asesor
             const agentsPerformance = await Promise.all(
                 (agents || []).map(async (agent) => {
                     const { count: propCount } = await supabase
@@ -190,7 +179,6 @@ export function useAgencyMetrics() {
 
                     const agentSales = agentOps?.reduce((sum, op) => sum + Number(op.sale_price), 0) || 0
 
-                    // Obtener nivel del asesor
                     const { data: levelData } = await supabase
                         .rpc('calculate_user_level', { p_user_id: agent.id })
 
@@ -214,17 +202,16 @@ export function useAgencyMetrics() {
             }
         },
         enabled: !!currentUser && isAdmin,
-        staleTime: 2 * 60 * 1000, // 2 minutos
+        staleTime: 2 * 60 * 1000,
     })
 }
 
 /**
- * Hook para obtener métricas de un asesor específico (para vista admin)
+ * Hook para obtener métricas de un asesor específico
  */
 export function useAgentMetrics(agentId?: string) {
     const supabase = createClient()
     const { data: currentUser } = useCurrentUser()
-
     const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'director'
 
     return useQuery<DashboardSummary | null>({
@@ -233,29 +220,13 @@ export function useAgentMetrics(agentId?: string) {
             if (!agentId || !isAdmin) return null
 
             const { data, error } = await supabase
-                .rpc('get_dashboard_summary', {
-                    p_user_id: agentId
-                })
+                .rpc('get_dashboard_summary', { p_user_id: agentId })
 
-            if (error) {
-                console.error('Error fetching agent metrics:', error)
-                throw error
-            }
-
-            return {
-                summary: {
-                    user_level: data.level || 'Broker Inicial',
-                    objective: data.objective
-                },
-                user: {
-                    id: data.user.id,
-                    name: data.user.full_name,
-                    avatar: '/avatars/user.jpg'
-                }
-            } as DashboardSummary
+            if (error) throw error
+            return data as DashboardSummary
         },
         enabled: !!agentId && isAdmin,
-        staleTime: 60 * 1000, // 1 minuto
+        staleTime: 60 * 1000,
     })
 }
 
@@ -292,12 +263,11 @@ export function useUpdateObjective() {
 }
 
 /**
- * Hook para obtener lista de asesores de la agencia (para dropdown admin)
+ * Hook para obtener lista de asesores de la agencia
  */
 export function useAgencyAgents() {
     const supabase = createClient()
     const { data: currentUser } = useCurrentUser()
-
     const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'director'
 
     return useQuery({
