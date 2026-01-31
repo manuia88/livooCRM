@@ -45,11 +45,14 @@ export default function BackofficeReportsPage() {
         );
     }
 
+    // Asegurar que kpis sea siempre un array antes de usar .find()
+    const kpisArray = Array.isArray(kpis) ? kpis : [];
+
     // Extract values from KPI array
-    const closedDeals = Number(kpis?.find(k => k.id === 'closings')?.value || 0);
-    const totalCommissions = Number(kpis?.find(k => k.id === 'commissions')?.value || 0);
-    const newLeadsCount = Number(kpis?.find(k => k.id === 'leads')?.value || 0);
-    const conversionRate = Number(kpis?.find(k => k.id === 'conversion')?.value || 0);
+    const closedDeals = Number(kpisArray.find(k => k.id === 'closings')?.value || 0);
+    const totalCommissions = Number(kpisArray.find(k => k.id === 'commissions')?.value || 0);
+    const newLeadsCount = Number(kpisArray.find(k => k.id === 'leads')?.value || 0);
+    const conversionRate = Number(kpisArray.find(k => k.id === 'conversion')?.value || 0);
 
     return (
         <div className="space-y-6">
@@ -77,7 +80,7 @@ export default function BackofficeReportsPage() {
             </div>
 
             {/* KPIs */}
-            {kpis && <KPICards kpis={kpis} />}
+            {kpisArray.length > 0 && <KPICards kpis={kpisArray} />}
 
             {/* Tabs */}
             <Tabs defaultValue="sales" className="space-y-4">
