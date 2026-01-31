@@ -27,16 +27,19 @@ export default async function BackofficeLayout({
                 {/* Main Content Area */}
                 <main className="ml-64 min-h-screen transition-all duration-300">
                     {/* Top Bar - Minimalist */}
-                    <header className="bg-white/80 backdrop-blur-md border-b border-[#E5E3DB] px-8 py-5 sticky top-0 z-40">
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-xl font-medium text-[#2C3E2C]">
-                                Panel de Administración
-                            </h2>
+                    <header className="px-8 py-8 sticky top-0 z-40 bg-[#F8F7F4]/80 backdrop-blur-xl">
+                        <div className="flex items-center justify-between border-b border-gray-100 pb-6">
+                            <div className="space-y-1">
+                                <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
+                                    Panel de Administración
+                                </h2>
+                                <p className="text-xs text-gray-500 font-medium tracking-wide uppercase">Operaciones en tiempo real</p>
+                            </div>
                             <div className="flex items-center gap-4">
                                 <Link href="/backoffice/configuracion">
-                                    <Button variant="ghost" size="icon" className="text-[#777] hover:bg-[#F8F7F4]">
+                                    <button className="h-11 w-11 rounded-full border border-gray-100 flex items-center justify-center hover:bg-white hover:shadow-sm transition-all text-gray-400 hover:text-[#2C3E2C]">
                                         <Settings className="w-5 h-5" />
-                                    </Button>
+                                    </button>
                                 </Link>
                             </div>
                         </div>

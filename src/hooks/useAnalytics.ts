@@ -111,7 +111,10 @@ export function useKPIs() {
             return {
                 activeProperties: propertiesCount || 0,
                 newLeads: leadsCount || 0,
-                salesVolume: totalSales
+                salesVolume: totalSales,
+                propertyTrend: 0, // TODO: Calculate actual trend
+                leadTrend: 0, // TODO: Calculate actual trend
+                salesTrend: 0 // TODO: Calculate actual trend
             }
         }
     })

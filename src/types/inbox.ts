@@ -20,6 +20,7 @@ export interface Conversation {
     created_at: string;
     updated_at: string;
     last_message_preview?: string;
+    is_pinned?: boolean;
 
     // Joins (optional for now, depending on query)
     contact?: {

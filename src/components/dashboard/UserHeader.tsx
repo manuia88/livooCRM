@@ -1,93 +1,60 @@
-// /components/dashboard/UserHeader.tsx
-'use client'
-
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { formatCurrency } from '@/lib/utils'
+import { Bell, Search, Settings } from 'lucide-react'
 
 interface UserHeaderProps {
+    user: {
+        name: string
+        avatar?: string
+    }
     summary: {
         user_level: string
-        objective: {
-            target: number
-            current: number
-            percentage: number
-            period: string
-        }
     }
 }
 
-export function UserHeader({ summary }: UserHeaderProps) {
-    const user = {
-        name: 'Agustín',
-        avatar: '/avatars/user.jpg',
-        level: summary?.user_level || 'Broker Profesional'
-    }
-
-    const objective = summary?.objective || { target: 0, current: 0, percentage: 0 }
-    const progress = objective.percentage
-
-    // Generar dots de progreso (10 dots, llenar según porcentaje)
-    const totalDots = 10
-    const filledDots = Math.round((progress / 100) * totalDots)
+export function UserHeader({ user, summary }: UserHeaderProps) {
+    const level = summary?.user_level || 'Broker Profesional'
+    const name = user?.name || 'Usuario'
+    const avatar = user?.avatar || ''
 
     return (
-        <div className="bg-gradient-to-r from-gray-900 to-gray-800 text-white">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                <div className="flex items-center justify-between">
-                    {/* Left: User info */}
-                    <div className="flex items-center space-x-4">
-                        <Avatar className="h-16 w-16 border-2 border-white">
-                            <AvatarImage src={user.avatar} />
-                            <AvatarFallback>{user.name[0]}</AvatarFallback>
+        <div className="bg-[#FDFCFB] border-b border-[#E5E3DB] py-10">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div className="flex items-center space-x-6">
+                        <Avatar className="h-20 w-20 border-2 border-white shadow-sm ring-1 ring-[#E5E3DB]">
+                            <AvatarImage src={avatar} />
+                            <AvatarFallback className="bg-[#F8F7F4] text-[#2C3E2C] text-xl font-medium">
+                                {name[0]}
+                            </AvatarFallback>
                         </Avatar>
 
-                        <div>
-                            <h1 className="text-2xl font-bold">¡Hola {user.name}!</h1>
-                            <Badge variant="secondary" className="mt-1">
-                                {user.level}
-                            </Badge>
-                        </div>
-                    </div>
-
-                    {/* Center: Objective progress */}
-                    <div className="flex-1 max-w-md mx-8">
-                        <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm">
-                                {formatCurrency(objective.current)} alcanzado
-                            </span>
-                            <span className="text-sm text-gray-300">
-                                (últimos 6 meses)
-                            </span>
-                        </div>
-
-                        {/* Progress bar con dots */}
-                        <div className="relative">
-                            <Progress value={progress} className="h-2" />
-                            <div className="flex justify-between mt-1">
-                                {Array.from({ length: totalDots }).map((_, i) => (
-                                    <div
-                                        key={i}
-                                        className={`w-2 h-2 rounded-full ${i < filledDots ? 'bg-blue-400' : 'bg-gray-600'
-                                            }`}
-                                    />
-                                ))}
+                        <div className="space-y-1">
+                            <h1 className="text-3xl font-medium tracking-tight text-[#2C3E2C]">
+                                ¡Hola, {name}!
+                            </h1>
+                            <div className="flex items-center gap-2">
+                                <Badge variant="secondary" className="bg-[#B8975A]/10 text-[#B8975A] border-none font-medium px-3 py-1 text-xs">
+                                    {level}
+                                </Badge>
+                                <span className="text-gray-300 text-xs">•</span>
+                                <span className="text-gray-500 text-xs font-medium">Panel de Gestión</span>
                             </div>
                         </div>
-
-                        <div className="flex justify-end mt-1">
-                            <span className="text-sm text-gray-300">
-                                {formatCurrency(objective.target)}
-                            </span>
-                        </div>
                     </div>
 
-                    {/* Right: Actions */}
-                    <div>
-                        <Button variant="outline" size="sm" className="text-gray-900">
-                            Cambiar usuario
+                    <div className="flex items-center gap-3">
+                        <button className="h-10 w-10 rounded-full border border-[#E5E3DB] flex items-center justify-center hover:bg-[#F8F7F4] transition-colors relative">
+                            <Bell className="w-5 h-5 text-[#777]" />
+                            <span className="absolute top-2.5 right-2.5 h-2 w-2 bg-red-500 rounded-full border-2 border-white" />
+                        </button>
+                        <button className="h-10 w-10 rounded-full border border-[#E5E3DB] flex items-center justify-center hover:bg-[#F8F7F4] transition-colors">
+                            <Settings className="w-5 h-5 text-[#777]" />
+                        </button>
+                        <div className="h-10 w-[1px] bg-[#E5E3DB] mx-2 hidden md:block" />
+                        <Button className="bg-[#2C3E2C] hover:bg-black text-white rounded-full px-6 font-medium transition-all shadow-sm">
+                            Nueva Propiedad
                         </Button>
                     </div>
                 </div>
@@ -95,3 +62,4 @@ export function UserHeader({ summary }: UserHeaderProps) {
         </div>
     )
 }
+

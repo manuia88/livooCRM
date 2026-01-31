@@ -1,61 +1,75 @@
-import { Card, CardContent } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { Trophy, Star, ChevronRight } from "lucide-react"
+'use client';
+
+import { Card, CardContent } from "@/components/ui/card";
+import { Award, ChevronRight } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface UserLevelCardProps {
-    level: string
+    level: string;
     objective: {
-        target: number
-        current: number
-        percentage: number
-        period: string
-    }
+        target: number;
+        current: number;
+        percentage: number;
+        period: string;
+    };
 }
 
 export function UserLevelCard({ level, objective }: UserLevelCardProps) {
-    // Determine color/icon based on level name if needed, or use props
-    // For now simple logic
-
     return (
-        <Card className="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white border-none shadow-lg overflow-hidden relative">
-            <div className="absolute top-0 right-0 p-4 opacity-10">
-                <Trophy className="w-32 h-32" />
-            </div>
-
-            <CardContent className="p-6 relative z-10">
-                <div className="flex justify-between items-start mb-6">
-                    <div>
-                        <p className="text-sm font-medium text-gray-400 uppercase tracking-widest mb-1">Tu Nivel</p>
-                        <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#B8975A] to-[#F2D086]">
-                            {level}
-                        </h2>
-                    </div>
-                    <div className="h-10 w-10 rounded-full bg-[#B8975A]/20 flex items-center justify-center border border-[#B8975A]/50">
-                        <Star className="w-5 h-5 text-[#B8975A]" fill="currentColor" />
-                    </div>
-                </div>
-
-                <div className="space-y-4">
-                    <div>
-                        <div className="flex justify-between text-sm mb-2">
-                            <span className="text-gray-300">Progreso de objetivo ({objective.period})</span>
-                            <span className="text-white font-bold">{objective.percentage}%</span>
+        <Card className="bg-white border border-gray-100 shadow-none overflow-hidden relative group rounded-2xl">
+            <CardContent className="p-10 relative z-10">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-12">
+                    {/* Level Info */}
+                    <div className="flex items-center gap-6">
+                        <div className="h-16 w-16 rounded-2xl bg-gray-50 flex items-center justify-center border border-gray-100 group-hover:bg-[#F8F7F4] transition-all group-hover:scale-105">
+                            <Award className="w-8 h-8 text-[#B8975A]" />
                         </div>
-                        <Progress value={objective.percentage} className="h-2 bg-gray-700" indicatorClassName="bg-[#B8975A]" />
-                    </div>
-
-                    <div className="flex justify-between items-end">
-                        <div>
-                            <p className="text-xs text-gray-500 mb-1">Ventas Actuales</p>
-                            <p className="text-xl font-bold text-white">${objective.current.toLocaleString()}</p>
-                        </div>
-                        <div className="text-right">
-                            <p className="text-xs text-gray-500 mb-1">Meta</p>
-                            <p className="text-xl font-bold text-gray-300">${objective.target.toLocaleString()}</p>
+                        <div className="space-y-1">
+                            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Nivel Actual</span>
+                            <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
+                                {level}
+                            </h2>
                         </div>
                     </div>
+
+                    {/* Progress Info */}
+                    <div className="flex-1 max-w-xl space-y-4">
+                        <div className="flex items-end justify-between">
+                            <div className="space-y-1">
+                                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Meta {objective.period}</span>
+                                <div className="flex items-baseline gap-2">
+                                    <span className="text-xl font-bold text-gray-900">
+                                        ${objective.current.toLocaleString()}
+                                    </span>
+                                    <span className="text-gray-300 font-medium">/</span>
+                                    <span className="text-sm font-semibold text-gray-400">
+                                        ${objective.target.toLocaleString()}
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="text-right">
+                                <span className="text-2xl font-bold text-[#B8975A]">{objective.percentage}%</span>
+                            </div>
+                        </div>
+
+                        <div className="h-1.5 w-full bg-gray-50 rounded-full overflow-hidden border border-gray-50">
+                            <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${objective.percentage}%` }}
+                                className="h-full bg-gradient-to-r from-[#2C3E2C] to-[#B8975A] rounded-full"
+                                transition={{ duration: 1, ease: "easeOut" }}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Action */}
+                    <button className="flex flex-col items-center gap-1 text-gray-300 hover:text-[#B8975A] transition-colors group-hover:translate-x-1">
+                        <ChevronRight className="w-6 h-6" />
+                        <span className="text-[10px] font-bold uppercase tracking-widest">Detalles</span>
+                    </button>
                 </div>
             </CardContent>
         </Card>
-    )
+    );
 }
+

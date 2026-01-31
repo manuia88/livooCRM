@@ -89,13 +89,13 @@ export function Sidebar({ user, logoutAction }: SidebarProps) {
                                     <Link
                                         key={item.href}
                                         href={item.href}
-                                        className={`flex items-center gap-3 px-3 py-2.5 rounded-md transition-all duration-200 group ${isActive
-                                            ? "bg-[#2C2C2C] text-white shadow-md shadow-black/10"
-                                            : "text-[#555] hover:bg-[#F8F7F4] hover:text-[#2C3E2C]"
+                                        className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 group ${isActive
+                                            ? "bg-[#2C3E2C]/5 text-[#2C3E2C] font-semibold"
+                                            : "text-gray-500 hover:bg-gray-50 hover:text-[#2C3E2C]"
                                             }`}
                                     >
-                                        <Icon className={`w-5 h-5 ${isActive ? "text-white" : "text-[#777] group-hover:text-[#2C3E2C]"}`} />
-                                        <span className="text-sm font-normal">{item.label}</span>
+                                        <Icon className={`w-5 h-5 transition-colors ${isActive ? "text-[#2C3E2C]" : "text-gray-400 group-hover:text-[#2C3E2C]"}`} />
+                                        <span className="text-[13px] tracking-tight">{item.label}</span>
                                     </Link>
                                 );
                             })}
