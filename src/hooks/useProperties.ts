@@ -21,9 +21,13 @@ export interface Property {
   rent_price: number | null
   bedrooms: number | null
   bathrooms: number | null
+  half_bathrooms: number | null
   parking_spaces: number | null
   total_area: number | null
-  built_area: number | null
+  construction_m2: number | null
+  land_m2: number | null
+  maintenance_fee: number | null
+  commission_percentage: number | null
   main_image_url: string | null
   images: any[]
   status: 'draft' | 'active' | 'reserved' | 'sold' | 'rented' | 'suspended' | 'archived'
