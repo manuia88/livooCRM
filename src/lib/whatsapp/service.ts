@@ -176,7 +176,7 @@ export class WhatsAppService {
         if (!text) return;
 
         try {
-            const conversationId = await this.getOrCreateConversation(remoteJid, msg.pushName);
+            const conversationId = await this.getOrCreateConversation(remoteJid, msg.pushName || undefined);
 
             const { error } = await this.supabase
                 .from('messages')

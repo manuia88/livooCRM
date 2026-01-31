@@ -32,7 +32,13 @@ const basicInfoSchema = propertySchema.pick({
     property_type: true,
     operation_type: true,
     status: true,
-    price_sale: true, // Note: Schema uses sale_price, checking form store match
+    sale_price: true,
+    rent_price: true,
+    currency: true,
+    maintenance_fee: true,
+}).partial({
+    status: true,
+    description: true,
     sale_price: true,
     rent_price: true,
     currency: true,

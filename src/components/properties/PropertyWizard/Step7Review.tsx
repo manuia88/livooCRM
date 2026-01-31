@@ -149,7 +149,7 @@ export function Step7Review({ data, onChange, healthScore }: Step7ReviewProps) {
                             <span>La propiedad será visible en tu sitio web</span>
                         </div>
 
-                        {data.shared_in_mls && (
+                        {(data as any).shared_in_mls && (
                             <div className="flex items-center gap-2 text-sm text-muted-foreground bg-blue-50 p-3 rounded border border-blue-100">
                                 <Home className="h-4 w-4 text-blue-600" />
                                 <span>Se compartirá en la red MLS con otros agentes</span>

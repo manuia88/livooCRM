@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { Plus, LayoutGrid, List, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -17,22 +17,13 @@ import { PropertyListItem } from './PropertyListItem';
 import { PropertyFilters, FilterState } from './PropertyFilters';
 import { PropertyWizard } from './PropertyWizard';
 import { PropertyShareDialog } from './PropertyShareDialog';
-import { useProperties } from '@/hooks/useProperties';
+import { useProperties, useCreateProperty, useUpdateProperty, useDeleteProperty } from '@/hooks/useProperties';
 import type { Property } from '@/types/properties';
 import type { PropertyWizardData } from '@/types/property-extended';
 
 type ViewMode = 'grid' | 'list';
 
 export default function PropertiesView() {
-    const {
-        properties,
-        loading,
-        fetchProperties,
-        createProperty,
-        updateProperty,
-        deleteProperty
-    } = useProperties();
-
     const [viewMode, setViewMode] = useState<ViewMode>('grid');
     const [isWizardOpen, setIsWizardOpen] = useState(false);
     const [isShareOpen, setIsShareOpen] = useState(false);
@@ -41,14 +32,22 @@ export default function PropertiesView() {
 
     const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
 
-    // Initial load
-    useEffect(() => {
-        fetchProperties(filters);
-    }, [fetchProperties]);
+    // Convert FilterState to PropertiesFilters
+    const propertiesFilters = useMemo(() => {
+        if (!filters) return {}
+        return {
+            operation_type: filters.operationType !== 'all' ? filters.operationType : undefined,
+            property_type: filters.propertyTypes.length > 0 ? filters.propertyTypes[0] : undefined,
+        }
+    }, [filters])
+
+    const { data: properties = [], isLoading: loading } = useProperties(propertiesFilters)
+    const createPropertyMutation = useCreateProperty()
+    const updatePropertyMutation = useUpdateProperty()
+    const deletePropertyMutation = useDeleteProperty()
 
     const handleFilterChange = (newFilters: FilterState) => {
         setFilters(newFilters);
-        fetchProperties(newFilters);
     };
 
     const handleCreateNew = () => {
@@ -73,7 +72,7 @@ export default function PropertiesView() {
 
     const handleConfirmDelete = async () => {
         if (selectedProperty) {
-            await deleteProperty(selectedProperty.id);
+            await deletePropertyMutation.mutateAsync(selectedProperty.id);
             setIsDeleteOpen(false);
             setSelectedProperty(null);
         }
@@ -82,23 +81,27 @@ export default function PropertiesView() {
     const handleSaveProperty = async (data: PropertyWizardData, isDraft: boolean) => {
         if (selectedProperty) {
             // Update existing
-            await updateProperty(selectedProperty.id, data);
+            await updatePropertyMutation.mutateAsync({ 
+                id: selectedProperty.id, 
+                updates: { ...data, status: isDraft ? 'draft' : 'active' } as any
+            });
         } else {
             // Create new
-            await createProperty(data, isDraft);
+            await createPropertyMutation.mutateAsync({ ...data, status: isDraft ? 'draft' : 'active' } as any);
         }
         setIsWizardOpen(false);
-        fetchProperties(filters);
     };
 
     const handlePublishProperty = async (data: PropertyWizardData) => {
         if (selectedProperty) {
-            await updateProperty(selectedProperty.id, { ...data, status: 'active' });
+            await updatePropertyMutation.mutateAsync({ 
+                id: selectedProperty.id, 
+                updates: { ...data, status: 'active' } as any
+            });
         } else {
-            await createProperty(data, false);
+            await createPropertyMutation.mutateAsync({ ...data, status: 'active' } as any);
         }
         setIsWizardOpen(false);
-        fetchProperties(filters);
     };
 
     return (
@@ -163,7 +166,7 @@ export default function PropertiesView() {
                             {properties.map((property) => (
                                 <PropertyCard
                                     key={property.id}
-                                    property={property}
+                                    property={property as unknown as Property}
                                     onEdit={handleEdit}
                                     onShare={handleShare}
                                     onDelete={handleDeleteClick}
@@ -175,7 +178,7 @@ export default function PropertiesView() {
                             {properties.map((property) => (
                                 <PropertyListItem
                                     key={property.id}
-                                    property={property}
+                                    property={property as unknown as Property}
                                     onEdit={handleEdit}
                                     onShare={handleShare}
                                     onDelete={handleDeleteClick}

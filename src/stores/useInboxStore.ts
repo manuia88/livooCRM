@@ -102,6 +102,7 @@ export const useInboxStore = create<InboxState>((set, get) => ({
             conversation_id: selectedId,
             direction: 'outbound',
             content,
+            message_type: 'text',
             status: 'sent', // Initially sent
             is_automated: false,
             created_at: new Date().toISOString()
