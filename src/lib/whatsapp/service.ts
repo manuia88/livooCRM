@@ -7,7 +7,8 @@ import makeWASocket, {
 } from '@whiskeysockets/baileys';
 import { Boom } from '@hapi/boom';
 import pino from 'pino';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { SupabaseClient } from '@supabase/supabase-js';
+import { createServerAdminClient } from '@/lib/supabase/server-admin';
 
 // Global reference
 declare global {
@@ -32,16 +33,8 @@ export class WhatsAppService {
             this.qr = global._whatsappQR || null;
         }
 
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-        const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-        if (!supabaseUrl || !supabaseKey) {
-            console.error('Missing Supabase credentials for WhatsAppService');
-        }
-
-        this.supabase = createClient(supabaseUrl, supabaseKey, {
-            auth: { persistSession: false }
-        });
+        // Usar el helper seguro que valida SERVICE_ROLE_KEY
+        this.supabase = createServerAdminClient();
     }
 
     async connect(): Promise<{ qr?: string; status: string }> {

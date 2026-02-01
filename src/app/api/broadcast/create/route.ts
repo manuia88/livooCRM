@@ -1,26 +1,37 @@
-import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { NextResponse, NextRequest } from 'next/server';
+import { createServerAdminClient } from '@/lib/supabase/server-admin';
+import { withAuth, errorResponse, successResponse } from '@/lib/auth/middleware';
 
-// Initialize Supabase Client (Service Role)
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-
-export async function POST(request: Request) {
+/**
+ * Endpoint para crear campañas de broadcast
+ * 
+ * SEGURIDAD: Requiere autenticación
+ * Usuario solo puede crear broadcasts para su propia agencia
+ */
+export const POST = withAuth(async (request: NextRequest, user) => {
+    const supabase = createServerAdminClient();
+    
     try {
         const body = await request.json();
         const { agency_id, name, message_content, recipient_ids } = body;
 
-        if (!agency_id || !name || !message_content || !recipient_ids || recipient_ids.length === 0) {
-            return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+        if (!name || !message_content || !recipient_ids || recipient_ids.length === 0) {
+            return errorResponse('Missing required fields: name, message_content, recipient_ids', 400);
         }
 
-        // 1. Create Broadcast Record
+        // VALIDACIÓN CRÍTICA: Solo puede crear broadcasts para su propia agencia
+        if (agency_id && agency_id !== user.agency_id) {
+            return errorResponse('You can only create broadcasts for your own agency', 403);
+        }
+
+        // Usar el agency_id del usuario autenticado (no confiar en el body)
+        const validatedAgencyId = user.agency_id;
+
+        // 1. Create Broadcast Record (usando agency_id validado)
         const { data: broadcast, error: bError } = await supabase
             .from('broadcasts')
             .insert({
-                agency_id,
+                agency_id: validatedAgencyId,
                 name,
                 message_content,
                 status: 'processing', // Auto-start
@@ -66,10 +77,13 @@ export async function POST(request: Request) {
             headers: { 'Content-Type': 'application/json' }
         }).catch(err => console.error("Failed to trigger process", err));
 
-        return NextResponse.json({ success: true, broadcast_id: broadcast.id });
+        return successResponse(
+            { broadcast_id: broadcast.id },
+            "Broadcast created and processing initiated"
+        );
 
     } catch (error: any) {
         console.error('Error creating broadcast:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return errorResponse(error.message || 'Failed to create broadcast', 500);
     }
-}
+});

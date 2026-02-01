@@ -1,19 +1,22 @@
-import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { NextResponse, NextRequest } from 'next/server';
+import { createServerAdminClient } from '@/lib/supabase/server-admin';
 import { textWhatsAppService } from '@/lib/whatsapp/service';
+import { withAuth, errorResponse, successResponse } from '@/lib/auth/middleware';
 
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-
-// This endpoint processes a specific broadcast's pending messages
-export async function POST(request: Request) {
+/**
+ * Endpoint para procesar broadcasts pendientes
+ * 
+ * SEGURIDAD: Requiere autenticación
+ * Usuario solo puede procesar broadcasts de su propia agencia
+ */
+export const POST = withAuth(async (request: NextRequest, user) => {
+    const supabase = createServerAdminClient();
+    
     try {
         const body = await request.json();
         const { broadcast_id } = body;
 
-        if (!broadcast_id) return NextResponse.json({ error: 'Missing broadcast_id' }, { status: 400 });
+        if (!broadcast_id) return errorResponse('Missing broadcast_id', 400);
 
         // 1. Get Broadcast details
         const { data: broadcast } = await supabase
@@ -22,7 +25,14 @@ export async function POST(request: Request) {
             .eq('id', broadcast_id)
             .single();
 
-        if (!broadcast) return NextResponse.json({ error: 'Broadcast not found' }, { status: 404 });
+        if (!broadcast) {
+            return errorResponse('Broadcast not found', 404);
+        }
+
+        // VALIDACIÓN CRÍTICA: Solo puede procesar broadcasts de su propia agencia
+        if (broadcast.agency_id !== user.agency_id) {
+            return errorResponse('You can only process broadcasts from your own agency', 403);
+        }
 
         // 2. Get Pending Recipients
         const { data: recipients } = await supabase
@@ -37,10 +47,12 @@ export async function POST(request: Request) {
             .limit(50); // Batch size
 
         if (!recipients || recipients.length === 0) {
-            // Mark broadcast complete if no pending? 
-            // We should check count first. For now, assume done.
-            await supabase.from('broadcasts').update({ status: 'completed', completed_at: new Date().toISOString() }).eq('id', broadcast_id);
-            return NextResponse.json({ message: 'No pending recipients' });
+            // Mark broadcast complete if no pending
+            await supabase.from('broadcasts').update({ 
+                status: 'completed', 
+                completed_at: new Date().toISOString() 
+            }).eq('id', broadcast_id);
+            return successResponse({ processed: 0 }, 'No pending recipients');
         }
 
         // 3. Process Batch
@@ -104,18 +116,20 @@ export async function POST(request: Request) {
         // If we processed a full batch, we might trigger again recursively or wait for next cron
         // For this demo, we stop here (one batch at a time).
 
-        return NextResponse.json({
-            success: true,
-            processed: recipients.length,
-            sent: sentCount,
-            failed: failedCount
-        });
+        return successResponse(
+            {
+                processed: recipients.length,
+                sent: sentCount,
+                failed: failedCount
+            },
+            `Processed ${recipients.length} recipients (${sentCount} sent, ${failedCount} failed)`
+        );
 
     } catch (error: any) {
         console.error('Error processing broadcast:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return errorResponse(error.message || 'Failed to process broadcast', 500);
     }
-}
+});
 
 async function updateRecipientStatus(id: string, status: string, error?: string) {
     const update: any = { status, sent_at: new Date().toISOString() };

@@ -1,8 +1,15 @@
 import { createClient } from '@/utils/supabase/server';
 import { MOCK_PROPERTIES } from '@/data/mock-properties';
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
+import { onlyDevelopment, errorResponse } from '@/lib/auth/middleware';
 
-export async function GET() {
+/**
+ * Endpoint de Seeding - SOLO DESARROLLO
+ * 
+ * SEGURIDAD: Este endpoint está restringido a NODE_ENV=development
+ * En producción retorna 404 para evitar que alguien lo descubra
+ */
+export const GET = onlyDevelopment(async (request: NextRequest) => {
     const supabase = await createClient();
 
     try {
@@ -79,6 +86,6 @@ export async function GET() {
         return NextResponse.json({ success: true, message: "Database seeded successfully" });
 
     } catch (error) {
-        return NextResponse.json({ error: error }, { status: 500 });
+        return errorResponse('Failed to seed database', 500, error);
     }
-}
+});

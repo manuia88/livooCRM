@@ -1,34 +1,32 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { textWhatsAppService } from '@/lib/whatsapp/service';
+import { withAuth, errorResponse, successResponse } from '@/lib/auth/middleware';
 
-export async function POST(request: Request) {
+/**
+ * Endpoint para enviar mensajes de WhatsApp
+ * 
+ * SEGURIDAD: Requiere autenticación
+ * Solo usuarios autenticados de la agencia pueden enviar mensajes
+ */
+export const POST = withAuth(async (request: NextRequest, user) => {
     try {
         const body = await request.json();
         const { to, message } = body;
 
         if (!to || !message) {
-            return NextResponse.json(
-                { error: 'Missing "to" or "message" fields' },
-                { status: 400 }
-            );
+            return errorResponse('Missing "to" or "message" fields', 400);
         }
 
         // Ensure connection is active
         if (textWhatsAppService.getStatus() !== 'connected') {
-            return NextResponse.json(
-                { error: 'WhatsApp is not connected' },
-                { status: 503 }
-            );
+            return errorResponse('WhatsApp is not connected', 503);
         }
 
         const result = await textWhatsAppService.sendMessage(to, message);
 
-        return NextResponse.json({ success: true, result });
+        return successResponse({ result }, 'Message sent successfully');
     } catch (error: any) {
         console.error('Error in /api/whatsapp/send:', error);
-        return NextResponse.json(
-            { error: error.message || 'Internal Server Error' },
-            { status: 500 }
-        );
+        return errorResponse(error.message || 'Failed to send message', 500);
     }
-}
+});
