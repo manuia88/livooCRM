@@ -44,15 +44,17 @@ export function useCurrentUser() {
             // Obtener perfil con agencia
             const { data: profile, error: profileError } = await supabase
                 .from('user_profiles')
-                .select(`
-          *,
-          agency:agencies(*)
-        `)
+                .select('*, agency:agencies(*)')
                 .eq('id', user.id)
-                .single()
+                .maybeSingle()
 
             if (profileError) {
                 console.error('Error fetching user profile:', profileError)
+                return null
+            }
+
+            if (!profile) {
+                console.error('User profile not found for user:', user.id)
                 return null
             }
 

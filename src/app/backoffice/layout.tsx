@@ -1,8 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { 
+import { usePathname, useRouter } from 'next/navigation'
+import { useEffect } from 'react'
+import {
   LayoutDashboard,
   Home,
   Users,
@@ -33,6 +34,14 @@ function BackofficeContent({ children }: { children: React.ReactNode }) {
   const { data: currentUser, isLoading } = useCurrentUser()
   const isAdmin = useIsAdmin()
   const pathname = usePathname()
+  const router = useRouter()
+
+  /* useEffect handled redirect - DEBE estar ANTES de cualquier return */
+  useEffect(() => {
+    if (!isLoading && !currentUser) {
+      router.push('/auth')
+    }
+  }, [currentUser, isLoading, router])
 
   if (isLoading) {
     return (
@@ -43,10 +52,6 @@ function BackofficeContent({ children }: { children: React.ReactNode }) {
   }
 
   if (!currentUser) {
-    // Redirect to login
-    if (typeof window !== 'undefined') {
-      window.location.href = '/login'
-    }
     return null
   }
 
@@ -67,10 +72,10 @@ function BackofficeContent({ children }: { children: React.ReactNode }) {
 
   // Add Usuarios only for admins
   if (isAdmin) {
-    menuItems.push({ 
-      href: '/backoffice/usuarios', 
-      icon: Settings, 
-      label: 'Usuarios' 
+    menuItems.push({
+      href: '/backoffice/usuarios',
+      icon: Settings,
+      label: 'Usuarios'
     })
   }
 
@@ -93,15 +98,15 @@ function BackofficeContent({ children }: { children: React.ReactNode }) {
           {menuItems.map((item) => {
             const Icon = item.icon
             const isActive = pathname === item.href
-            
+
             return (
               <div key={item.href}>
                 <Link
                   href={item.href}
                   className={`
                     flex items-center space-x-3 px-6 py-3 text-sm font-medium transition-colors
-                    ${isActive 
-                      ? 'bg-gray-100 text-gray-900 border-r-2 border-gray-900' 
+                    ${isActive
+                      ? 'bg-gray-100 text-gray-900 border-r-2 border-gray-900'
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                     }
                   `}
