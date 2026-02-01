@@ -183,6 +183,8 @@ export interface PropertyFormStep6 {
   commission_amount?: number;
   is_exclusive: boolean;
   exclusivity_expires_at?: string;
+  shared_in_mls?: boolean;
+  mls_id?: string;
 }
 
 export interface PropertyFormStep7 {
