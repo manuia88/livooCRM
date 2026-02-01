@@ -39,20 +39,31 @@ function BackofficeContent({ children }: { children: React.ReactNode }) {
   /* useEffect handled redirect - DEBE estar ANTES de cualquier return */
   useEffect(() => {
     if (!isLoading && !currentUser) {
+      console.log('Usuario no autenticado, redirigiendo a /auth')
       router.push('/auth')
     }
   }, [currentUser, isLoading, router])
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-gray-600">Cargando backoffice...</p>
+        </div>
       </div>
     )
   }
 
   if (!currentUser) {
-    return null
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-gray-600">Redirigiendo a inicio de sesión...</p>
+        </div>
+      </div>
+    )
   }
 
   const menuItems = [

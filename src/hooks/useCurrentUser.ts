@@ -7,10 +7,12 @@ import { createClient } from '@/lib/supabase/client'
 export interface CurrentUser {
     id: string
     email: string
+    first_name: string
+    last_name: string | null
     full_name: string
     avatar_url: string | null
     phone: string | null
-    role: 'admin' | 'director' | 'asesor'
+    role: 'admin' | 'manager' | 'agent' | 'viewer'
     is_active: boolean
     agency_id: string
     agency: {
@@ -58,7 +60,11 @@ export function useCurrentUser() {
                 return null
             }
 
-            return profile as CurrentUser
+            // Combinar datos de auth.users con user_profiles
+            return {
+                ...profile,
+                email: user.email || '',
+            } as CurrentUser
         },
         staleTime: 5 * 60 * 1000, // 5 minutos
         retry: 1,
@@ -66,12 +72,12 @@ export function useCurrentUser() {
 }
 
 /**
- * Hook para verificar si el usuario es Admin o Director
+ * Hook para verificar si el usuario es Admin o Manager
  * Estos roles pueden ver TODO de su agencia
  */
 export function useIsAdmin() {
     const { data: user } = useCurrentUser()
-    return user?.role === 'admin' || user?.role === 'director'
+    return user?.role === 'admin' || user?.role === 'manager'
 }
 
 /**
