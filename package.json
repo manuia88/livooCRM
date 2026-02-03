@@ -9,7 +9,9 @@
     "lint": "eslint",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "validate-config": "tsx scripts/validate-config.ts",
+    "pre-deploy": "npm run validate-config && npm run lint && npm run build"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.18",
