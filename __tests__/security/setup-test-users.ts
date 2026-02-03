@@ -72,19 +72,25 @@ async function setupTestUsers() {
     ]
   }
 
+  const createdAgencies: { [key: string]: string } = {}
+  const createdUsers: { [key: string]: { userId: string, agencyId: string } } = {}
+
   try {
     // 1. Crear agencias
     console.log('📦 Creando agencias de test...')
     
     for (const agency of testData.agencies) {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('agencies')
         .upsert(agency, { onConflict: 'id' })
+        .select('id, name')
+        .single()
 
       if (error) {
         console.error(`❌ Error creando agencia ${agency.name}:`, error.message)
       } else {
         console.log(`✅ Agencia creada/actualizada: ${agency.name}`)
+        createdAgencies[agency.name] = data?.id || agency.id
       }
     }
 
@@ -141,8 +147,35 @@ async function setupTestUsers() {
         console.error(`❌ Error creando profile ${user.email}:`, profileError.message)
       } else {
         console.log(`✅ Profile creado/actualizado: ${user.email}`)
+        createdUsers[user.email] = {
+          userId,
+          agencyId: user.agencyId
+        }
       }
     }
+
+    // Guardar IDs en archivo para los tests
+    const fs = await import('fs/promises')
+    const path = await import('path')
+    const testIdsPath = path.join(process.cwd(), '__tests__/security/test-ids.json')
+    
+    const testIds = {
+      agencyA: {
+        id: createdAgencies['Test Agency A'] || testData.agencies[0].id,
+        userId: createdUsers['test-agency-a@example.com']?.userId,
+        email: 'test-agency-a@example.com',
+        password: 'Test123456!'
+      },
+      agencyB: {
+        id: createdAgencies['Test Agency B'] || testData.agencies[1].id,
+        userId: createdUsers['test-agency-b@example.com']?.userId,
+        email: 'test-agency-b@example.com',
+        password: 'Test123456!'
+      }
+    }
+
+    await fs.writeFile(testIdsPath, JSON.stringify(testIds, null, 2))
+    console.log(`✅ IDs guardados en ${testIdsPath}`)
 
     console.log('\n')
     console.log('═'.repeat(60))
@@ -150,9 +183,11 @@ async function setupTestUsers() {
     console.log('═'.repeat(60))
     console.log('\nCredenciales de test:')
     console.log('\nAgencia A:')
+    console.log(`  ID: ${testIds.agencyA.id}`)
     console.log('  Email: test-agency-a@example.com')
     console.log('  Password: Test123456!')
     console.log('\nAgencia B:')
+    console.log(`  ID: ${testIds.agencyB.id}`)
     console.log('  Email: test-agency-b@example.com')
     console.log('  Password: Test123456!')
     console.log('\nAhora puedes ejecutar:')

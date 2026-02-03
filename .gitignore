@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+__tests__/security/test-ids.json
 
 # next.js
 /.next/
