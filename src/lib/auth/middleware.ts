@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import type { AuthenticatedUser } from '@/types'
+import { logger, metrics, MetricNames } from '@/lib/monitoring'
 
 /**
  * Verifica que el usuario está autenticado
@@ -46,6 +47,7 @@ export async function getAuthenticatedUser(
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {
+      logger.debug('No authenticated user found')
       return null
     }
 
@@ -57,9 +59,15 @@ export async function getAuthenticatedUser(
       .single()
 
     if (profileError || !profile) {
-      console.error('Profile not found for user:', user.id)
+      logger.warn('Profile not found for user', { userId: user.id })
       return null
     }
+
+    logger.debug('User authenticated', {
+      userId: user.id,
+      agencyId: profile.agency_id,
+      role: profile.role
+    })
 
     return {
       id: user.id,
@@ -68,7 +76,7 @@ export async function getAuthenticatedUser(
       role: profile.role
     }
   } catch (error) {
-    console.error('Error in getAuthenticatedUser:', error)
+    logger.error('Error in getAuthenticatedUser', error as Error)
     return null
   }
 }

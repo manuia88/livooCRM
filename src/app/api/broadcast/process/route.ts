@@ -2,14 +2,19 @@ import { NextResponse, NextRequest } from 'next/server';
 import { createServerAdminClient } from '@/lib/supabase/server-admin';
 import { textWhatsAppService } from '@/lib/whatsapp/service';
 import { withAuth, errorResponse, successResponse } from '@/lib/auth/middleware';
+import { withRateLimit, RateLimitPresets } from '@/lib/rate-limit';
 
 /**
  * Endpoint para procesar broadcasts pendientes
  * 
- * SEGURIDAD: Requiere autenticación
+ * SEGURIDAD: 
+ * - Requiere autenticación
+ * - Rate limit: 30 req/min (permite procesar múltiples batches)
  * Usuario solo puede procesar broadcasts de su propia agencia
  */
-export const POST = withAuth(async (request: NextRequest, user) => {
+export const POST = withRateLimit(
+  RateLimitPresets.moderate, // 30 req/min
+  withAuth(async (request: NextRequest, user) => {
     const supabase = createServerAdminClient();
     
     try {
@@ -129,9 +134,11 @@ export const POST = withAuth(async (request: NextRequest, user) => {
         console.error('Error processing broadcast:', error);
         return errorResponse(error.message || 'Failed to process broadcast', 500);
     }
-});
+  })
+);
 
 async function updateRecipientStatus(id: string, status: string, error?: string) {
+    const supabase = createServerAdminClient();
     const update: any = { status, sent_at: new Date().toISOString() };
     if (error) update.error_message = error;
     await supabase.from('broadcast_recipients').update(update).eq('id', id);

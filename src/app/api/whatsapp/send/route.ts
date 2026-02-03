@@ -1,14 +1,19 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { textWhatsAppService } from '@/lib/whatsapp/service';
 import { withAuth, errorResponse, successResponse } from '@/lib/auth/middleware';
+import { withRateLimit, RateLimitPresets } from '@/lib/rate-limit';
 
 /**
  * Endpoint para enviar mensajes de WhatsApp
  * 
- * SEGURIDAD: Requiere autenticación
+ * SEGURIDAD: 
+ * - Requiere autenticación
+ * - Rate limit: 10 mensajes por minuto
  * Solo usuarios autenticados de la agencia pueden enviar mensajes
  */
-export const POST = withAuth(async (request: NextRequest, user) => {
+export const POST = withRateLimit(
+  RateLimitPresets.standard, // 10 req/min
+  withAuth(async (request: NextRequest, user) => {
     try {
         const body = await request.json();
         const { to, message } = body;
@@ -29,4 +34,5 @@ export const POST = withAuth(async (request: NextRequest, user) => {
         console.error('Error in /api/whatsapp/send:', error);
         return errorResponse(error.message || 'Failed to send message', 500);
     }
-});
+  })
+);

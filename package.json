@@ -10,6 +10,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:e2e": "playwright test",
+    "test:security": "jest __tests__/security/",
+    "setup-test-users": "tsx __tests__/security/setup-test-users.ts",
     "validate-config": "tsx scripts/validate-config.ts",
     "pre-deploy": "npm run validate-config && npm run lint && npm run build"
   },

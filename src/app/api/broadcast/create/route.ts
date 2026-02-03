@@ -1,14 +1,19 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { createServerAdminClient } from '@/lib/supabase/server-admin';
 import { withAuth, errorResponse, successResponse } from '@/lib/auth/middleware';
+import { withRateLimit, RateLimitPresets } from '@/lib/rate-limit';
 
 /**
  * Endpoint para crear campañas de broadcast
  * 
- * SEGURIDAD: Requiere autenticación
+ * SEGURIDAD: 
+ * - Requiere autenticación
+ * - Rate limit: 5 broadcasts por minuto (previene spam)
  * Usuario solo puede crear broadcasts para su propia agencia
  */
-export const POST = withAuth(async (request: NextRequest, user) => {
+export const POST = withRateLimit(
+  RateLimitPresets.strict, // 5 req/min
+  withAuth(async (request: NextRequest, user) => {
     const supabase = createServerAdminClient();
     
     try {
@@ -86,4 +91,5 @@ export const POST = withAuth(async (request: NextRequest, user) => {
         console.error('Error creating broadcast:', error);
         return errorResponse(error.message || 'Failed to create broadcast', 500);
     }
-});
+  })
+);
