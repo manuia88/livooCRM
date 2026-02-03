@@ -3,28 +3,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
-
-export interface CurrentUser {
-    id: string
-    email: string
-    first_name: string
-    last_name: string | null
-    full_name: string
-    avatar_url: string | null
-    phone: string | null
-    role: 'admin' | 'manager' | 'agent' | 'viewer'
-    is_active: boolean
-    agency_id: string
-    agency: {
-        id: string
-        name: string
-        slug: string
-        email: string | null
-        phone: string | null
-    } | null
-    created_at: string
-    updated_at: string
-}
+import type { CurrentUser } from '@/types'
 
 /**
  * Hook para obtener el usuario actual con su agencia y rol

@@ -9,6 +9,7 @@ import { Boom } from '@hapi/boom';
 import pino from 'pino';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { createServerAdminClient } from '@/lib/supabase/server-admin';
+import { useSupabaseAuthState, ensureWhatsAppBucket } from './supabase-auth-state';
 
 // Global reference
 declare global {
@@ -17,6 +18,8 @@ declare global {
 }
 
 const SESSION_DIR = 'whatsapp-auth-session';
+const STORAGE_BUCKET = 'whatsapp-sessions';
+const USE_SUPABASE_STORAGE = process.env.NODE_ENV === 'production';
 
 export class WhatsAppService {
     private socket: any = null;
@@ -42,7 +45,32 @@ export class WhatsAppService {
             return { qr: this.qr || undefined, status: 'connected' };
         }
 
-        const { state, saveCreds } = await useMultiFileAuthState(SESSION_DIR);
+        // Elegir storage según entorno
+        let state, saveCreds;
+        
+        if (USE_SUPABASE_STORAGE) {
+            console.log('🔐 Usando Supabase Storage para sesión de WhatsApp');
+            
+            // Asegurar que el bucket existe
+            await ensureWhatsAppBucket(this.supabase, STORAGE_BUCKET);
+            
+            // Usar Supabase Storage
+            const authState = await useSupabaseAuthState(this.supabase, {
+                bucketName: STORAGE_BUCKET,
+                folderPath: 'session'
+            });
+            
+            state = authState.state;
+            saveCreds = authState.saveCreds;
+        } else {
+            console.log('📁 Usando filesystem local para sesión de WhatsApp (desarrollo)');
+            
+            // Usar filesystem local (desarrollo)
+            const authState = await useMultiFileAuthState(SESSION_DIR);
+            state = authState.state;
+            saveCreds = authState.saveCreds;
+        }
+
         const { version, isLatest } = await fetchLatestBaileysVersion();
 
         console.log(`using WA v${version.join('.')}, isLatest: ${isLatest}`);
