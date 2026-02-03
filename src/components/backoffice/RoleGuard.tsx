@@ -4,10 +4,11 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
+import type { UserRole } from '@/types'
 
 interface RoleGuardProps {
     children: React.ReactNode
-    allowedRoles?: ('admin' | 'director' | 'asesor')[]
+    allowedRoles?: UserRole[]
     fallbackPath?: string
     loadingComponent?: React.ReactNode
 }
@@ -16,8 +17,8 @@ interface RoleGuardProps {
  * Componente para proteger rutas según el rol del usuario
  * 
  * @example
- * // Solo admins y directores
- * <RoleGuard allowedRoles={['admin', 'director']}>
+ * // Solo admins y managers
+ * <RoleGuard allowedRoles={['admin', 'manager']}>
  *   <AdminDashboard />
  * </RoleGuard>
  * 
@@ -86,7 +87,7 @@ export function AdminGuard({
     fallbackPath?: string
 }) {
     return (
-        <RoleGuard allowedRoles={['admin', 'director']} fallbackPath={fallbackPath}>
+        <RoleGuard allowedRoles={['admin', 'manager']} fallbackPath={fallbackPath}>
             {children}
         </RoleGuard>
     )
@@ -95,7 +96,7 @@ export function AdminGuard({
 /**
  * Hook para verificar permisos desde componentes
  */
-export function useHasRole(roles: ('admin' | 'director' | 'asesor')[]) {
+export function useHasRole(roles: UserRole[]) {
     const { data: user } = useCurrentUser()
 
     if (!user) return false
@@ -104,8 +105,8 @@ export function useHasRole(roles: ('admin' | 'director' | 'asesor')[]) {
 }
 
 /**
- * Hook para verificar si es admin o director
+ * Hook para verificar si es admin o manager
  */
-export function useIsAdminOrDirector() {
-    return useHasRole(['admin', 'director'])
+export function useIsAdminOrManager() {
+    return useHasRole(['admin', 'manager'])
 }

@@ -635,47 +635,4 @@ export interface PropertyFormStep7 {
 // EXPORTS CONSOLIDADOS
 // ============================================================================
 
-// Re-exportar todo para facilitar imports
-export type {
-  // Core
-  Agency,
-  UserProfile,
-  UserProfileWithAgency,
-  CurrentUser,
-  
-  // Business
-  Property,
-  PropertyWithRelations,
-  PropertyFormData,
-  Contact,
-  ContactWithRelations,
-  Task,
-  TaskWithRelations,
-  ContactInteraction,
-  Broadcast,
-  BroadcastRecipient,
-  ActivityLog,
-  
-  // Metrics
-  DashboardSummary,
-  AgencyMetrics,
-  AgentMetrics,
-  PropertiesStats,
-  
-  // Helpers
-  PaginationParams,
-  PropertyFilters,
-  ContactFilters,
-  PaginatedResult,
-  ApiResponse,
-  AuthenticatedUser,
-  
-  // Form Steps
-  PropertyFormStep1,
-  PropertyFormStep2,
-  PropertyFormStep3,
-  PropertyFormStep4,
-  PropertyFormStep5,
-  PropertyFormStep6,
-  PropertyFormStep7,
-}
+// Todos los tipos ya están exportados individualmente arriba

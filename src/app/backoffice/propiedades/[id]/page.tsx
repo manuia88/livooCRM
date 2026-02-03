@@ -60,7 +60,7 @@ export default function PropertyDetailPage() {
     )
   }
 
-  const canEdit = property.is_mine || currentUser?.role === 'admin' || currentUser?.role === 'director'
+  const canEdit = property.is_mine || currentUser?.role === 'admin' || currentUser?.role === 'manager'
   const canSeeOwnerData = property.is_my_agency
 
   const handleEdit = () => {

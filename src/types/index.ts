@@ -9,11 +9,11 @@
  * import { Contact } from '@/types/contact'
  */
 
-// Re-exportar todo desde database.ts (archivo maestro)
+// Re-exportar todo desde database.ts (archivo maestro consolidado)
 export * from './database'
 
-// Re-exportar tipos especializados si existen
+// Re-exportar tipos especializados no incluidos en database.ts
 export * from './inbox'
 export * from './templates'
 export * from './analytics'
-export * from './broadcast'
+// broadcast.ts ya está incluido en database.ts

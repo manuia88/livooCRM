@@ -41,7 +41,7 @@ export default function DashboardPage() {
     )
   }
 
-  const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'director'
+  const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'manager'
 
   if (isAdmin) {
     return <AdminDashboard />

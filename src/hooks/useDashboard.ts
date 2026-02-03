@@ -107,13 +107,13 @@ export function usePriorityActions() {
 }
 
 /**
- * Hook para obtener métricas globales de la agencia (solo admin/director)
+ * Hook para obtener métricas globales de la agencia (solo admin/manager)
  */
 export function useAgencyMetrics() {
     const supabase = createClient()
     const { data: currentUser } = useCurrentUser()
 
-    const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'director'
+    const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'manager'
 
     return useQuery<AgencyMetrics | null>({
         queryKey: ['agency-metrics', currentUser?.agency_id],
@@ -212,7 +212,7 @@ export function useAgencyMetrics() {
 export function useAgentMetrics(agentId?: string) {
     const supabase = createClient()
     const { data: currentUser } = useCurrentUser()
-    const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'director'
+    const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'manager'
 
     return useQuery<DashboardSummary | null>({
         queryKey: ['agent-metrics', agentId],
@@ -268,7 +268,7 @@ export function useUpdateObjective() {
 export function useAgencyAgents() {
     const supabase = createClient()
     const { data: currentUser } = useCurrentUser()
-    const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'director'
+    const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'manager'
 
     return useQuery({
         queryKey: ['agency-agents', currentUser?.agency_id],

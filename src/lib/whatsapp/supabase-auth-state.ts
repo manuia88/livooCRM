@@ -133,14 +133,19 @@ export async function useSupabaseAuthState(
         const tasks: Promise<void>[] = []
 
         for (const category in data) {
-          for (const id in data[category]) {
-            const value = data[category][id]
-            const file = `${KEYS_PREFIX}${category}-${id}.json`
+          const categoryKey = category as keyof typeof data
+          const categoryData = data[categoryKey] as any
+          
+          if (categoryData && typeof categoryData === 'object') {
+            for (const id in categoryData) {
+              const value = categoryData[id]
+              const file = `${KEYS_PREFIX}${category}-${id}.json`
 
-            if (value) {
-              tasks.push(writeData(file, value))
-            } else {
-              tasks.push(removeData(file))
+              if (value) {
+                tasks.push(writeData(file, value))
+              } else {
+                tasks.push(removeData(file))
+              }
             }
           }
         }
