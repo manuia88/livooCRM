@@ -64,7 +64,7 @@ export default function DashboardPage() {
       <div className="flex">
         {/* Main Content */}
         <div className={`flex-1 transition-all duration-300 ${showMetricsPanel ? 'lg:pr-96' : ''}`}>
-          <div className="p-4 sm:p-6 lg:p-8">
+          <div className="p-4 sm:p-6 lg:p-8 max-w-full overflow-hidden">
             {/* Sección: ¿Qué debo hacer hoy? */}
             <TodoSection />
 
@@ -104,30 +104,67 @@ function PerformanceHeader({ user }: { user: any }) {
 
   return (
     <div className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 border-b border-gray-700 shadow-2xl">
-      <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div className="px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-6">
+        {/* Móvil: Layout compacto vertical */}
+        <div className="lg:hidden space-y-3">
+          {/* Top row: Saludo + Badge */}
+          <div className="flex items-center justify-between">
+            <h1 className="text-lg font-bold text-white">
+              ¡Hola {user?.full_name?.split(' ')[0] || 'Usuario'}!
+            </h1>
+            <span className="px-3 py-0.5 bg-gradient-to-r from-yellow-500 to-yellow-600 text-gray-900 rounded-full text-xs font-bold shadow-lg whitespace-nowrap">
+              {summary?.level || 'Broker Inicial'}
+            </span>
+          </div>
+
+          {/* Gamificación compacta */}
+          <div>
+            <div className="flex justify-between items-baseline mb-1.5">
+              <p className="text-yellow-400 font-semibold text-xs">
+                ${current.toFixed(1)}M alcanzado
+              </p>
+              <p className="text-xs text-gray-400">Meta: ${target.toFixed(1)}M</p>
+            </div>
+            
+            <div className="relative w-full h-2 bg-gray-700 rounded-full overflow-hidden shadow-inner">
+              <div
+                className="absolute h-full bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-500 rounded-full transition-all duration-700 ease-out shadow-lg"
+                style={{ width: `${Math.min(progress, 100)}%` }}
+              >
+                <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Botón disponibilidad */}
+          <button className="w-full px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-xl font-medium shadow-lg transition-all duration-200 text-sm">
+            🟢 Disponible
+          </button>
+        </div>
+
+        {/* Desktop: Layout original */}
+        <div className="hidden lg:flex lg:items-center lg:justify-between gap-4">
           {/* Left: Saludo */}
           <div className="flex-shrink-0">
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-1">
+            <h1 className="text-3xl font-bold text-white mb-1">
               ¡Hola {user?.full_name?.split(' ')[0] || 'Usuario'}!
             </h1>
             <div className="flex items-center space-x-3">
-              <span className="px-3 sm:px-4 py-1 bg-gradient-to-r from-yellow-500 to-yellow-600 text-gray-900 rounded-full text-xs sm:text-sm font-bold shadow-lg">
+              <span className="px-4 py-1 bg-gradient-to-r from-yellow-500 to-yellow-600 text-gray-900 rounded-full text-sm font-bold shadow-lg">
                 {summary?.level || 'Broker Inicial'}
               </span>
             </div>
           </div>
 
           {/* Center: Gamificación */}
-          <div className="flex-1 lg:max-w-md lg:mx-12">
-            <div className="text-left lg:text-center mb-2">
-              <p className="text-yellow-400 font-semibold text-sm sm:text-base lg:text-lg">
-                ${current.toFixed(1)}M alcanzado <span className="hidden sm:inline">(últimos 6 meses)</span>
+          <div className="flex-1 max-w-md mx-12">
+            <div className="text-center mb-2">
+              <p className="text-yellow-400 font-semibold text-lg">
+                ${current.toFixed(1)}M alcanzado (últimos 6 meses)
               </p>
             </div>
             
-            {/* Progress Bar - Estilo Apple */}
-            <div className="relative w-full h-2 sm:h-3 bg-gray-700 rounded-full overflow-hidden shadow-inner">
+            <div className="relative w-full h-3 bg-gray-700 rounded-full overflow-hidden shadow-inner">
               <div
                 className="absolute h-full bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-500 rounded-full transition-all duration-700 ease-out shadow-lg"
                 style={{ width: `${Math.min(progress, 100)}%` }}
@@ -143,7 +180,7 @@ function PerformanceHeader({ user }: { user: any }) {
           </div>
 
           {/* Right: Disponibilidad */}
-          <button className="w-full lg:w-auto px-4 sm:px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-full font-medium shadow-lg transition-all duration-200 hover:scale-105 text-sm sm:text-base">
+          <button className="px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-full font-medium shadow-lg transition-all duration-200 hover:scale-105">
             🟢 Disponible
           </button>
         </div>
@@ -195,15 +232,16 @@ function TodoSection() {
   ]
 
   return (
-    <div className="mb-8">
-      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 px-1">¿Qué debo hacer hoy?</h2>
+    <div className="mb-8 w-full">
+      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">¿Qué debo hacer hoy?</h2>
       
-      <div className="flex space-x-3 sm:space-x-4 overflow-x-auto pb-4 scrollbar-hide -mx-1 px-1">
-        {priorityCards.map((card, idx) => (
-          <div
-            key={idx}
-            className="min-w-[280px] sm:min-w-[320px] bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200 p-4 sm:p-6 hover:scale-105 transition-all duration-300 hover:shadow-3xl flex-shrink-0"
-          >
+      <div className="w-full overflow-x-auto pb-4 scrollbar-hide">
+        <div className="flex space-x-3 sm:space-x-4">
+          {priorityCards.map((card, idx) => (
+            <div
+              key={idx}
+              className="min-w-[280px] sm:min-w-[320px] bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200 p-4 sm:p-6 hover:scale-105 transition-all duration-300 hover:shadow-3xl flex-shrink-0"
+            >
             <div className={`inline-flex p-3 rounded-2xl bg-gradient-to-br ${card.color} mb-4`}>
               <card.icon className="h-6 w-6 text-white" />
             </div>
@@ -226,7 +264,8 @@ function TodoSection() {
               {card.action}
             </button>
           </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   )
@@ -245,15 +284,15 @@ function QuickAccessGrid({ onShowMetrics }: { onShowMetrics: () => void }) {
   ]
 
   return (
-    <div className="mb-8">
-      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 px-1">Accesos Rápidos</h2>
+    <div className="mb-8 w-full">
+      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Accesos Rápidos</h2>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full">
         {tiles.map((tile, idx) => (
           <button
             key={idx}
             onClick={tile.onClick}
-            className="group bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200 p-4 sm:p-6 hover:scale-105 transition-all duration-300 hover:shadow-3xl hover:bg-gradient-to-br hover:from-gray-900 hover:to-gray-800 text-left"
+            className="w-full group bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200 p-4 sm:p-6 hover:scale-105 transition-all duration-300 hover:shadow-3xl hover:bg-gradient-to-br hover:from-gray-900 hover:to-gray-800 text-left"
           >
             <div className="flex items-center space-x-3 sm:space-x-4">
               <div className="p-2 sm:p-3 bg-gray-100 group-hover:bg-white/20 rounded-xl sm:rounded-2xl transition-colors duration-300 flex-shrink-0">
