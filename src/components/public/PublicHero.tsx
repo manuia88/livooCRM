@@ -1,11 +1,11 @@
 "use client";
 
 import { ReactNode } from "react";
-import { LucideIcon, Home, Building2, Calculator, Users, Mail, FileText, KeyRound, Search } from "lucide-react";
+import { LucideIcon, Home, Building2, Calculator, Users, Mail, FileText, KeyRound, Search, Landmark, BookOpen, HelpCircle } from "lucide-react";
 import Image from "next/image";
 
 /** Nombres de iconos permitidos para uso desde Server Components (serializables) */
-export type PublicHeroIconName = "Home" | "Building2" | "Calculator" | "Users" | "Mail" | "FileText" | "KeyRound" | "Search";
+export type PublicHeroIconName = "Home" | "Building2" | "Calculator" | "Users" | "Mail" | "FileText" | "KeyRound" | "Search" | "Landmark" | "BookOpen" | "HelpCircle";
 
 const ICON_MAP: Record<PublicHeroIconName, LucideIcon> = {
   Home,
@@ -16,6 +16,9 @@ const ICON_MAP: Record<PublicHeroIconName, LucideIcon> = {
   FileText,
   KeyRound,
   Search,
+  Landmark,
+  BookOpen,
+  HelpCircle,
 };
 
 /**
