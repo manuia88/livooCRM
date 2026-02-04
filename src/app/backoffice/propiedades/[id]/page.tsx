@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useProperty, useUpdateProperty, useTogglePublishProperty } from '@/hooks/useProperties'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { PageContainer, Card, CardHeader, CardContent, CardTitle, Button as AppleButton } from '@/components/backoffice/PageContainer'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { 

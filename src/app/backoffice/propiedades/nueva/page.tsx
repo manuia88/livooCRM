@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useCreateProperty } from '@/hooks/useProperties'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { PageContainer, Button as AppleButton } from '@/components/backoffice/PageContainer'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { 
@@ -16,7 +16,8 @@ import {
   Image as ImageIcon,
   FileText,
   Settings,
-  Eye
+  Eye,
+  Plus
 } from 'lucide-react'
 
 const STEPS = [
@@ -127,51 +128,54 @@ export default function NewPropertyWizard() {
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Nueva Propiedad</h1>
-        <p className="text-gray-600 mt-1">Completa los 7 pasos para crear una propiedad</p>
-      </div>
+    <PageContainer
+      title="Nueva Propiedad"
+      subtitle={`Paso ${currentStep} de 7 - ${STEPS[currentStep - 1].name}`}
+      icon={Plus}
+      className="max-w-6xl mx-auto"
+    >
+      {/* Stepper - Estilo Apple */}
+      <div className="mb-6 sm:mb-8">
+        <div className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200 p-4 sm:p-6">
+          <div className="flex items-center justify-between overflow-x-auto pb-2">
+            {STEPS.map((step, index) => {
+              const Icon = step.icon
+              const isActive = currentStep === step.id
+              const isCompleted = currentStep > step.id
 
-      {/* Stepper */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
-          {STEPS.map((step, index) => {
-            const Icon = step.icon
-            const isActive = currentStep === step.id
-            const isCompleted = currentStep > step.id
-
-            return (
-              <div key={step.id} className="flex items-center flex-1">
-                <div className="flex flex-col items-center">
-                  <div className={`
-                    w-12 h-12 rounded-full flex items-center justify-center
-                    ${isCompleted ? 'bg-green-500 text-white' : 
-                      isActive ? 'bg-blue-600 text-white' : 
-                      'bg-gray-200 text-gray-500'}
-                  `}>
-                    {isCompleted ? <Check className="h-6 w-6" /> : <Icon className="h-6 w-6" />}
+              return (
+                <div key={step.id} className="flex items-center flex-1 min-w-[80px]">
+                  <div className="flex flex-col items-center w-full">
+                    <div className={`
+                      w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-300
+                      ${isCompleted ? 'bg-gradient-to-br from-green-500 to-green-600 text-white scale-110' : 
+                        isActive ? 'bg-gradient-to-br from-gray-900 to-gray-700 text-white scale-110' : 
+                        'bg-gray-100 text-gray-400'}
+                    `}>
+                      {isCompleted ? <Check className="h-6 w-6 font-bold" /> : <Icon className="h-5 w-5 sm:h-6 sm:w-6" />}
+                    </div>
+                    <p className={`text-[10px] sm:text-xs mt-2 text-center ${isActive ? 'font-bold text-gray-900' : 'text-gray-600'}`}>
+                      {step.name}
+                    </p>
                   </div>
-                  <p className={`text-xs mt-2 text-center ${isActive ? 'font-semibold' : ''}`}>
-                    {step.name}
-                  </p>
+                  {index < STEPS.length - 1 && (
+                    <div className={`flex-1 h-1 mx-1 sm:mx-2 rounded-full transition-all duration-300 ${isCompleted ? 'bg-gradient-to-r from-green-500 to-green-600' : 'bg-gray-200'}`} />
+                  )}
                 </div>
-                {index < STEPS.length - 1 && (
-                  <div className={`flex-1 h-1 mx-2 ${isCompleted ? 'bg-green-500' : 'bg-gray-200'}`} />
-                )}
-              </div>
-            )
-          })}
+              )
+            })}
+          </div>
         </div>
       </div>
 
-      {/* Form Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Paso {currentStep}: {STEPS[currentStep - 1].name}</CardTitle>
-        </CardHeader>
-        <CardContent>
+      {/* Form Card - Estilo Apple */}
+      <div className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200">
+        <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 border-b border-gray-200">
+          <h2 className="text-xl sm:text-2xl font-black text-gray-900">
+            Paso {currentStep}: {STEPS[currentStep - 1].name}
+          </h2>
+        </div>
+        <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           {currentStep === 1 && <Step1BasicInfo formData={formData} updateFormData={updateFormData} />}
           {currentStep === 2 && <Step2Location formData={formData} updateFormData={updateFormData} />}
           {currentStep === 3 && <Step3Details formData={formData} updateFormData={updateFormData} />}
@@ -179,35 +183,38 @@ export default function NewPropertyWizard() {
           {currentStep === 5 && <Step5Features formData={formData} updateFormData={updateFormData} />}
           {currentStep === 6 && <Step6Images formData={formData} updateFormData={updateFormData} />}
           {currentStep === 7 && <Step7Review formData={formData} updateFormData={updateFormData} />}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      {/* Navigation */}
-      <div className="flex justify-between mt-6">
-        <Button
+      {/* Navigation - Estilo Apple */}
+      <div className="flex flex-col sm:flex-row justify-between gap-3 mt-6">
+        <AppleButton
           onClick={prevStep}
           disabled={currentStep === 1}
-          variant="outline"
+          variant="secondary"
+          size="lg"
         >
-          <ChevronLeft className="h-4 w-4 mr-2" />
+          <ChevronLeft className="h-5 w-5 mr-2" />
           Anterior
-        </Button>
+        </AppleButton>
 
         {currentStep < 7 ? (
-          <Button onClick={nextStep}>
+          <AppleButton onClick={nextStep} size="lg">
             Siguiente
-            <ChevronRight className="h-4 w-4 ml-2" />
-          </Button>
+            <ChevronRight className="h-5 w-5 ml-2" />
+          </AppleButton>
         ) : (
-          <Button 
+          <AppleButton 
             onClick={handleSubmit}
             disabled={createProperty.isPending}
+            variant="success"
+            size="lg"
           >
             {createProperty.isPending ? 'Guardando...' : 'Crear Propiedad'}
-          </Button>
+          </AppleButton>
         )}
       </div>
-    </div>
+    </PageContainer>
   )
 }
 
@@ -216,33 +223,34 @@ export default function NewPropertyWizard() {
 // ============================================================================
 function Step1BasicInfo({ formData, updateFormData }: any) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div>
-        <label className="block text-sm font-medium mb-2">Título *</label>
+        <label className="block text-sm font-bold text-gray-900 mb-2">Título *</label>
         <Input
           value={formData.title}
           onChange={(e) => updateFormData('title', e.target.value)}
           placeholder="Ej: Casa moderna en Polanco"
+          className="h-12 rounded-xl border-gray-200 bg-white/80 backdrop-blur-xl shadow-md focus:ring-2 focus:ring-gray-900"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-2">Descripción</label>
+        <label className="block text-sm font-bold text-gray-900 mb-2">Descripción</label>
         <textarea
           value={formData.description}
           onChange={(e) => updateFormData('description', e.target.value)}
-          className="w-full min-h-[120px] rounded-md border border-input bg-background px-3 py-2 text-sm"
+          className="w-full min-h-[140px] rounded-xl border border-gray-200 bg-white/80 backdrop-blur-xl shadow-md px-4 py-3 text-sm focus:ring-2 focus:ring-gray-900 focus:outline-none"
           placeholder="Describe la propiedad..."
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium mb-2">Tipo de Propiedad *</label>
+          <label className="block text-sm font-bold text-gray-900 mb-2">Tipo de Propiedad *</label>
           <select
             value={formData.property_type}
             onChange={(e) => updateFormData('property_type', e.target.value)}
-            className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+            className="w-full h-12 rounded-xl border border-gray-200 bg-white/80 backdrop-blur-xl shadow-md px-4 py-2 text-sm focus:ring-2 focus:ring-gray-900 focus:outline-none"
           >
             <option value="casa">Casa</option>
             <option value="departamento">Departamento</option>
@@ -254,11 +262,11 @@ function Step1BasicInfo({ formData, updateFormData }: any) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2">Tipo de Operación *</label>
+          <label className="block text-sm font-bold text-gray-900 mb-2">Tipo de Operación *</label>
           <select
             value={formData.operation_type}
             onChange={(e) => updateFormData('operation_type', e.target.value)}
-            className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+            className="w-full h-12 rounded-xl border border-gray-200 bg-white/80 backdrop-blur-xl shadow-md px-4 py-2 text-sm focus:ring-2 focus:ring-gray-900 focus:outline-none"
           >
             <option value="venta">Venta</option>
             <option value="renta">Renta</option>
