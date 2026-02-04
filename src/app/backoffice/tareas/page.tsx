@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { PageContainer, Button as AppleButton } from '@/components/backoffice/PageContainer';
 import { Button } from '@/components/ui/button';
 import { TaskCard } from '@/components/tasks/TaskCard';
 import { TaskQueueModal } from '@/components/tasks/TaskQueueModal';
@@ -13,7 +14,8 @@ import {
     Filter,
     Calendar,
     CheckCircle2,
-    AlertCircle
+    AlertCircle,
+    ListChecks
 } from 'lucide-react';
 import { useTasks, useTaskMetrics } from '@/hooks/useTasks';
 
@@ -38,41 +40,37 @@ export default function BackofficeTasksPage() {
     ) || [];
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Tareas</h1>
-                    <p className="text-gray-500 mt-1">
-                        Gestiona y completa tus tareas pendientes
-                    </p>
-                </div>
+        <PageContainer
+            title="Tareas"
+            subtitle="Gestiona y completa tus tareas pendientes"
+            icon={ListChecks}
+            actions={
                 <div className="flex items-center space-x-3">
-                    <Button
-                        variant="outline"
+                    <AppleButton
+                        variant="secondary"
                         onClick={() => setShowFilters(!showFilters)}
                     >
-                        <Filter className="h-4 w-4 mr-2" />
+                        <Filter className="h-5 w-5 mr-2" />
                         Filtros
-                    </Button>
-                    <Button
-                        variant="outline"
+                    </AppleButton>
+                    <AppleButton
+                        variant="secondary"
                         onClick={() => setShowCreateDialog(true)}
                     >
-                        <Plus className="h-4 w-4 mr-2" />
+                        <Plus className="h-5 w-5 mr-2" />
                         Nueva tarea
-                    </Button>
-                    <Button
+                    </AppleButton>
+                    <AppleButton
                         size="lg"
-                        className="bg-blue-600 hover:bg-blue-700"
                         onClick={() => setShowQueueModal(true)}
                         disabled={!tasks || tasks.length === 0}
                     >
                         <Play className="h-5 w-5 mr-2" />
                         Iniciar cola de tareas
-                    </Button>
+                    </AppleButton>
                 </div>
-            </div>
+            }
+        >
 
             {/* Metrics Grid */}
             <TaskMetricsGrid metrics={metrics} />
@@ -262,6 +260,6 @@ export default function BackofficeTasksPage() {
                 open={showCreateDialog}
                 onClose={() => setShowCreateDialog(false)}
             />
-        </div>
+        </PageContainer>
     );
 }

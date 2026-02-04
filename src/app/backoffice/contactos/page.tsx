@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
+import { PageContainer, Button as AppleButton } from '@/components/backoffice/PageContainer';
 import {
     Table,
     TableBody,
@@ -143,48 +144,44 @@ export default function BackofficeContactsPage() {
     }
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold text-[#2C3E2C]">Contactos</h1>
-                    <p className="text-[#556B55] mt-1">
-                        Gestiona tus clientes, prospectos y relaciones
-                    </p>
-                </div>
-                <Button className="bg-gradient-to-r from-[#B8975A] to-[#C4A872] hover:from-[#A38449] hover:to-[#B8975A]">
-                    <UserPlus className="w-4 h-4 mr-2" />
+        <PageContainer
+            title="Contactos"
+            subtitle="Gestiona tus clientes, prospectos y relaciones"
+            icon={Users}
+            actions={
+                <AppleButton>
+                    <UserPlus className="w-5 h-5 mr-2" />
                     Nuevo Contacto
-                </Button>
-            </div>
-
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                <div className="bg-white p-4 rounded-lg border border-[#E5E3DB]">
-                    <p className="text-sm text-[#556B55]">Total</p>
-                    <p className="text-2xl font-bold text-[#2C3E2C]">{contacts?.length || 0}</p>
+                </AppleButton>
+            }
+        >
+            {/* Stats Cards - Estilo Apple */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6 sm:mb-8">
+                <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200 p-4 hover:scale-105 transition-all duration-300">
+                    <p className="text-sm text-gray-600 mb-1">Total</p>
+                    <p className="text-3xl font-black text-gray-900">{contacts?.length || 0}</p>
                 </div>
-                <div className="bg-white p-4 rounded-lg border border-[#E5E3DB]">
-                    <p className="text-sm text-[#556B55]">Compradores</p>
-                    <p className="text-2xl font-bold text-blue-600">
+                <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200 p-4 hover:scale-105 transition-all duration-300">
+                    <p className="text-sm text-gray-600 mb-1">Compradores</p>
+                    <p className="text-3xl font-black text-blue-600">
                         {contacts?.filter((c) => c.contact_type === 'buyer').length || 0}
                     </p>
                 </div>
-                <div className="bg-white p-4 rounded-lg border border-[#E5E3DB]">
-                    <p className="text-sm text-[#556B55]">Vendedores</p>
-                    <p className="text-2xl font-bold text-green-600">
+                <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200 p-4 hover:scale-105 transition-all duration-300">
+                    <p className="text-sm text-gray-600 mb-1">Vendedores</p>
+                    <p className="text-3xl font-black text-green-600">
                         {contacts?.filter((c) => c.contact_type === 'seller').length || 0}
                     </p>
                 </div>
-                <div className="bg-white p-4 rounded-lg border border-[#E5E3DB]">
-                    <p className="text-sm text-[#556B55]">Calificados</p>
-                    <p className="text-2xl font-bold text-purple-600">
+                <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200 p-4 hover:scale-105 transition-all duration-300">
+                    <p className="text-sm text-gray-600 mb-1">Calificados</p>
+                    <p className="text-3xl font-black text-purple-600">
                         {contacts?.filter((c) => c.status === 'qualified').length || 0}
                     </p>
                 </div>
-                <div className="bg-white p-4 rounded-lg border border-[#E5E3DB]">
-                    <p className="text-sm text-[#556B55]">Score Prom.</p>
-                    <p className="text-2xl font-bold text-[#B8975A]">
+                <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200 p-4 hover:scale-105 transition-all duration-300">
+                    <p className="text-sm text-gray-600 mb-1">Score Prom.</p>
+                    <p className="text-3xl font-black text-gray-900">
                         {contacts && contacts.length > 0
                             ? Math.round(
                                 contacts.reduce((sum, c) => sum + (c.lead_score || 0), 0) /
@@ -195,22 +192,22 @@ export default function BackofficeContactsPage() {
                 </div>
             </div>
 
-            {/* Filters */}
-            <div className="bg-white p-4 rounded-lg border border-[#E5E3DB]">
-                <div className="flex flex-col md:flex-row gap-4">
+            {/* Filters - Estilo Apple */}
+            <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200 p-4 sm:p-6 mb-6">
+                <div className="flex flex-col md:flex-row gap-3 sm:gap-4">
                     <div className="flex-1 relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#556B55] w-4 h-4" />
+                        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                         <Input
                             placeholder="Buscar por nombre, email o teléfono..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-10"
+                            className="pl-12 h-12 rounded-xl border-gray-200 bg-white/80 backdrop-blur-xl shadow-md focus:ring-2 focus:ring-gray-900"
                         />
                     </div>
                     <select
                         value={typeFilter}
                         onChange={(e) => setTypeFilter(e.target.value)}
-                        className="px-4 py-2 border border-[#E5E3DB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B8975A]"
+                        className="px-4 h-12 border border-gray-200 rounded-xl bg-white/80 backdrop-blur-xl shadow-md focus:outline-none focus:ring-2 focus:ring-gray-900 font-medium"
                     >
                         <option value="all">Todos los tipos</option>
                         <option value="buyer">Comprador</option>
@@ -222,7 +219,7 @@ export default function BackofficeContactsPage() {
                     <select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
-                        className="px-4 py-2 border border-[#E5E3DB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B8975A]"
+                        className="px-4 h-12 border border-gray-200 rounded-xl bg-white/80 backdrop-blur-xl shadow-md focus:outline-none focus:ring-2 focus:ring-gray-900 font-medium"
                     >
                         <option value="all">Todos los estados</option>
                         <option value="lead">Lead</option>
@@ -235,8 +232,8 @@ export default function BackofficeContactsPage() {
                 </div>
             </div>
 
-            {/* Table */}
-            <div className="bg-white rounded-lg border border-[#E5E3DB] overflow-hidden">
+            {/* Table - Estilo Apple */}
+            <div className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200 overflow-hidden">
                 <Table>
                     <TableHeader>
                         <TableRow className="bg-[#F8F7F4]">
@@ -362,6 +359,6 @@ export default function BackofficeContactsPage() {
                     </TableBody>
                 </Table>
             </div>
-        </div>
+        </PageContainer>
     );
 }

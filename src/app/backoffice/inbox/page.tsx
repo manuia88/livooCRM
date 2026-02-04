@@ -2,11 +2,12 @@
 'use client'
 
 import { useState } from 'react'
+import { PageContainer } from '@/components/backoffice/PageContainer'
 import { useConversations } from '@/hooks/useConversations'
 import { ChatList } from '@/components/inbox/ChatList'
 import { ChatWindow } from '@/components/inbox/ChatWindow'
 import { WhatsAppConnect } from '@/components/inbox/WhatsAppConnect'
-import { MessageSquareDashed } from 'lucide-react'
+import { MessageSquareDashed, Inbox } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 
 export default function InboxPage() {
@@ -16,7 +17,12 @@ export default function InboxPage() {
     const selectedConversation = conversations?.find(c => c.id === selectedId)
 
     return (
-        <div className="flex flex-col gap-4 m-4">
+        <PageContainer
+            title="Inbox"
+            subtitle="Mensajes y conversaciones con tus contactos"
+            icon={Inbox}
+        >
+            <div className="flex flex-col gap-4">
             {/* WhatsApp Connection Status */}
             <WhatsAppConnect />
 
@@ -50,6 +56,6 @@ export default function InboxPage() {
                     )}
                 </div>
             </div>
-        </div>
+        </PageContainer>
     )
 }
