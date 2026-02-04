@@ -67,18 +67,24 @@ function BackofficeContent({ children }: { children: React.ReactNode }) {
   }
 
   const menuItems = [
-    { href: '/backoffice', icon: LayoutDashboard, label: 'Dashboard' },
+    // Grupo Primario
+    { href: '/backoffice', icon: LayoutDashboard, label: 'Inicio' },
     { href: '/backoffice/propiedades', icon: Home, label: 'Propiedades' },
-    { href: '/backoffice/contactos', icon: Users, label: 'Contactos' },
-    { href: '/backoffice/tareas', icon: CheckSquare, label: 'Tareas' },
-    { href: '/backoffice/busquedas', icon: Search, label: 'Búsquedas', divider: true },
+    { href: '/backoffice/contactos', icon: Users, label: 'Contactos', divider: true },
+    
+    // Grupo Operativo
+    { href: '/backoffice/busquedas', icon: Search, label: 'Búsquedas' },
     { href: '/backoffice/captaciones', icon: FileText, label: 'Captaciones' },
-    { href: '/backoffice/inbox', icon: Inbox, label: 'Inbox' },
-    { href: '/backoffice/analytics', icon: BarChart3, label: 'Analytics' },
-    { href: '/backoffice/inventario', icon: Package, label: 'Inventario' },
-    { href: '/backoffice/actividad', icon: Activity, label: 'Actividad', divider: true },
-    { href: '/backoffice/reportes', icon: FileBarChart, label: 'Reportes' },
+    { href: '/backoffice/tareas', icon: CheckSquare, label: 'Tareas', divider: true },
+    
+    // Sección Activa
+    { href: '/backoffice/inventario', icon: Package, label: 'Inventario', active: true, divider: true },
+    
+    // Grupo Estratégico
+    { href: '/backoffice/inbox', icon: Inbox, label: 'Operaciones' },
     { href: '/backoffice/marketing', icon: Megaphone, label: 'Marketing' },
+    { href: '/backoffice/analytics', icon: BarChart3, label: 'Estadísticas' },
+    { href: '/backoffice/actividad', icon: Activity, label: 'Academia' },
   ]
 
   // Add Usuarios only for admins
@@ -91,66 +97,72 @@ function BackofficeContent({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
+    <div className="flex h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200">
+      {/* Sidebar - Estilo Apple */}
+      <aside className="w-64 bg-white/80 backdrop-blur-xl border-r border-gray-200/50 flex flex-col shadow-2xl">
         {/* Logo */}
-        <div className="h-16 flex items-center px-6 border-b border-gray-200">
-          <Link href="/backoffice" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">L</span>
+        <div className="h-20 flex items-center justify-center px-6 border-b border-gray-200/50">
+          <Link href="/backoffice" className="flex items-center space-x-3 transition-transform hover:scale-105 duration-300">
+            <div className="w-10 h-10 bg-gradient-to-br from-gray-900 to-gray-700 rounded-2xl flex items-center justify-center shadow-lg">
+              <span className="text-white font-black text-lg">L</span>
             </div>
-            <span className="text-xl font-bold text-gray-900">LIVOO</span>
+            <span className="text-2xl font-black text-gray-900">LIVOO</span>
           </Link>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto py-4">
+        {/* Navigation - Estilo Apple */}
+        <nav className="flex-1 overflow-y-auto py-4 px-3">
           {menuItems.map((item) => {
             const Icon = item.icon
             const isActive = pathname === item.href
+            const isInventory = item.label === 'Inventario'
 
             return (
               <div key={item.href}>
                 <Link
                   href={item.href}
                   className={`
-                    flex items-center space-x-3 px-6 py-3 text-sm font-medium transition-colors
-                    ${isActive
-                      ? 'bg-gray-100 text-gray-900 border-r-2 border-gray-900'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    flex items-center space-x-3 px-4 py-3 text-sm font-semibold transition-all duration-300 mb-1
+                    ${isInventory
+                      ? 'bg-gray-900 text-white rounded-2xl shadow-xl hover:bg-gray-800 hover:scale-105'
+                      : isActive
+                      ? 'bg-gray-200/60 text-gray-900 rounded-2xl shadow-md'
+                      : 'text-gray-600 hover:bg-gray-100/60 hover:text-gray-900 rounded-2xl hover:shadow-sm'
                     }
                   `}
                 >
-                  <Icon className="h-5 w-5" />
+                  <Icon className={`h-5 w-5 ${isInventory ? 'text-white' : ''}`} />
                   <span>{item.label}</span>
                 </Link>
-                {item.divider && <div className="my-2 border-t border-gray-200" />}
+                {item.divider && <div className="my-3 border-t border-gray-200/50" />}
               </div>
             )
           })}
         </nav>
 
-        {/* Footer */}
-        <div className="border-t border-gray-200">
-          <button className="w-full px-6 py-3 text-left text-sm text-gray-600 hover:bg-gray-50 flex items-center space-x-2">
+        {/* Footer - Estilo Apple */}
+        <div className="border-t border-gray-200/50 px-3 pb-3">
+          <button className="w-full px-4 py-3 text-left text-sm text-gray-600 hover:bg-gray-100/60 rounded-2xl flex items-center space-x-3 transition-all duration-300 hover:shadow-sm mb-2">
             <HelpCircle className="h-5 w-5" />
-            <span>¿Necesitas ayuda?</span>
+            <span className="font-medium">¿Necesitas ayuda?</span>
           </button>
 
-          {/* User Profile */}
-          <div className="px-6 py-4 bg-gray-50">
+          {/* User Profile Card - Estilo Apple */}
+          <div className="px-4 py-4 bg-gradient-to-br from-gray-100/80 to-gray-200/80 backdrop-blur-xl rounded-3xl shadow-xl border border-gray-200/50">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-full bg-gray-900 flex items-center justify-center text-white font-semibold">
-                {currentUser.full_name?.substring(0, 2).toUpperCase() || 'U'}
+              <div className="relative">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-gray-900 to-gray-700 flex items-center justify-center text-white font-black shadow-lg">
+                  {currentUser.full_name?.substring(0, 2).toUpperCase() || 'U'}
+                </div>
+                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow-sm"></div>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">
+                <p className="text-sm font-bold text-gray-900 truncate">
                   {currentUser.full_name}
                 </p>
                 <div className="flex items-center space-x-1">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <p className="text-xs text-gray-500">Disponible</p>
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <p className="text-xs text-gray-600 font-medium">Disponible</p>
                 </div>
               </div>
               <button
@@ -158,7 +170,7 @@ function BackofficeContent({ children }: { children: React.ReactNode }) {
                   // TODO: Implement logout
                   alert('Logout pendiente de implementar')
                 }}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-500 hover:text-gray-900 transition-colors p-2 hover:bg-white/50 rounded-xl"
               >
                 <LogOut className="h-5 w-5" />
               </button>
