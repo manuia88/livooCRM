@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import {
   LayoutDashboard,
   Home,
@@ -18,7 +18,9 @@ import {
   Megaphone,
   Settings,
   LogOut,
-  HelpCircle
+  HelpCircle,
+  Menu,
+  X
 } from 'lucide-react'
 import { useCurrentUser, useIsAdmin } from '@/hooks/useCurrentUser'
 
@@ -35,6 +37,7 @@ function BackofficeContent({ children }: { children: React.ReactNode }) {
   const isAdmin = useIsAdmin()
   const pathname = usePathname()
   const router = useRouter()
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   /* useEffect handled redirect - DEBE estar ANTES de cualquier return */
   useEffect(() => {
@@ -43,6 +46,11 @@ function BackofficeContent({ children }: { children: React.ReactNode }) {
       router.push('/auth')
     }
   }, [currentUser, isLoading, router])
+
+  // Cerrar sidebar en móvil al cambiar de ruta
+  useEffect(() => {
+    setSidebarOpen(false)
+  }, [pathname])
 
   if (isLoading) {
     return (
@@ -98,8 +106,30 @@ function BackofficeContent({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200">
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-gray-900 text-white rounded-xl shadow-2xl hover:bg-gray-800 transition-all duration-300"
+      >
+        {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+      </button>
+
+      {/* Overlay para móvil */}
+      {sidebarOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/50 z-30"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar - Estilo Apple */}
-      <aside className="w-64 bg-white/80 backdrop-blur-xl border-r border-gray-200/50 flex flex-col shadow-2xl">
+      <aside className={`
+        fixed lg:static inset-y-0 left-0 z-40
+        w-64 bg-white/95 lg:bg-white/80 backdrop-blur-xl border-r border-gray-200/50 
+        flex flex-col shadow-2xl
+        transform transition-transform duration-300 ease-in-out
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
         {/* Logo */}
         <div className="h-20 flex items-center justify-center px-6 border-b border-gray-200/50">
           <Link href="/backoffice" className="flex items-center space-x-3 transition-transform hover:scale-105 duration-300">
@@ -180,7 +210,7 @@ function BackofficeContent({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 overflow-auto w-full lg:w-auto">
         {children}
       </main>
     </div>
