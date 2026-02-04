@@ -44,16 +44,16 @@ export function ProtectionDetail() {
     ];
 
     return (
-        <section className="py-20 bg-white">
+        <section className="py-20 bg-[#FAF8F3]/80 backdrop-blur-sm">
             <div className="container mx-auto px-4">
                 <div className="max-w-6xl mx-auto">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="text-center mb-12"
+                        className="text-center mb-12 p-6 rounded-3xl bg-white/70 backdrop-blur-sm border border-[#E5E3DB] shadow-lg"
                     >
-                        <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-[#2C3E2C] text-white font-semibold text-sm mb-6">
+                        <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-[#2C3E2C] text-white font-semibold text-sm mb-6 shadow-md">
                             <Shield className="w-5 h-5" />
                             Servicio Principal
                         </div>
@@ -78,7 +78,7 @@ export function ProtectionDetail() {
                                 transition={{ delay: index * 0.1 }}
                                 className="group"
                             >
-                                <div className="bg-[#F8F7F4] rounded-2xl p-8 h-full hover:bg-white hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-[#B8975A]">
+                                <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 h-full shadow-lg hover:shadow-xl transition-all duration-300 border border-[#E5E3DB] hover:border-[#B8975A]">
                                     <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${benefit.gradient} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg`}>
                                         <benefit.icon className="w-8 h-8 text-white" />
                                     </div>

@@ -83,63 +83,63 @@ export default function BackofficeTasksPage() {
                 }} />
             )}
 
-            {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-white p-4 rounded-lg border border-gray-200">
+            {/* Summary Cards - Estilo Apple */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+                <div className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200 p-4 sm:p-6 hover:scale-[1.02] transition-all duration-300">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-gray-500">Pendientes</p>
-                            <p className="text-2xl font-bold text-gray-900">
+                            <p className="text-sm text-gray-600 mb-1">Pendientes</p>
+                            <p className="text-2xl sm:text-3xl font-black text-gray-900">
                                 {tasks?.length || 0}
                             </p>
                         </div>
-                        <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
-                            <Calendar className="h-6 w-6 text-blue-600" />
+                        <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+                            <Calendar className="h-6 w-6 text-white" />
                         </div>
                     </div>
                 </div>
 
-                <div className="bg-white p-4 rounded-lg border border-red-200">
+                <div className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200 p-4 sm:p-6 hover:scale-[1.02] transition-all duration-300">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-red-600">Vencidas</p>
-                            <p className="text-2xl font-bold text-red-700">
+                            <p className="text-sm text-red-600 mb-1">Vencidas</p>
+                            <p className="text-2xl sm:text-3xl font-black text-red-700">
                                 {overdueTasks.length}
                             </p>
                         </div>
-                        <div className="h-12 w-12 bg-red-100 rounded-full flex items-center justify-center">
-                            <AlertCircle className="h-6 w-6 text-red-600" />
+                        <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center shadow-lg">
+                            <AlertCircle className="h-6 w-6 text-white" />
                         </div>
                     </div>
                 </div>
 
-                <div className="bg-white p-4 rounded-lg border border-green-200">
+                <div className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200 p-4 sm:p-6 hover:scale-[1.02] transition-all duration-300">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-green-600">Completadas</p>
-                            <p className="text-2xl font-bold text-green-700">
+                            <p className="text-sm text-green-600 mb-1">Completadas</p>
+                            <p className="text-2xl sm:text-3xl font-black text-green-700">
                                 {metrics?.tasks_completed || 0}
                             </p>
-                            <p className="text-xs text-gray-500">este mes</p>
+                            <p className="text-xs text-gray-500 mt-1">este mes</p>
                         </div>
-                        <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
-                            <CheckCircle2 className="h-6 w-6 text-green-600" />
+                        <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg">
+                            <CheckCircle2 className="h-6 w-6 text-white" />
                         </div>
                     </div>
                 </div>
 
-                <div className="bg-white p-4 rounded-lg border border-gray-200">
+                <div className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200 p-4 sm:p-6 hover:scale-[1.02] transition-all duration-300">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-gray-500">Tu desempeño</p>
-                            <p className="text-2xl font-bold text-gray-900">
+                            <p className="text-sm text-gray-600 mb-1">Tu desempeño</p>
+                            <p className="text-2xl sm:text-3xl font-black text-gray-900">
                                 {metrics?.completion_rate || 0}%
                             </p>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-gray-500 mt-1">
                                 #{metrics?.ranking_position || '-'} del equipo
                             </p>
                         </div>
-                        <div className="h-12 w-12 bg-purple-100 rounded-full flex items-center justify-center">
+                        <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg">
                             <span className="text-2xl">🏆</span>
                         </div>
                     </div>
@@ -148,23 +148,23 @@ export default function BackofficeTasksPage() {
 
             {/* Tasks Lists */}
             {isLoading ? (
-                <div className="text-center py-12">
-                    <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
-                    <p className="mt-4 text-gray-500">Cargando tareas...</p>
+                <div className="text-center py-12 bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+                    <p className="mt-4 text-gray-600 font-medium">Cargando tareas...</p>
                 </div>
             ) : !tasks || tasks.length === 0 ? (
-                <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
+                <div className="text-center py-12 sm:py-16 bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200 px-4">
                     <div className="text-6xl mb-4">🎉</div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">
                         ¡No tienes tareas pendientes!
                     </h3>
-                    <p className="text-gray-500 mb-6">
+                    <p className="text-gray-600 mb-6 max-w-md mx-auto">
                         Buen trabajo. Todas tus tareas están completadas.
                     </p>
-                    <Button onClick={() => setShowCreateDialog(true)}>
-                        <Plus className="h-4 w-4 mr-2" />
+                    <AppleButton size="lg" onClick={() => setShowCreateDialog(true)}>
+                        <Plus className="h-5 w-5 mr-2" />
                         Crear nueva tarea
-                    </Button>
+                    </AppleButton>
                 </div>
             ) : (
                 <div className="space-y-6">

@@ -43,7 +43,7 @@ export function PropertyCard({ property, isMls = false }: PropertyCardProps) {
     };
 
     return (
-        <div className="group bg-white rounded-2xl overflow-hidden border border-[#E5E3DB] hover:shadow-2xl hover:shadow-[#2C3E2C]/10 transition-all duration-300 flex flex-col h-full hover:border-[#B8975A]/30">
+        <div className="group bg-white/95 backdrop-blur-sm rounded-3xl overflow-hidden border border-[#E5E3DB] shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 flex flex-col h-full hover:border-[#B8975A]/50">
             <Link href={isMls ? `/mls/${property.id}` : `/propiedades/${property.id}`}>
                 {/* Image Container with carousel */}
                 <div className="relative h-56 overflow-hidden bg-[#F8F7F4]">
@@ -51,11 +51,13 @@ export function PropertyCard({ property, isMls = false }: PropertyCardProps) {
                         src={property.images[currentImageIndex]}
                         alt={property.title}
                         fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                        loading={currentImageIndex === 0 ? "eager" : "lazy"}
                         className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
 
                     {/* Badge - Llegó hace X día */}
-                    <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-lg shadow-md border border-[#E5E3DB]">
+                    <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-xl px-3 py-1.5 rounded-xl shadow-lg border border-[#E5E3DB]/50">
                         <span className="text-xs font-semibold text-[#2C3E2C]">
                             Llegó hace 1 día
                         </span>
@@ -185,7 +187,7 @@ export function PropertyCard({ property, isMls = false }: PropertyCardProps) {
                     <div className="mt-auto pt-3 border-t border-[#E5E3DB]">
                         <Button
                             variant="outline"
-                            className="w-full rounded-lg border-[#E5E3DB] hover:border-[#B8975A] hover:text-[#B8975A] hover:bg-[#FAF8F3] font-semibold transition-all"
+                            className="w-full rounded-xl border-[#E5E3DB] hover:border-[#B8975A] hover:text-[#B8975A] hover:bg-[#FAF8F3] font-semibold shadow-md hover:shadow-lg transition-all duration-300"
                             onClick={(e) => {
                                 e.preventDefault();
                                 // Handle contact action

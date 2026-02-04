@@ -46,8 +46,11 @@ export default function PropertyDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+      <div className="flex items-center justify-center min-h-[320px]">
+        <div className="text-center bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200 p-8">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium">Cargando propiedad...</p>
+        </div>
       </div>
     )
   }
@@ -55,7 +58,13 @@ export default function PropertyDetailPage() {
   if (!property) {
     return (
       <div className="p-6">
-        <p>Propiedad no encontrada</p>
+        <div className="text-center bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200 p-8 max-w-md mx-auto">
+          <p className="text-gray-600 mb-4">Propiedad no encontrada</p>
+          <AppleButton variant="secondary" onClick={() => router.back()}>
+            <ArrowLeft className="h-5 w-5 mr-2" />
+            Volver
+          </AppleButton>
+        </div>
       </div>
     )
   }
@@ -128,9 +137,9 @@ export default function PropertyDetailPage() {
   }
 
   return (
-    <div className="p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 p-4 sm:p-6 lg:p-8">
+      {/* Header - Estilo Apple */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div className="flex items-center space-x-4">
           <Button
             variant="outline"

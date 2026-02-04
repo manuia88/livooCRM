@@ -89,15 +89,15 @@ export function ProtectionCalculator() {
     ];
 
     return (
-        <section id="calculadora" className="py-20 bg-gradient-to-br from-[#F8F7F4] to-white">
+        <section id="calculadora" className="py-20 bg-[#FAF8F3]/80 backdrop-blur-sm">
             <div className="container mx-auto px-4">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="text-center mb-12"
+                    className="text-center mb-12 p-6 rounded-3xl bg-white/70 backdrop-blur-sm border border-[#E5E3DB] shadow-lg max-w-4xl mx-auto"
                 >
-                    <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#2C3E2C] text-white font-semibold text-sm mb-6">
+                    <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#2C3E2C] text-white font-semibold text-sm mb-6 shadow-md">
                         <Calculator className="w-5 h-5" />
                         Calculadora de Protección
                     </div>
@@ -147,8 +147,8 @@ export function ProtectionCalculator() {
 
                             <div className={`
                 relative overflow-hidden rounded-3xl p-8 h-full flex flex-col
-                ${plan.popular ? 'bg-[#2C3E2C] text-white shadow-2xl scale-105' : 'bg-white border-2 border-[#E5E3DB]'}
-                transition-all duration-300 hover:shadow-xl
+${plan.popular ? 'bg-[#2C3E2C] text-white shadow-2xl scale-105' : 'bg-white/95 backdrop-blur-sm border border-[#E5E3DB] shadow-lg'}
+                                transition-all duration-300 hover:shadow-xl
               `}>
                                 {/* Icon */}
                                 <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${plan.gradient} flex items-center justify-center mb-6 mx-auto`}>

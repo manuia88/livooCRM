@@ -17,7 +17,7 @@ export function CommissionCalculator() {
     }) : "$0";
 
     return (
-        <section className="py-20 bg-white">
+        <section className="py-20 bg-[#FAF8F3]/80 backdrop-blur-sm">
             <div className="container mx-auto px-4">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -25,7 +25,7 @@ export function CommissionCalculator() {
                     viewport={{ once: true }}
                     className="max-w-2xl mx-auto"
                 >
-                    <div className="bg-gradient-to-br from-[#F8F7F4] to-[#F1EFE8] rounded-3xl p-8 md:p-12 border-2 border-[#E5E3DB] shadow-xl">
+                    <div className="bg-white/95 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-[#E5E3DB] shadow-xl">
                         {/* Header */}
                         <div className="text-center mb-8">
                             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[#B8975A] to-[#C4A872] mb-4">
@@ -60,7 +60,7 @@ export function CommissionCalculator() {
                             </div>
 
                             {/* Result */}
-                            <div className="bg-white rounded-2xl p-6 border-2 border-[#B8975A]">
+                            <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 border-2 border-[#B8975A] shadow-lg">
                                 <div className="flex justify-between items-center mb-2">
                                     <span className="text-lg font-semibold text-[#6B7B6B]">
                                         Comisión Livoo (3%)

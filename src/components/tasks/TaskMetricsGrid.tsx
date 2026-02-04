@@ -19,9 +19,9 @@ export function TaskMetricsGrid({ metrics }: TaskMetricsGridProps) {
         : 0
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Tareas Completadas */}
-            <Card>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+            {/* Tareas Completadas - Estilo Apple */}
+            <Card className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200 hover:scale-[1.02] transition-all duration-300">
                 <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-2">
                         <h3 className="text-sm font-medium text-gray-500">Tareas este mes</h3>
@@ -49,7 +49,7 @@ export function TaskMetricsGrid({ metrics }: TaskMetricsGridProps) {
             </Card>
 
             {/* Tareas a Tiempo */}
-            <Card>
+            <Card className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200 hover:scale-[1.02] transition-all duration-300">
                 <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-2">
                         <h3 className="text-sm font-medium text-gray-500">A tiempo</h3>
@@ -75,7 +75,7 @@ export function TaskMetricsGrid({ metrics }: TaskMetricsGridProps) {
             </Card>
 
             {/* Ranking */}
-            <Card>
+            <Card className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200 hover:scale-[1.02] transition-all duration-300">
                 <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-2">
                         <h3 className="text-sm font-medium text-gray-500">Tu ranking</h3>

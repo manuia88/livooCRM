@@ -30,10 +30,10 @@ export default async function PropertyIdPage({ params }: PageProps) {
     };
 
     return (
-        <div className="min-h-screen bg-background pb-20">
-            {/* Header / Gallery (Grid Style - QuintoAndar) */}
+        <div className="min-h-screen bg-gradient-to-b from-[#F8F7F4]/50 to-white pb-20">
+            {/* Header / Gallery - Estilo Apple con colores Livoo */}
             <div className="container mx-auto px-4 pt-24 pb-6">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-2 h-[400px] md:h-[500px] rounded-2xl overflow-hidden relative group">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-2 h-[400px] md:h-[500px] rounded-2xl sm:rounded-3xl overflow-hidden relative group shadow-2xl shadow-[#2C3E2C]/10 border border-[#E5E3DB]">
                     {/* Main Image */}
                     <div className="md:col-span-2 md:row-span-2 relative">
                         <Image src={images[0]} alt={title} fill className="object-cover" priority />
@@ -47,7 +47,7 @@ export default async function PropertyIdPage({ params }: PageProps) {
 
                     {/* Show All Photos Button */}
                     <div className="absolute bottom-4 right-4">
-                        <Button variant="secondary" size="sm" className="shadow-lg backdrop-blur-md bg-white/90 hover:bg-white">
+                        <Button variant="secondary" size="sm" className="rounded-xl shadow-2xl backdrop-blur-xl bg-white/95 hover:bg-white border border-[#E5E3DB] text-[#2C3E2C]">
                             Ver todas las fotos
                         </Button>
                     </div>
@@ -58,11 +58,11 @@ export default async function PropertyIdPage({ params }: PageProps) {
 
                 {/* Main Content */}
                 <div className="lg:col-span-8 space-y-8">
-                    {/* Header Info */}
-                    <div className="border-b border-border pb-6">
+                    {/* Header Info - Estilo Apple */}
+                    <div className="border-b border-[#E5E3DB] pb-6">
                         <div className="flex justify-between items-start mb-2">
                             <div>
-                                <span className="bg-primary/10 text-primary text-xs font-bold px-2 py-1 rounded uppercase tracking-wider mb-2 inline-block">
+                                <span className="bg-[#B8975A]/15 text-[#2C3E2C] text-xs font-bold px-3 py-1.5 rounded-xl uppercase tracking-wider mb-2 inline-block">
                                     {listingType === 'buy' ? 'Venta' : 'En Renta'}
                                 </span>
                                 <h1 className="text-3xl md:text-3xl font-bold text-foreground mb-1">{title}</h1>
@@ -82,20 +82,20 @@ export default async function PropertyIdPage({ params }: PageProps) {
                         </div>
 
                         <div className="mt-6 flex flex-wrap gap-4 md:gap-8">
-                            <div className="flex items-center gap-2 px-4 py-2 bg-surface rounded-lg">
-                                <Ruler className="w-5 h-5 text-muted-foreground" />
+                            <div className="flex items-center gap-2 px-4 py-2 bg-[#F8F7F4] rounded-2xl border border-[#E5E3DB] shadow-lg">
+                                <Ruler className="w-5 h-5 text-[#6B7B6B]" />
                                 <span className="font-semibold">{features.area} m²</span>
                             </div>
-                            <div className="flex items-center gap-2 px-4 py-2 bg-surface rounded-lg">
-                                <BedDouble className="w-5 h-5 text-muted-foreground" />
+                            <div className="flex items-center gap-2 px-4 py-2 bg-[#F8F7F4] rounded-2xl border border-[#E5E3DB] shadow-lg">
+                                <BedDouble className="w-5 h-5 text-[#6B7B6B]" />
                                 <span className="font-semibold">{features.bedrooms} Recámaras</span>
                             </div>
-                            <div className="flex items-center gap-2 px-4 py-2 bg-surface rounded-lg">
-                                <Bath className="w-5 h-5 text-muted-foreground" />
+                            <div className="flex items-center gap-2 px-4 py-2 bg-[#F8F7F4] rounded-2xl border border-[#E5E3DB] shadow-lg">
+                                <Bath className="w-5 h-5 text-[#6B7B6B]" />
                                 <span className="font-semibold">{features.bathrooms} Baños</span>
                             </div>
-                            <div className="flex items-center gap-2 px-4 py-2 bg-surface rounded-lg">
-                                <Car className="w-5 h-5 text-muted-foreground" />
+                            <div className="flex items-center gap-2 px-4 py-2 bg-[#F8F7F4] rounded-2xl border border-[#E5E3DB] shadow-lg">
+                                <Car className="w-5 h-5 text-[#6B7B6B]" />
                                 <span className="font-semibold">{features.parking} Estac.</span>
                             </div>
                         </div>
@@ -141,10 +141,10 @@ export default async function PropertyIdPage({ params }: PageProps) {
                         </div>
                     </div>
 
-                    {/* Map Section */}
-                    <div className="h-[300px] w-full bg-surface rounded-xl overflow-hidden border border-border relative z-0">
-                        <div className="absolute top-3 left-3 z-[400] bg-white/90 backdrop-blur px-3 py-1 rounded-md text-xs font-medium shadow-sm flex items-center gap-1">
-                            <MapPin className="w-3 h-3 text-primary" />
+                    {/* Map Section - Estilo Apple */}
+                    <div className="h-[300px] w-full bg-[#F8F7F4] rounded-2xl sm:rounded-3xl overflow-hidden border border-[#E5E3DB] shadow-2xl relative z-0">
+                        <div className="absolute top-3 left-3 z-[400] bg-white/95 backdrop-blur-xl px-3 py-1.5 rounded-xl text-xs font-medium shadow-lg border border-[#E5E3DB]/50 flex items-center gap-1 text-[#2C3E2C]">
+                            <MapPin className="w-3 h-3 text-[#B8975A]" />
                             {location.colonia}, {location.city}
                         </div>
                         <MapLoader properties={[property]} />

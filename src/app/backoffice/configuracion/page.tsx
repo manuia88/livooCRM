@@ -49,9 +49,9 @@ export default function BackofficeConfigPage() {
             }
         >
 
-            {/* Tabs */}
-            <Tabs defaultValue="agency" className="space-y-4">
-                <TabsList className="grid w-full grid-cols-4">
+            {/* Tabs - Estilo Apple */}
+            <Tabs defaultValue="agency" className="space-y-6">
+                <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-12 bg-gray-100 rounded-xl p-1 gap-1">
                     <TabsTrigger value="agency">
                         <Building2 className="w-4 h-4 mr-2" />
                         Agencia
@@ -72,7 +72,7 @@ export default function BackofficeConfigPage() {
 
                 {/* Agency Tab */}
                 <TabsContent value="agency" className="space-y-4">
-                    <Card>
+                    <Card className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200">
                         <CardHeader>
                             <CardTitle>Información de la Agencia</CardTitle>
                             <CardDescription>
@@ -132,7 +132,7 @@ export default function BackofficeConfigPage() {
 
                 {/* Integrations Tab */}
                 <TabsContent value="integrations" className="space-y-4">
-                    <Card>
+                    <Card className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200">
                         <CardHeader>
                             <CardTitle>WhatsApp Business</CardTitle>
                             <CardDescription>
@@ -140,7 +140,7 @@ export default function BackofficeConfigPage() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200">
+                            <div className="flex items-center justify-between p-4 bg-green-50 rounded-2xl border border-green-200">
                                 <div className="flex items-center gap-3">
                                     <MessageSquare className="w-8 h-8 text-green-600" />
                                     <div>
@@ -166,7 +166,7 @@ export default function BackofficeConfigPage() {
                         </CardContent>
                     </Card>
 
-                    <Card>
+                    <Card className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200">
                         <CardHeader>
                             <CardTitle>Email (SMTP)</CardTitle>
                             <CardDescription>
@@ -174,7 +174,7 @@ export default function BackofficeConfigPage() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200">
+                            <div className="flex items-center justify-between p-4 bg-blue-50 rounded-2xl border border-blue-200">
                                 <div className="flex items-center gap-3">
                                     <Mail className="w-8 h-8 text-blue-600" />
                                     <div>
@@ -200,7 +200,7 @@ export default function BackofficeConfigPage() {
                         </CardContent>
                     </Card>
 
-                    <Card>
+                    <Card className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200">
                         <CardHeader>
                             <CardTitle>Google AI</CardTitle>
                             <CardDescription>
@@ -208,7 +208,7 @@ export default function BackofficeConfigPage() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <div className="flex items-center justify-between p-4 bg-purple-50 rounded-lg border border-purple-200">
+                            <div className="flex items-center justify-between p-4 bg-purple-50 rounded-2xl border border-purple-200">
                                 <div className="flex items-center gap-3">
                                     <Smartphone className="w-8 h-8 text-purple-600" />
                                     <div>
@@ -228,7 +228,7 @@ export default function BackofficeConfigPage() {
 
                 {/* Notifications Tab */}
                 <TabsContent value="notifications" className="space-y-4">
-                    <Card>
+                    <Card className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200">
                         <CardHeader>
                             <CardTitle>Preferencias de Notificaciones</CardTitle>
                             <CardDescription>
@@ -281,7 +281,7 @@ export default function BackofficeConfigPage() {
 
                 {/* Subscription Tab */}
                 <TabsContent value="subscription" className="space-y-4">
-                    <Card>
+                    <Card className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200">
                         <CardHeader>
                             <CardTitle>Plan Actual</CardTitle>
                             <CardDescription>
@@ -289,7 +289,7 @@ export default function BackofficeConfigPage() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
-                            <div className="p-6 bg-gradient-to-r from-[#2C3E2C] to-[#3D5A3D] rounded-xl text-white">
+                            <div className="p-6 bg-gradient-to-r from-gray-900 to-gray-800 rounded-2xl text-white shadow-xl">
                                 <div className="flex items-center justify-between mb-4">
                                     <div>
                                         <p className="text-white/80 text-sm">Plan Actual</p>
@@ -313,7 +313,7 @@ export default function BackofficeConfigPage() {
                                 </div>
                             </div>
 
-                            <div className="flex items-center justify-between p-4 bg-[#F8F7F4] rounded-lg">
+                            <div className="flex items-center justify-between p-4 bg-gray-100/80 rounded-2xl">
                                 <div>
                                     <p className="font-medium text-[#2C3E2C]">Próximo Cobro</p>
                                     <p className="text-sm text-[#556B55]">$2,499 MXN el 15 de Febrero 2026</p>
@@ -323,7 +323,7 @@ export default function BackofficeConfigPage() {
 
                             <div className="space-y-2">
                                 <h4 className="font-semibold text-[#2C3E2C]">Método de Pago</h4>
-                                <div className="flex items-center justify-between p-4 border border-[#E5E3DB] rounded-lg">
+                                <div className="flex items-center justify-between p-4 border border-gray-200 rounded-2xl">
                                     <div className="flex items-center gap-3">
                                         <CreditCard className="w-6 h-6 text-[#556B55]" />
                                         <div>

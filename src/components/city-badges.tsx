@@ -13,13 +13,13 @@ const cities = [
 
 export function CityBadges() {
     return (
-        <section className="py-20 bg-[#F8F7F4] border-y border-[#E5E3DB]">
+        <section className="py-20 bg-[#FAF8F3]/80 backdrop-blur-sm">
             <div className="container mx-auto px-4">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="text-center mb-12"
+                    className="text-center mb-12 p-8 rounded-3xl bg-white/70 backdrop-blur-sm border border-[#E5E3DB] shadow-lg max-w-3xl mx-auto"
                 >
                     <h2 className="text-3xl md:text-4xl font-bold text-[#2C3E2C] mb-3">
                         Explora las Mejores Alcaldías de CDMX
@@ -43,7 +43,7 @@ export function CityBadges() {
                                 className="flex flex-col items-center gap-4 group cursor-pointer"
                             >
                                 {/* Image Card with Hover Effects */}
-                                <div className="relative w-80 h-80 rounded-2xl overflow-hidden shadow-lg group-hover:shadow-2xl transition-all duration-300">
+                                <div className="relative w-80 h-80 rounded-3xl overflow-hidden shadow-xl border border-[#E5E3DB]/60 group-hover:shadow-2xl group-hover:scale-[1.02] transition-all duration-300">
                                     {/* Image */}
                                     <Image
                                         src={city.image}
@@ -56,12 +56,12 @@ export function CityBadges() {
                                     <div className="absolute inset-0 bg-gradient-to-t from-[#2C3E2C]/80 via-[#2C3E2C]/40 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-300" />
 
                                     {/* Code Badge */}
-                                    <div className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-lg">
+                                    <div className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-md px-3 py-2 rounded-xl shadow-lg border border-[#E5E3DB]">
                                         <span className="text-sm font-bold text-[#2C3E2C]">{city.code}</span>
                                     </div>
 
                                     {/* Hover Border */}
-                                    <div className="absolute inset-0 border-2 border-[#B8975A] opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl" />
+                                    <div className="absolute inset-0 border-2 border-[#B8975A] opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl pointer-events-none" />
                                 </div>
 
                                 {/* Name Label */}
@@ -84,7 +84,7 @@ export function CityBadges() {
                                 className="flex flex-col items-center gap-4 group cursor-pointer"
                             >
                                 {/* Image Card with Hover Effects */}
-                                <div className="relative w-80 h-80 rounded-2xl overflow-hidden shadow-lg group-hover:shadow-2xl transition-all duration-300">
+                                <div className="relative w-80 h-80 rounded-3xl overflow-hidden shadow-xl border border-[#E5E3DB]/60 group-hover:shadow-2xl group-hover:scale-[1.02] transition-all duration-300">
                                     {/* Image */}
                                     <Image
                                         src={city.image}
@@ -97,12 +97,12 @@ export function CityBadges() {
                                     <div className="absolute inset-0 bg-gradient-to-t from-[#2C3E2C]/80 via-[#2C3E2C]/40 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-300" />
 
                                     {/* Code Badge */}
-                                    <div className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-lg">
+                                    <div className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-md px-3 py-2 rounded-xl shadow-lg border border-[#E5E3DB]">
                                         <span className="text-sm font-bold text-[#2C3E2C]">{city.code}</span>
                                     </div>
 
                                     {/* Hover Border */}
-                                    <div className="absolute inset-0 border-2 border-[#B8975A] opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl" />
+                                    <div className="absolute inset-0 border-2 border-[#B8975A] opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl pointer-events-none" />
                                 </div>
 
                                 {/* Name Label */}

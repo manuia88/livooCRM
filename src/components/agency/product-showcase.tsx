@@ -68,9 +68,9 @@ export function ProductShowcase() {
                         <button
                             key={product.id}
                             onClick={() => setActiveProduct(product.id)}
-                            className={`px-6 py-3 rounded-full font-semibold transition-all ${activeProduct === product.id
+                            className={`px-6 py-3 rounded-2xl font-semibold transition-all duration-300 ${activeProduct === product.id
                                     ? "bg-gradient-to-r from-[#B8975A] to-[#C4A872] text-white shadow-lg"
-                                    : "bg-white text-[#2C3E2C] hover:bg-[#F1EFE8] border border-[#E5E3DB]"
+                                    : "bg-white/80 backdrop-blur-sm text-[#2C3E2C] hover:bg-[#F1EFE8] border border-[#E5E3DB] shadow-md hover:shadow-lg"
                                 }`}
                         >
                             {product.name}
@@ -84,7 +84,7 @@ export function ProductShowcase() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="bg-white rounded-3xl p-8 md:p-12 shadow-xl max-w-6xl mx-auto"
+                    className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 md:p-12 shadow-xl border border-[#E5E3DB]/60 max-w-6xl mx-auto"
                 >
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                         {/* Content */}
@@ -124,7 +124,7 @@ export function ProductShowcase() {
                         </div>
 
                         {/* Image */}
-                        <div className="relative aspect-square rounded-2xl overflow-hidden">
+                        <div className="relative aspect-square rounded-2xl overflow-hidden shadow-lg border border-[#E5E3DB]/50">
                             <div className="w-full h-full bg-gradient-to-br from-[#F8F7F4] to-[#F1EFE8] flex items-center justify-center">
                                 {/* Placeholder - Replace with actual product image */}
                                 <span className="text-9xl opacity-20">📱</span>

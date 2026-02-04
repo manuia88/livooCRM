@@ -28,9 +28,9 @@ export function InvestigationSection() {
     ];
 
     return (
-        <section className="py-24 bg-white">
+        <section className="py-24 bg-[#FAF8F3]/80 backdrop-blur-sm">
             <div className="container mx-auto px-4">
-                <div className="text-center mb-16 max-w-3xl mx-auto">
+                <div className="text-center mb-16 max-w-3xl mx-auto p-6 rounded-3xl bg-white/70 backdrop-blur-sm border border-[#E5E3DB] shadow-lg">
                     <span className="text-[#B8975A] font-semibold tracking-wider uppercase text-sm block mb-2">Seguridad Primero</span>
                     <h2 className="text-4xl font-bold text-[#2C3E2C] mb-6">Investigación de Inquilinos en 24 horas</h2>
                     <p className="text-[#6B7B6B] text-lg">
@@ -46,9 +46,9 @@ export function InvestigationSection() {
                             whileInView={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.1 }}
                             viewport={{ once: true }}
-                            className="bg-[#F8F7F4] p-8 rounded-2xl border border-[#E5E3DB] hover:border-[#B8975A] transition-colors group"
+                            className="bg-white/90 backdrop-blur-sm p-8 rounded-2xl border border-[#E5E3DB] shadow-lg hover:border-[#B8975A] hover:shadow-xl transition-all duration-300 group"
                         >
-                            <div className="w-14 h-14 rounded-xl bg-white flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform">
+                            <div className="w-14 h-14 rounded-xl bg-[#F8F7F4] flex items-center justify-center mb-6 shadow-md group-hover:scale-110 transition-transform">
                                 <step.icon className="w-7 h-7 text-[#2C3E2C] group-hover:text-[#B8975A] transition-colors" />
                             </div>
                             <h3 className="text-xl font-bold text-[#2C3E2C] mb-3">{step.title}</h3>

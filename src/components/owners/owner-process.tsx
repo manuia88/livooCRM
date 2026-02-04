@@ -90,7 +90,7 @@ export function OwnerProcess({ type }: OwnerProcessProps) {
                                 <span className="text-6xl font-bold text-white/5 absolute -top-10 -left-6 select-none font-serif">
                                     {step.number}
                                 </span>
-                                <div className="relative z-10">
+                                <div className="relative z-10 p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg hover:bg-white/10 transition-all duration-300">
                                     <div className="w-12 h-12 rounded-full border border-[#B8975A] flex items-center justify-center text-[#B8975A] font-bold mb-6 bg-[#2C3E2C]">
                                         {step.number}
                                     </div>

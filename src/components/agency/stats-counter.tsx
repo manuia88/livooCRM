@@ -108,7 +108,7 @@ export function StatsCounter() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: index * 0.1 }}
-                            className="text-center"
+                            className="text-center p-6 rounded-3xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg hover:bg-white/10 transition-all duration-300"
                         >
                             <div className="text-5xl md:text-6xl font-bold mb-2 bg-gradient-to-r from-[#B8975A] to-[#D4C19C] bg-clip-text text-transparent">
                                 {stat.prefix}

@@ -17,7 +17,7 @@ export function ValuationForm({ type }: ValuationFormProps) {
     const [size, setSize] = useState("");
 
     return (
-        <section className="py-16 bg-gradient-to-br from-[#F8F7F4] to-white">
+        <section className="py-16 bg-[#FAF8F3]/80 backdrop-blur-sm">
             <div className="container mx-auto px-4">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -25,7 +25,7 @@ export function ValuationForm({ type }: ValuationFormProps) {
                     viewport={{ once: true }}
                     className="max-w-5xl mx-auto"
                 >
-                    <div className="bg-white rounded-3xl shadow-2xl border-2 border-[#E5E3DB] p-8 md:p-12">
+                    <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-xl border border-[#E5E3DB] p-8 md:p-12">
                         {/* Header */}
                         <div className="text-center mb-8">
                             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[#B8975A] to-[#C4A872] mb-4">

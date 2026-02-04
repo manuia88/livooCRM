@@ -67,7 +67,7 @@ export function PropertyTestimonials({ type }: PropertyTestimonialsProps) {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: index * 0.1 }}
-                            className="bg-white/5 backdrop-blur-sm p-8 rounded-3xl border border-white/10 hover:bg-white/10 transition-colors"
+                            className="bg-white/5 backdrop-blur-sm p-8 rounded-3xl border border-white/10 shadow-lg hover:bg-white/10 hover:shadow-xl transition-all duration-300"
                         >
                             <Quote className="w-10 h-10 text-[#B8975A] mb-6 opacity-50" />
                             <p className="text-lg text-gray-200 mb-8 leading-relaxed italic">

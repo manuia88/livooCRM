@@ -24,7 +24,7 @@ const services = {
 
 export function ServicesIncluded() {
     return (
-        <section className="py-20 bg-[#F8F7F4]">
+        <section className="py-20 bg-[#FAF8F3]/80 backdrop-blur-sm">
             <div className="container mx-auto px-4">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -39,7 +39,7 @@ export function ServicesIncluded() {
                         Todo lo que necesitas para una venta exitosa, sin costos ocultos
                     </p>
 
-                    <div className="bg-white rounded-3xl p-8 md:p-12 shadow-xl border-2 border-[#E5E3DB]">
+                    <div className="bg-white/95 backdrop-blur-sm rounded-3xl p-8 md:p-12 shadow-xl border border-[#E5E3DB]">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             {/* Column 1 */}
                             <div>
@@ -85,7 +85,7 @@ export function ServicesIncluded() {
                         </div>
 
                         {/* Highlight */}
-                        <div className="mt-8 p-6 bg-gradient-to-r from-[#F8F7F4] to-[#FAF8F3] rounded-2xl border-l-4 border-[#B8975A]">
+                        <div className="mt-8 p-6 bg-white/80 backdrop-blur-sm rounded-2xl border-l-4 border-[#B8975A] shadow-lg">
                             <p className="text-[#2C3E2C] text-lg font-semibold">
                                 💎 Todo incluido en la comisión del 3%. Solo pagas al cerrar la venta.
                             </p>

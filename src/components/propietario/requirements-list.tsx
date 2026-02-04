@@ -14,7 +14,7 @@ export function RequirementsList() {
     ];
 
     return (
-        <section className="py-20 bg-white border-t border-[#E5E3DB]">
+        <section className="py-20 bg-[#FAF8F3]/80 backdrop-blur-sm border-t border-[#E5E3DB]">
             <div className="container mx-auto px-4">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -26,7 +26,7 @@ export function RequirementsList() {
                         Requisitos para rentar con nosotros
                     </h2>
 
-                    <div className="bg-[#F8F7F4] rounded-3xl p-8 md:p-12 border border-[#E5E3DB]">
+                    <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-[#E5E3DB] shadow-xl">
                         <ul className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
                             {requirements.map((req, index) => (
                                 <li key={index} className="flex items-start gap-3">

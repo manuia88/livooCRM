@@ -98,10 +98,10 @@ export default function BackofficeUsersPage() {
 
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center h-96">
-                <div className="text-center">
-                    <Users className="w-12 h-12 mx-auto mb-4 text-[#B8975A] animate-pulse" />
-                    <p className="text-[#556B55]">Cargando usuarios...</p>
+            <div className="flex items-center justify-center min-h-[320px]">
+                <div className="text-center bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200 p-8">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+                    <p className="text-gray-600 font-medium">Cargando usuarios...</p>
                 </div>
             </div>
         );
@@ -145,22 +145,22 @@ export default function BackofficeUsersPage() {
                 </div>
             </div>
 
-            {/* Filters */}
-            <div className="bg-white p-4 rounded-lg border border-[#E5E3DB]">
-                <div className="flex flex-col md:flex-row gap-4">
+            {/* Filters - Estilo Apple */}
+            <div className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200 p-4 sm:p-6 mb-6">
+                <div className="flex flex-col md:flex-row gap-3 sm:gap-4">
                     <div className="flex-1 relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#556B55] w-4 h-4" />
+                        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                         <Input
                             placeholder="Buscar por nombre o email..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-10"
+                            className="pl-12 h-12 rounded-xl border-gray-200 bg-white/80 backdrop-blur-xl shadow-md focus:ring-2 focus:ring-gray-900"
                         />
                     </div>
                     <select
                         value={roleFilter}
                         onChange={(e) => setRoleFilter(e.target.value)}
-                        className="px-4 py-2 border border-[#E5E3DB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B8975A]"
+                        className="px-4 h-12 border border-gray-200 rounded-xl bg-white/80 backdrop-blur-xl shadow-md focus:outline-none focus:ring-2 focus:ring-gray-900 font-medium"
                     >
                         <option value="all">Todos los roles</option>
                         <option value="admin">Admin</option>
@@ -171,7 +171,7 @@ export default function BackofficeUsersPage() {
                     <select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
-                        className="px-4 py-2 border border-[#E5E3DB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B8975A]"
+                        className="px-4 h-12 border border-gray-200 rounded-xl bg-white/80 backdrop-blur-xl shadow-md focus:outline-none focus:ring-2 focus:ring-gray-900 font-medium"
                     >
                         <option value="all">Todos los estados</option>
                         <option value="active">Activo</option>
@@ -180,11 +180,11 @@ export default function BackofficeUsersPage() {
                 </div>
             </div>
 
-            {/* Table */}
-            <div className="bg-white rounded-lg border border-[#E5E3DB] overflow-hidden">
+            {/* Table - Estilo Apple */}
+            <div className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200 overflow-hidden">
                 <Table>
                     <TableHeader>
-                        <TableRow className="bg-[#F8F7F4]">
+                        <TableRow className="bg-gray-100/80 border-b border-gray-200">
                             <TableHead>Usuario</TableHead>
                             <TableHead>Contacto</TableHead>
                             <TableHead>Rol</TableHead>
@@ -196,7 +196,7 @@ export default function BackofficeUsersPage() {
                     <TableBody>
                         {filteredUsers && filteredUsers.length > 0 ? (
                             filteredUsers.map((user) => (
-                                <TableRow key={user.id} className="hover:bg-[#F8F7F4]">
+                                <TableRow key={user.id} className="hover:bg-gray-50/80 transition-colors">
                                     <TableCell>
                                         <div className="flex items-center gap-3">
                                             <Avatar>
@@ -281,9 +281,9 @@ export default function BackofficeUsersPage() {
                             ))
                         ) : (
                             <TableRow>
-                                <TableCell colSpan={6} className="text-center py-12">
-                                    <Users className="w-12 h-12 mx-auto mb-4 text-[#E5E3DB]" />
-                                    <p className="text-[#556B55]">No se encontraron usuarios</p>
+                                    <TableCell colSpan={6} className="text-center py-12">
+                                    <Users className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                                    <p className="text-gray-600">No se encontraron usuarios</p>
                                 </TableCell>
                             </TableRow>
                         )}

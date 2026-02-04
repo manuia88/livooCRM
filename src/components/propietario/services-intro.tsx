@@ -14,13 +14,13 @@ export function ServicesIntro() {
     };
 
     return (
-        <section className="py-20 bg-white">
+        <section className="py-20 bg-[#FAF8F3]/80 backdrop-blur-sm">
             <div className="container mx-auto px-4">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="max-w-4xl mx-auto text-center mb-16"
+                    className="max-w-4xl mx-auto text-center mb-16 p-6 rounded-3xl bg-white/70 backdrop-blur-sm border border-[#E5E3DB] shadow-lg"
                 >
                     <span className="text-[#B8975A] font-semibold tracking-wider uppercase text-sm block mb-4">
                         Servicios para Propietarios
@@ -50,7 +50,7 @@ export function ServicesIntro() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: index * 0.1 }}
-                            className="w-full bg-[#F8F7F4] rounded-2xl p-6 text-center hover:shadow-lg hover:bg-white transition-all border border-[#E5E3DB] hover:border-[#B8975A] cursor-pointer"
+                            className="w-full bg-white/90 backdrop-blur-sm rounded-2xl p-6 text-center shadow-lg hover:shadow-xl hover:border-[#B8975A] transition-all duration-300 border border-[#E5E3DB] cursor-pointer"
                         >
                             <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${service.color} flex items-center justify-center mx-auto mb-4`}>
                                 <service.icon className="w-8 h-8 text-white" />

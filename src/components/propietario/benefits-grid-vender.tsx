@@ -44,13 +44,13 @@ const benefits = [
 
 export function BenefitsGridVender() {
     return (
-        <section className="py-20 bg-white">
+        <section className="py-20 bg-[#FAF8F3]/80 backdrop-blur-sm">
             <div className="container mx-auto px-4">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="text-center mb-16"
+                    className="text-center mb-16 p-6 rounded-3xl bg-white/70 backdrop-blur-sm border border-[#E5E3DB] shadow-lg max-w-4xl mx-auto"
                 >
                     <h2 className="text-4xl md:text-5xl font-bold text-[#2C3E2C] mb-4">
                         ¿Por qué vender con Livoo?
@@ -70,7 +70,7 @@ export function BenefitsGridVender() {
                             transition={{ delay: index * 0.1 }}
                             className="group"
                         >
-                            <div className="bg-[#F8F7F4] rounded-2xl p-8 h-full hover:bg-white hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-[#B8975A]">
+                            <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 h-full shadow-lg hover:shadow-xl transition-all duration-300 border border-[#E5E3DB] hover:border-[#B8975A]">
                                 {/* Icon */}
                                 <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${benefit.gradient} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg`}>
                                     <benefit.icon className="w-8 h-8 text-white" />

@@ -28,7 +28,7 @@ export function KPICards({ kpis }: KPICardsProps) {
                         : kpi.value;
 
                 return (
-                    <Card key={kpi.id}>
+                    <Card key={kpi.id} className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200 hover:scale-[1.02] transition-all duration-300">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">
                                 {kpi.label}

@@ -59,9 +59,9 @@ export function OwnerBenefits({ type }: OwnerBenefitsProps) {
     ];
 
     return (
-        <section className="py-24 bg-white">
+        <section className="py-24 bg-[#FAF8F3]/80 backdrop-blur-sm">
             <div className="container mx-auto px-4">
-                <div className="text-center max-w-3xl mx-auto mb-16">
+                <div className="text-center max-w-3xl mx-auto mb-16 p-6 rounded-3xl bg-white/70 backdrop-blur-sm border border-[#E5E3DB] shadow-lg">
                     <span className="text-[#B8975A] font-semibold tracking-wider uppercase text-sm">¿Por qué elegir Livoo?</span>
                     <h2 className="text-4xl font-bold text-[#2C3E2C] mt-2 mb-6">
                         La forma más inteligente de {type === "vender" ? "vender" : "rentar"} tu propiedad
@@ -79,9 +79,9 @@ export function OwnerBenefits({ type }: OwnerBenefitsProps) {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: index * 0.1 }}
-                            className="group p-8 rounded-3xl bg-[#F8F7F4] border border-transparent hover:border-[#B8975A]/30 hover:shadow-xl transition-all duration-300"
+                            className="group p-8 rounded-3xl bg-white/90 backdrop-blur-sm border border-[#E5E3DB] shadow-lg hover:border-[#B8975A]/30 hover:shadow-xl transition-all duration-300"
                         >
-                            <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform duration-300">
+                            <div className="w-14 h-14 rounded-2xl bg-[#F8F7F4] flex items-center justify-center mb-6 shadow-md group-hover:scale-110 transition-transform duration-300">
                                 <benefit.icon className="w-7 h-7 text-[#B8975A]" />
                             </div>
 

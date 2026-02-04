@@ -78,7 +78,7 @@ export function AdvisorBenefits() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: index * 0.05 }}
-                            className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:bg-white/10 transition-all"
+                            className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 shadow-lg hover:bg-white/10 hover:shadow-xl transition-all duration-300"
                         >
                             <div className="w-12 h-12 rounded-xl bg-[#B8975A] flex items-center justify-center mb-4">
                                 <benefit.icon className="w-6 h-6 text-white" />

@@ -46,10 +46,10 @@ export default function ContactDetailPage() {
 
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center h-96">
-                <div className="text-center">
-                    <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#B8975A] border-r-transparent"></div>
-                    <p className="mt-4 text-[#556B55]">Cargando contacto...</p>
+            <div className="flex items-center justify-center min-h-[320px]">
+                <div className="text-center bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200 p-8">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+                    <p className="text-gray-600 font-medium">Cargando contacto...</p>
                 </div>
             </div>
         )
@@ -57,15 +57,12 @@ export default function ContactDetailPage() {
 
     if (!contact) {
         return (
-            <div className="text-center py-12">
-                <p className="text-[#556B55]">Contacto no encontrado</p>
-                <Button
-                    onClick={() => router.back()}
-                    className="mt-4"
-                    variant="outline"
-                >
+            <div className="text-center py-12 bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200 p-8 max-w-md mx-auto">
+                <p className="text-gray-600 mb-4">Contacto no encontrado</p>
+                <AppleButton variant="secondary" onClick={() => router.back()}>
+                    <ArrowLeft className="h-5 w-5 mr-2" />
                     Volver
-                </Button>
+                </AppleButton>
             </div>
         )
     }
@@ -130,10 +127,10 @@ export default function ContactDetailPage() {
         >
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Left Column - Contact Info */}
+                {/* Left Column - Contact Info - Estilo Apple */}
                 <div className="lg:col-span-1 space-y-6">
                     {/* Basic Info Card */}
-                    <Card>
+                    <Card className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200">
                         <CardHeader>
                             <div className="flex items-center gap-4">
                                 <Avatar className="h-16 w-16">
@@ -183,7 +180,7 @@ export default function ContactDetailPage() {
                     </Card>
 
                     {/* Lead Score Card */}
-                    <Card>
+                    <Card className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200">
                         <CardHeader>
                             <CardTitle className="text-base">Lead Score</CardTitle>
                         </CardHeader>

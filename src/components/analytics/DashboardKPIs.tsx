@@ -22,7 +22,7 @@ export function DashboardKPIs() {
         return (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[...Array(3)].map((_, i) => (
-                    <Card key={i} className="rounded-3xl border-[#E5E3DB]">
+                    <Card key={i} className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200">
                         <CardHeader className="pb-3">
                             <Skeleton className="h-4 w-32" />
                         </CardHeader>
@@ -80,7 +80,7 @@ export function DashboardKPIs() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.1 }}
                     >
-                        <Card className="rounded-3xl border-[#E5E3DB] shadow-sm hover:shadow-md transition-all group">
+                        <Card className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200 hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 group">
                             <CardHeader className="flex flex-row items-center justify-between pb-3">
                                 <CardTitle className="text-sm font-medium text-gray-600">
                                     {kpi.title}

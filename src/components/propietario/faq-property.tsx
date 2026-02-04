@@ -53,14 +53,14 @@ export function FAQProperty({ type }: FAQPropertyProps) {
     ];
 
     return (
-        <section className="py-24 bg-[#F8F7F4]">
+        <section className="py-24 bg-[#FAF8F3]/80 backdrop-blur-sm">
             <div className="container mx-auto px-4 max-w-3xl">
-                <div className="text-center mb-12">
+                <div className="text-center mb-12 p-6 rounded-3xl bg-white/70 backdrop-blur-sm border border-[#E5E3DB] shadow-lg">
                     <h2 className="text-3xl font-bold text-[#2C3E2C] mb-4">Preguntas Frecuentes</h2>
                     <p className="text-[#6B7B6B]">Resolvemos tus dudas sobre el proceso de {type}</p>
                 </div>
 
-                <Accordion type="single" collapsible className="w-full bg-white rounded-2xl shadow-sm border border-[#E5E3DB] px-6 py-2">
+                <Accordion type="single" collapsible className="w-full bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg border border-[#E5E3DB] px-6 py-2">
                     {faqs.map((faq, index) => (
                         <AccordionItem key={index} value={`item-${index}`} className="border-b-[#E5E3DB] last:border-none">
                             <AccordionTrigger className="text-left text-[#2C3E2C] font-semibold hover:text-[#B8975A] transition-colors py-6">

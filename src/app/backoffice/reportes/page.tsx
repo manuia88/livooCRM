@@ -37,10 +37,10 @@ export default function BackofficeReportsPage() {
 
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center h-96">
-                <div className="text-center">
-                    <Loader2 className="w-12 h-12 mx-auto mb-4 text-[#B8975A] animate-spin" />
-                    <p className="text-[#556B55]">Cargando reportes...</p>
+            <div className="flex items-center justify-center min-h-[320px]">
+                <div className="text-center bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200 p-8">
+                    <Loader2 className="w-12 h-12 mx-auto mb-4 text-gray-900 animate-spin" />
+                    <p className="text-gray-600 font-medium">Cargando reportes...</p>
                 </div>
             </div>
         );
@@ -77,9 +77,9 @@ export default function BackofficeReportsPage() {
             {/* KPIs */}
             {kpisArray.length > 0 && <KPICards kpis={kpisArray} />}
 
-            {/* Tabs */}
-            <Tabs defaultValue="sales" className="space-y-4">
-                <TabsList className="grid w-full grid-cols-4">
+            {/* Tabs - Estilo Apple */}
+            <Tabs defaultValue="sales" className="space-y-6">
+                <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-12 bg-gray-100 rounded-xl p-1 gap-1">
                     <TabsTrigger value="sales">
                         <DollarSign className="w-4 h-4 mr-2" />
                         Ventas
@@ -105,14 +105,14 @@ export default function BackofficeReportsPage() {
                         {monthlyData && <ClosingsChart data={monthlyData} />}
                     </div>
 
-                    <Card>
+                    <Card className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200">
                         <CardHeader>
                             <CardTitle>Resumen de Ventas</CardTitle>
                             <CardDescription>Detalle mensual de ingresos y conversiones</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-4">
-                                <div className="flex items-center justify-between p-4 bg-[#F8F7F4] rounded-lg">
+                                <div className="flex items-center justify-between p-4 bg-gray-100/80 rounded-2xl">
                                     <div>
                                         <p className="text-sm text-[#556B55]">Total Comisiones (Este Mes)</p>
                                         <p className="text-2xl font-bold text-[#2C3E2C]">
@@ -134,7 +134,7 @@ export default function BackofficeReportsPage() {
                 {/* Activity Tab */}
                 <TabsContent value="activity" className="space-y-4">
                     <div className="grid gap-4 md:grid-cols-2">
-                        <Card>
+                        <Card className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200">
                             <CardHeader>
                                 <CardTitle>Actividad de Leads</CardTitle>
                                 <CardDescription>Nuevos contactos y seguimientos</CardDescription>
@@ -175,7 +175,7 @@ export default function BackofficeReportsPage() {
                 {/* Trends Tab */}
                 <TabsContent value="trends" className="space-y-4">
                     <div className="grid gap-4 md:grid-cols-2">
-                        <Card>
+                        <Card className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200">
                             <CardHeader>
                                 <CardTitle>Tendencias del Mercado</CardTitle>
                                 <CardDescription>Análisis de precios y demanda</CardDescription>
@@ -200,7 +200,7 @@ export default function BackofficeReportsPage() {
                             </CardContent>
                         </Card>
 
-                        <Card>
+                        <Card className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200">
                             <CardHeader>
                                 <CardTitle>Zonas Más Buscadas</CardTitle>
                                 <CardDescription>Top 5 colonias con mayor demanda</CardDescription>

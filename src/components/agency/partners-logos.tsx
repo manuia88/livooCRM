@@ -15,7 +15,7 @@ const partners = [
 
 export function PartnersLogos() {
     return (
-        <section className="py-16 bg-white border-b border-[#E5E3DB]">
+        <section className="py-16 bg-[#FAF8F3]/80 backdrop-blur-sm border-b border-[#E5E3DB]">
             <div className="container mx-auto px-4">
                 <motion.h2
                     initial={{ opacity: 0, y: 20 }}
@@ -34,10 +34,10 @@ export function PartnersLogos() {
                             whileInView={{ opacity: 1, scale: 1 }}
                             viewport={{ once: true }}
                             transition={{ delay: index * 0.1 }}
-                            className="relative w-24 h-16 opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0"
+                            className="relative w-24 h-16 opacity-60 hover:opacity-100 transition-all duration-300 grayscale hover:grayscale-0"
                         >
                             {/* Placeholder - Reemplazar con logos reales */}
-                            <div className="w-full h-full bg-[#E5E3DB] rounded-lg flex items-center justify-center">
+                            <div className="w-full h-full bg-white/80 backdrop-blur-sm border border-[#E5E3DB] rounded-2xl shadow-lg hover:shadow-xl flex items-center justify-center transition-shadow duration-300">
                                 <span className="text-xs font-bold text-[#6B7B6B]">{partner.name}</span>
                             </div>
                         </motion.div>

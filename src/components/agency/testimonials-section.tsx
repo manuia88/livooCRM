@@ -39,7 +39,7 @@ export function TestimonialsSection() {
     const [activeIndex, setActiveIndex] = useState(0);
 
     return (
-        <section className="py-20 bg-white">
+        <section className="py-20 bg-[#FAF8F3]/60 backdrop-blur-sm">
             <div className="container mx-auto px-4">
                 <div className="text-center mb-16">
                     <h2 className="text-4xl md:text-5xl font-bold text-[#2C3E2C] mb-4">
@@ -57,7 +57,7 @@ export function TestimonialsSection() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5 }}
-                        className="relative bg-[#F8F7F4] rounded-3xl p-8 md:p-12 border border-[#E5E3DB]"
+                        className="relative bg-white/90 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-[#E5E3DB] shadow-xl"
                     >
                         <Quote className="absolute top-8 left-8 w-12 h-12 text-[#B8975A]/20" />
 
@@ -100,7 +100,7 @@ export function TestimonialsSection() {
                     {testimonials.slice(0, 3).map((testimonial) => (
                         <div
                             key={testimonial.id}
-                            className="bg-white border border-[#E5E3DB] rounded-2xl p-6 hover:shadow-xl transition-shadow"
+                            className="bg-white/90 backdrop-blur-sm border border-[#E5E3DB] rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300"
                         >
                             <Quote className="w-8 h-8 text-[#B8975A]/20 mb-4" />
                             <p className="text-sm text-[#6B7B6B] mb-4 line-clamp-4">

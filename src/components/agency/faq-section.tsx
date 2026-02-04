@@ -43,7 +43,7 @@ export function FAQSection() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: index * 0.1 }}
-                            className="bg-white rounded-2xl border border-[#E5E3DB] overflow-hidden"
+                            className="bg-white/90 backdrop-blur-sm rounded-2xl border border-[#E5E3DB] shadow-lg overflow-hidden"
                         >
                             <button
                                 onClick={() => setOpenIndex(openIndex === index ? null : index)}

@@ -1,58 +1,69 @@
-import { PropertyCard } from "@/components/property-card";
 import { getProperties } from "@/services/property-service";
-import { Button } from "@/components/ui/button";
-import { Filter, Map as MapIcon, List } from "lucide-react";
-import MapLoader from "@/components/map-loader";
+import { Home } from "lucide-react";
+import { PropertiesListing } from "@/components/properties-listing";
 
-export default async function PropertiesPage() {
+function getHeroTitle(type?: string, category?: string) {
+    const isRent = type === "rent";
+    const mode = isRent ? "renta" : type === "buy" ? "venta" : null;
+    if (category === "departamento" && mode) return `Departamentos en ${mode}`;
+    if (category === "casa" && mode) return `Casas en ${mode}`;
+    if (mode) return `Propiedades en ${mode}`;
+    return "Propiedades";
+}
+
+function getHeroSubtitle(type?: string, category?: string) {
+    const isRent = type === "rent";
+    if (category === "departamento") return isRent ? "Encuentra tu próximo departamento en renta." : "Departamentos en venta en las mejores zonas.";
+    if (category === "casa") return isRent ? "Casas en renta con las mejores condiciones." : "Casas en venta para ti y tu familia.";
+    return "Explora nuestro catálogo de inmuebles disponibles.";
+}
+
+function getListingLabel(type?: string) {
+    if (type === "rent") return "en renta";
+    if (type === "buy") return "en venta";
+    return "en venta y renta";
+}
+
+function getLocationLabel(properties: { location?: { city?: string } }[]) {
+    const city = properties[0]?.location?.city;
+    if (city) return city;
+    return "CDMX";
+}
+
+export default async function PropertiesPage({
+    searchParams,
+}: {
+    searchParams: Promise<{ type?: string; category?: string }>;
+}) {
+    const params = await searchParams;
+    const type = params?.type;
+    const category = params?.category;
     const properties = await getProperties();
 
     return (
-        <div className="flex flex-col min-h-screen pt-20"> {/* pt-20 for fixed header space if needed later */}
-
-            {/* Filters Bar */}
-            <div className="sticky top-0 z-30 bg-white border-b border-border shadow-sm">
-                <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-                    <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 scrollbar-hide">
-                        <Button variant="outline" size="sm" className="rounded-full border-border">
-                            <Filter className="w-4 h-4 mr-2" /> Filtros
-                        </Button>
-                        <Button variant="outline" size="sm" className="rounded-full border-border">Precio</Button>
-                        <Button variant="outline" size="sm" className="rounded-full border-border">Tipo de Propiedad</Button>
-                        <Button variant="outline" size="sm" className="rounded-full border-border">Dormitorios</Button>
+        <div className="flex flex-col min-h-screen pt-20">
+            {/* Header compacto */}
+            <div className="bg-gradient-to-br from-[#FAF8F3] to-[#F2F0E9] border-b border-[#E5E3DB] px-4 py-4 sm:py-5">
+                <div className="container mx-auto flex items-center gap-3">
+                    <div className="p-2.5 bg-gradient-to-br from-[#2C3E2C] to-[#3F5140] rounded-xl shadow-md flex-shrink-0">
+                        <Home className="h-5 w-5 text-white" />
                     </div>
-
-                    <div className="hidden md:flex items-center gap-2">
-                        <span className="text-sm text-muted-foreground mr-2">{properties.length} Resultados</span>
-                        <div className="bg-surface p-1 rounded-md flex">
-                            <Button variant="ghost" size="icon" className="h-8 w-8 bg-white shadow-sm">
-                                <List className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
-                                <MapIcon className="h-4 w-4" />
-                            </Button>
-                        </div>
+                    <div>
+                        <h1 className="text-xl sm:text-2xl font-bold text-[#2C3E2C]">
+                            {getHeroTitle(type, category)}
+                        </h1>
+                        <p className="text-sm text-[#6B7B6B] mt-0.5">
+                            {getHeroSubtitle(type, category)}
+                        </p>
                     </div>
                 </div>
             </div>
 
-            <div className="flex flex-1">
-                {/* List View (Left Side on Desktop) */}
-                <div className="w-full md:w-1/2 lg:w-3/5 xl:w-[55%] p-4 md:p-6 overflow-y-auto h-[calc(100vh-130px)]">
-                    <h1 className="text-2xl font-bold mb-6 text-primary">Propiedades en Renta y Venta</h1>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {properties.map((property) => (
-                            <PropertyCard key={property.id} property={property} />
-                        ))}
-                    </div>
-                </div>
-
-                {/* Map View (Right Side - Sticky) */}
-                <div className="hidden md:block md:w-1/2 lg:w-2/5 xl:w-[45%] bg-surface relative h-[calc(100vh-130px)] sticky top-[130px]">
-                    <MapLoader properties={properties} />
-                </div>
-            </div>
+            <PropertiesListing
+                properties={properties}
+                listingLabel={getListingLabel(type)}
+                locationLabel={getLocationLabel(properties)}
+            />
         </div>
     );
 }

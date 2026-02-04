@@ -56,7 +56,7 @@ export function OwnerFAQ({ type }: OwnerFAQProps) {
                     <p className="text-[#6B7B6B]">Resolvemos tus dudas sobre el proceso de {type}</p>
                 </div>
 
-                <Accordion type="single" collapsible className="w-full bg-white rounded-2xl shadow-sm border border-[#E5E3DB] px-6 py-2">
+                <Accordion type="single" collapsible className="w-full bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg border border-[#E5E3DB] px-6 py-2">
                     {faqs.map((faq, index) => (
                         <AccordionItem key={index} value={`item-${index}`} className="border-b-[#E5E3DB] last:border-none">
                             <AccordionTrigger className="text-left text-[#2C3E2C] font-semibold hover:text-[#B8975A] transition-colors py-6">

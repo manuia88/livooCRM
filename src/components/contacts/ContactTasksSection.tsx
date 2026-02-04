@@ -72,7 +72,7 @@ export function ContactTasksSection({
     <div className="space-y-4">
       {/* Alert if needs followup */}
       {needsFollowup && !activeTasks?.some(t => t.task_type === 'cliente_seguimiento') && (
-        <Card className="border-orange-200 bg-orange-50">
+        <Card className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-orange-200 bg-orange-50/50">
           <CardContent className="p-4">
             <div className="flex items-start space-x-3">
               <AlertCircle className="h-5 w-5 text-orange-600 flex-shrink-0 mt-0.5" />
@@ -113,7 +113,7 @@ export function ContactTasksSection({
       )}
 
       {/* Active tasks */}
-      <Card>
+      <Card className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -165,7 +165,7 @@ export function ContactTasksSection({
 
       {/* History */}
       {showHistory && completedTasks && completedTasks.length > 0 && (
-        <Card>
+        <Card className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200">
           <CardHeader>
             <CardTitle className="text-base">Historial de tareas completadas</CardTitle>
           </CardHeader>
@@ -174,7 +174,7 @@ export function ContactTasksSection({
               {completedTasks.map(task => (
                 <div
                   key={task.id}
-                  className="flex items-center justify-between p-3 border rounded-lg bg-gray-50"
+                  className="flex items-center justify-between p-3 border border-gray-200 rounded-2xl bg-gray-50/80"
                 >
                   <div className="flex items-center space-x-3 flex-1">
                     <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0" />

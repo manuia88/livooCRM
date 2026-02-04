@@ -84,8 +84,8 @@ export function TaskCard({
         return (
             <div
                 className={cn(
-                    "flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors",
-                    isOverdue && "border-red-200 bg-red-50"
+                    "flex items-center justify-between p-4 rounded-2xl sm:rounded-3xl border border-gray-200 bg-white/80 backdrop-blur-xl shadow-lg hover:shadow-xl hover:scale-[1.01] cursor-pointer transition-all duration-300",
+                    isOverdue && "border-red-200 bg-red-50/50"
                 )}
                 onClick={onViewDetails}
             >
@@ -108,8 +108,8 @@ export function TaskCard({
     return (
         <Card
             className={cn(
-                "transition-all duration-200",
-                isHovered && "shadow-md",
+                "bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200 transition-all duration-300 hover:scale-[1.02]",
+                isHovered && "shadow-2xl",
                 isOverdue && "border-red-300 bg-red-50/30"
             )}
             onMouseEnter={() => setIsHovered(true)}

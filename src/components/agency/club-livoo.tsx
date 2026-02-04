@@ -78,7 +78,7 @@ export function ClubLivoo() {
                             Son cuatro categorías de reconocimiento — <span className="font-semibold text-[#2C3E2C]">Plata, Oro, Diamante y Titanio</span> — con acceso a ventajas exclusivas, capacitación continua y participación en eventos especiales.
                         </p>
 
-                        <div className="bg-white rounded-2xl p-6 border border-[#E5E3DB] mb-8">
+                        <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-[#E5E3DB] shadow-lg mb-8">
                             <h3 className="font-bold text-[#2C3E2C] mb-4">Beneficios del Club:</h3>
                             <ul className="space-y-3">
                                 {[
@@ -122,7 +122,7 @@ export function ClubLivoo() {
                                 transition={{ delay: index * 0.1 }}
                                 className="relative group"
                             >
-                                <div className="aspect-square rounded-2xl bg-white border-2 border-[#E5E3DB] p-6 flex flex-col items-center justify-center hover:border-[#B8975A] transition-all hover:shadow-2xl">
+                                <div className="aspect-square rounded-2xl bg-white/90 backdrop-blur-sm border-2 border-[#E5E3DB] p-6 flex flex-col items-center justify-center hover:border-[#B8975A] transition-all duration-300 shadow-lg hover:shadow-2xl">
                                     <div className={`w-24 h-24 rounded-full bg-gradient-to-br ${tier.color} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform`}>
                                         <tier.icon className="w-12 h-12 text-white" />
                                     </div>
@@ -136,7 +136,7 @@ export function ClubLivoo() {
                 {/* Gallery */}
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4 max-w-6xl mx-auto">
                     {[1, 2, 3, 4, 5].map((i) => (
-                        <div key={i} className="aspect-square rounded-2xl bg-[#F1EFE8] overflow-hidden hover:scale-105 transition-transform">
+                        <div key={i} className="aspect-square rounded-2xl bg-white/80 backdrop-blur-sm border border-[#E5E3DB] overflow-hidden hover:scale-105 transition-transform duration-300 shadow-lg hover:shadow-xl">
                             {/* Placeholder - Add real event photos */}
                             <div className="w-full h-full flex items-center justify-center">
                                 <span className="text-4xl opacity-20">📸</span>

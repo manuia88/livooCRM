@@ -28,16 +28,16 @@ export function ContractsDetail() {
     ];
 
     return (
-        <section className="py-20 bg-white">
+        <section className="py-20 bg-[#FAF8F3]/80 backdrop-blur-sm">
             <div className="container mx-auto px-4">
                 <div className="max-w-6xl mx-auto">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="text-center mb-12"
+                        className="text-center mb-12 p-6 rounded-3xl bg-white/70 backdrop-blur-sm border border-[#E5E3DB] shadow-lg"
                     >
-                        <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-[#B8975A] text-white font-semibold text-sm mb-6">
+                        <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-[#B8975A] text-white font-semibold text-sm mb-6 shadow-md">
                             <FileSignature className="w-5 h-5" />
                             Digitalización Total
                         </div>
@@ -58,9 +58,9 @@ export function ContractsDetail() {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: index * 0.1 }}
-                                className="bg-[#F8F7F4] rounded-2xl p-6 text-center hover:bg-white hover:shadow-lg transition-all border border-[#E5E3DB]"
+                                className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 text-center shadow-lg hover:shadow-xl transition-all duration-300 border border-[#E5E3DB]"
                             >
-                                <div className="w-14 h-14 rounded-xl bg-white flex items-center justify-center mx-auto mb-4 shadow-sm">
+                                <div className="w-14 h-14 rounded-xl bg-[#F8F7F4] flex items-center justify-center mx-auto mb-4 shadow-md">
                                     <benefit.icon className="w-7 h-7 text-[#2C3E2C]" />
                                 </div>
                                 <h3 className="text-lg font-bold text-[#2C3E2C] mb-2">
@@ -78,7 +78,7 @@ export function ContractsDetail() {
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="bg-gradient-to-br from-[#F8F7F4] to-white rounded-3xl p-8 md:p-12 border-2 border-[#E5E3DB]"
+                        className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-[#E5E3DB] shadow-xl"
                     >
                         <h3 className="text-2xl font-bold text-[#2C3E2C] mb-8 text-center">
                             Proceso de firma digital

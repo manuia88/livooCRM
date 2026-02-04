@@ -67,13 +67,13 @@ export function ProcessSteps({ type }: ProcessStepsProps) {
     const steps = type === "venta" ? ventaSteps : rentaSteps;
 
     return (
-        <section className="py-20 bg-gradient-to-br from-[#F8F7F4] to-white">
+        <section className="py-20 bg-[#FAF8F3]/80 backdrop-blur-sm">
             <div className="container mx-auto px-4">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="text-center mb-16"
+                    className="text-center mb-16 p-6 rounded-3xl bg-white/70 backdrop-blur-sm border border-[#E5E3DB] shadow-lg max-w-3xl mx-auto"
                 >
                     <h2 className="text-4xl md:text-5xl font-bold text-[#2C3E2C] mb-4">
                         ¿Cómo funciona?
@@ -89,7 +89,7 @@ export function ProcessSteps({ type }: ProcessStepsProps) {
                 <div className="hidden lg:block max-w-6xl mx-auto">
                     <div className="relative">
                         {/* Connection Line */}
-                        <div className="absolute top-16 left-0 right-0 h-1 bg-gradient-to-r from-[#2C3E2C] via-[#B8975A] to-[#2C3E2C]" />
+                        <div className="absolute top-16 left-0 right-0 h-1 bg-gradient-to-r from-[#2C3E2C] via-[#B8975A] to-[#2C3E2C] rounded-full" />
 
                         <div className="grid grid-cols-5 gap-8">
                             {steps.map((step, index) => (
@@ -102,15 +102,15 @@ export function ProcessSteps({ type }: ProcessStepsProps) {
                                     className="relative"
                                 >
                                     {/* Step Number Circle */}
-                                    <div className="relative z-10 w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-br from-[#B8975A] to-[#C4A872] flex items-center justify-center shadow-xl">
+                                    <div className="relative z-10 w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-br from-[#B8975A] to-[#C4A872] flex items-center justify-center shadow-xl border-4 border-white/50">
                                         <step.icon className="w-12 h-12 text-white" />
-                                        <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-[#2C3E2C] text-white flex items-center justify-center font-bold text-lg">
+                                        <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-[#2C3E2C] text-white flex items-center justify-center font-bold text-lg shadow-lg">
                                             {index + 1}
                                         </div>
                                     </div>
 
                                     {/* Content */}
-                                    <div className="text-center">
+                                    <div className="text-center p-4 rounded-2xl bg-white/80 backdrop-blur-sm border border-[#E5E3DB] shadow-lg">
                                         <h3 className="text-lg font-bold text-[#2C3E2C] mb-2">
                                             {step.title}
                                         </h3>
@@ -133,7 +133,7 @@ export function ProcessSteps({ type }: ProcessStepsProps) {
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: index * 0.1 }}
-                            className="flex gap-4"
+                            className="flex gap-4 p-4 rounded-2xl bg-white/80 backdrop-blur-sm border border-[#E5E3DB] shadow-lg"
                         >
                             <div className="flex-shrink-0">
                                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#B8975A] to-[#C4A872] flex items-center justify-center shadow-lg">
