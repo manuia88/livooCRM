@@ -235,13 +235,13 @@ function TodoSection() {
     <div className="mb-8 w-full">
       <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">¿Qué debo hacer hoy?</h2>
       
-      <div className="w-full overflow-x-auto pb-4 scrollbar-hide">
-        <div className="flex space-x-3 sm:space-x-4">
-          {priorityCards.map((card, idx) => (
-            <div
-              key={idx}
-              className="min-w-[280px] sm:min-w-[320px] bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200 p-4 sm:p-6 hover:scale-105 transition-all duration-300 hover:shadow-3xl flex-shrink-0"
-            >
+      {/* Grid responsive - NO scroll horizontal */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        {priorityCards.map((card, idx) => (
+          <div
+            key={idx}
+            className="bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-200 p-4 sm:p-6 hover:scale-105 transition-all duration-300 hover:shadow-3xl"
+          >
             <div className={`inline-flex p-3 rounded-2xl bg-gradient-to-br ${card.color} mb-4`}>
               <card.icon className="h-6 w-6 text-white" />
             </div>
@@ -264,8 +264,7 @@ function TodoSection() {
               {card.action}
             </button>
           </div>
-          ))}
-        </div>
+        ))}
       </div>
     </div>
   )
