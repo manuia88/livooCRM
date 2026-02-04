@@ -73,7 +73,7 @@ export function Navbar() {
             {/* Barra superior de marca */}
             <div className="h-1 bg-gradient-to-r from-[#2C3E2C] via-[#B8975A] to-[#2C3E2C]" />
 
-            <nav className="bg-white/95 backdrop-blur-xl border-b border-[#E5E3DB] shadow-lg">
+            <nav className="bg-white/95 backdrop-blur-xl shadow-sm">
                 <div className="container mx-auto px-4">
                     <div className="flex items-center justify-between h-16">
                         {/* Logo + nombre */}

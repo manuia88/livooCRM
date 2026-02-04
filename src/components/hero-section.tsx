@@ -9,7 +9,7 @@ export function HeroSection() {
   const [activeTab, setActiveTab] = useState<"buy" | "rent">("buy");
 
   return (
-    <section className="relative py-12 sm:py-16 flex flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-[#F8F7F4] via-white to-[#FAF8F3]">
+    <section className="relative pt-24 pb-12 sm:pt-28 sm:pb-16 flex flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-[#F8F7F4] via-white to-[#FAF8F3]">
       {/* Formas de fondo suaves */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute top-10 right-10 w-72 h-72 bg-[#B8975A]/10 rounded-full blur-3xl" />
