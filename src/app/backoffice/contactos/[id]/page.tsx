@@ -3,6 +3,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { createClient } from '@/utils/supabase/client'
 import { useParams, useRouter } from 'next/navigation'
+import { PageContainer, Button as AppleButton } from '@/components/backoffice/PageContainer'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -17,7 +18,8 @@ import {
     Tag,
     TrendingUp,
     Edit,
-    MessageSquare
+    MessageSquare,
+    User
 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -102,37 +104,30 @@ export default function ContactDetailPage() {
     }
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <Button
-                        variant="outline"
-                        size="icon"
+        <PageContainer
+            title={contact.full_name}
+            subtitle="Perfil del contacto"
+            icon={User}
+            actions={
+                <div className="flex gap-2 sm:gap-3">
+                    <AppleButton
+                        variant="secondary"
                         onClick={() => router.back()}
                     >
-                        <ArrowLeft className="h-4 w-4" />
-                    </Button>
-                    <div>
-                        <h1 className="text-3xl font-bold text-[#2C3E2C]">
-                            {contact.full_name}
-                        </h1>
-                        <p className="text-[#556B55] mt-1">
-                            Perfil del contacto
-                        </p>
-                    </div>
-                </div>
-                <div className="flex gap-2">
-                    <Button variant="outline">
-                        <MessageSquare className="h-4 w-4 mr-2" />
+                        <ArrowLeft className="h-5 w-5 mr-2" />
+                        Volver
+                    </AppleButton>
+                    <AppleButton variant="secondary">
+                        <MessageSquare className="h-5 w-5 mr-2" />
                         Mensaje
-                    </Button>
-                    <Button className="bg-gradient-to-r from-[#B8975A] to-[#C4A872]">
-                        <Edit className="h-4 w-4 mr-2" />
+                    </AppleButton>
+                    <AppleButton>
+                        <Edit className="h-5 w-5 mr-2" />
                         Editar
-                    </Button>
+                    </AppleButton>
                 </div>
-            </div>
+            }
+        >
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Left Column - Contact Info */}
@@ -222,6 +217,6 @@ export default function ContactDetailPage() {
                     />
                 </div>
             </div>
-        </div>
+        </PageContainer>
     )
 }
