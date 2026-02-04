@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/utils/supabase/client';
+import { PageContainer, Button as AppleButton } from '@/components/backoffice/PageContainer';
 import {
     Table,
     TableBody,
@@ -107,40 +108,38 @@ export default function BackofficeUsersPage() {
     }
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold text-[#2C3E2C]">Usuarios</h1>
-                    <p className="text-[#556B55] mt-1">Gestiona los usuarios del sistema</p>
-                </div>
-                <Button className="bg-gradient-to-r from-[#B8975A] to-[#C4A872] hover:from-[#A38449] hover:to-[#B8975A]">
-                    <UserPlus className="w-4 h-4 mr-2" />
+        <PageContainer
+            title="Usuarios"
+            subtitle="Gestiona los usuarios del sistema"
+            icon={Users}
+            actions={
+                <AppleButton>
+                    <UserPlus className="w-5 h-5 mr-2" />
                     Nuevo Usuario
-                </Button>
-            </div>
-
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-white p-4 rounded-lg border border-[#E5E3DB]">
-                    <p className="text-sm text-[#556B55]">Total Usuarios</p>
-                    <p className="text-2xl font-bold text-[#2C3E2C]">{users?.length || 0}</p>
+                </AppleButton>
+            }
+        >
+            {/* Stats Cards - Estilo Apple */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 sm:mb-8">
+                <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200 p-4 hover:scale-105 transition-all duration-300">
+                    <p className="text-sm text-gray-600 mb-1">Total Usuarios</p>
+                    <p className="text-3xl font-black text-gray-900">{users?.length || 0}</p>
                 </div>
-                <div className="bg-white p-4 rounded-lg border border-[#E5E3DB]">
-                    <p className="text-sm text-[#556B55]">Activos</p>
-                    <p className="text-2xl font-bold text-green-600">
+                <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200 p-4 hover:scale-105 transition-all duration-300">
+                    <p className="text-sm text-gray-600 mb-1">Activos</p>
+                    <p className="text-3xl font-black text-green-600">
                         {users?.filter((u) => u.is_active).length || 0}
                     </p>
                 </div>
-                <div className="bg-white p-4 rounded-lg border border-[#E5E3DB]">
-                    <p className="text-sm text-[#556B55]">Agentes</p>
-                    <p className="text-2xl font-bold text-blue-600">
+                <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200 p-4 hover:scale-105 transition-all duration-300">
+                    <p className="text-sm text-gray-600 mb-1">Agentes</p>
+                    <p className="text-3xl font-black text-blue-600">
                         {users?.filter((u) => u.role === 'agent').length || 0}
                     </p>
                 </div>
-                <div className="bg-white p-4 rounded-lg border border-[#E5E3DB]">
-                    <p className="text-sm text-[#556B55]">Administradores</p>
-                    <p className="text-2xl font-bold text-purple-600">
+                <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200 p-4 hover:scale-105 transition-all duration-300">
+                    <p className="text-sm text-gray-600 mb-1">Administradores</p>
+                    <p className="text-3xl font-black text-purple-600">
                         {users?.filter((u) => u.role === 'admin').length || 0}
                     </p>
                 </div>
@@ -291,6 +290,6 @@ export default function BackofficeUsersPage() {
                     </TableBody>
                 </Table>
             </div>
-        </div>
+        </PageContainer>
     );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { PageContainer, Button as AppleButton } from '@/components/backoffice/PageContainer';
 import { AnalyticsService } from '@/services/analytics-service';
 import { KPICards } from '@/components/analytics/kpi-cards';
 import { SalesTrendChart, ClosingsChart, LeadSourceChart } from '@/components/analytics/charts';
@@ -55,29 +56,23 @@ export default function BackofficeReportsPage() {
     const conversionRate = Number(kpisArray.find(k => k.id === 'conversion')?.value || 0);
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold text-[#2C3E2C]">Reportes y Análisis</h1>
-                    <p className="text-[#556B55] mt-1">
-                        Análisis detallado de rendimiento, ventas y actividad
-                    </p>
-                </div>
-                <div className="flex gap-2">
-                    <Button variant="outline" onClick={handleExportExcel}>
-                        <Download className="w-4 h-4 mr-2" />
+        <PageContainer
+            title="Reportes y Análisis"
+            subtitle="Análisis detallado de rendimiento, ventas y actividad"
+            icon={BarChart3}
+            actions={
+                <div className="flex gap-2 sm:gap-3">
+                    <AppleButton variant="secondary" onClick={handleExportExcel}>
+                        <Download className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                         Excel
-                    </Button>
-                    <Button
-                        className="bg-gradient-to-r from-[#B8975A] to-[#C4A872] hover:from-[#A38449] hover:to-[#B8975A]"
-                        onClick={handleExportPDF}
-                    >
-                        <FileText className="w-4 h-4 mr-2" />
+                    </AppleButton>
+                    <AppleButton onClick={handleExportPDF}>
+                        <FileText className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                         Exportar PDF
-                    </Button>
+                    </AppleButton>
                 </div>
-            </div>
+            }
+        >
 
             {/* KPIs */}
             {kpisArray.length > 0 && <KPICards kpis={kpisArray} />}
@@ -235,6 +230,6 @@ export default function BackofficeReportsPage() {
                     </div>
                 </TabsContent>
             </Tabs>
-        </div>
+        </PageContainer>
     );
 }

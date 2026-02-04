@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { PageContainer, Button as AppleButton } from '@/components/backoffice/PageContainer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -32,24 +33,21 @@ export default function BackofficeConfigPage() {
     };
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold text-[#2C3E2C]">Configuración</h1>
-                    <p className="text-[#556B55] mt-1">
-                        Administra las configuraciones del sistema
-                    </p>
-                </div>
-                <Button
+        <PageContainer
+            title="Configuración"
+            subtitle="Administra las configuraciones del sistema"
+            icon={Settings}
+            actions={
+                <AppleButton
                     onClick={handleSave}
                     disabled={saving}
-                    className="bg-gradient-to-r from-[#B8975A] to-[#C4A872] hover:from-[#A38449] hover:to-[#B8975A]"
+                    variant="success"
                 >
-                    <Save className="w-4 h-4 mr-2" />
+                    <Save className="w-5 h-5 mr-2" />
                     {saving ? 'Guardando...' : 'Guardar Cambios'}
-                </Button>
-            </div>
+                </AppleButton>
+            }
+        >
 
             {/* Tabs */}
             <Tabs defaultValue="agency" className="space-y-4">
@@ -342,6 +340,6 @@ export default function BackofficeConfigPage() {
                     </Card>
                 </TabsContent>
             </Tabs>
-        </div>
+        </PageContainer>
     );
 }
