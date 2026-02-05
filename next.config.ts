@@ -2,14 +2,18 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   typescript: { ignoreBuildErrors: true },
-  /* config options here */
+  images: {
+    remotePatterns: [
+      new URL('https://picsum.photos/**'),
+    ],
+  },
   async headers() {
     // Content Security Policy
     const ContentSecurityPolicy = `
       default-src 'self';
       script-src 'self' 'unsafe-eval' 'unsafe-inline' https://maps.googleapis.com;
       style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-      img-src 'self' blob: data: https://*.supabase.co https://maps.googleapis.com https://maps.gstatic.com;
+      img-src 'self' blob: data: https://*.supabase.co https://maps.googleapis.com https://maps.gstatic.com https://picsum.photos;
       font-src 'self' https://fonts.gstatic.com;
       connect-src 'self' https://*.supabase.co wss://*.supabase.co https://maps.googleapis.com;
       frame-src 'self' https://maps.googleapis.com;

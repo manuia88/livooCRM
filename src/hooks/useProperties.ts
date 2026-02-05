@@ -19,6 +19,7 @@ export interface Property {
   state: string
   price: number
   rent_price: number | null
+  currency?: 'MXN' | 'USD'
   bedrooms: number | null
   bathrooms: number | null
   half_bathrooms: number | null
@@ -44,15 +45,28 @@ export interface Property {
   source: 'own' | 'agency' | 'network'
   created_at: string
   updated_at: string
+  views_count?: number
+  lat?: number | null
+  lng?: number | null
 }
 
-interface PropertiesFilters {
-  status?: string
+export interface PropertiesFilters {
+  status?: string | string[]
   property_type?: string
   operation_type?: string
   city?: string
-  source?: 'own' | 'agency' | 'network' | 'all'
+  source?: 'own' | 'agency' | 'network' | 'mls' | 'all'
   search?: string
+  price_min?: number
+  price_max?: number
+  bedrooms?: number
+  bathrooms?: number
+  parking_spaces?: number
+  construction_m2_min?: number
+  construction_m2_max?: number
+  land_m2_min?: number
+  land_m2_max?: number
+  bounds?: { ne: { lat: number; lng: number }; sw: { lat: number; lng: number } }
 }
 
 export function useProperties(filters: PropertiesFilters = {}) {
@@ -75,19 +89,45 @@ export function useProperties(filters: PropertiesFilters = {}) {
         query = query.eq('agency_id', currentUser.agency_id)
       } else if (filters.source === 'network') {
         query = query.neq('agency_id', currentUser.agency_id)
+      } else if (filters.source === 'mls') {
+        query = query.eq('mls_shared', true)
       }
 
-      if (filters.status) query = query.eq('status', filters.status)
+      if (filters.status) {
+        const statuses = Array.isArray(filters.status) ? filters.status : [filters.status]
+        if (statuses.length > 0) query = query.in('status', statuses)
+      }
       if (filters.property_type) query = query.eq('property_type', filters.property_type)
       if (filters.operation_type) query = query.eq('operation_type', filters.operation_type)
       if (filters.city) query = query.eq('city', filters.city)
+      if (filters.bedrooms != null) query = query.gte('bedrooms', filters.bedrooms)
+      if (filters.bathrooms != null) query = query.gte('bathrooms', filters.bathrooms)
+      if (filters.parking_spaces != null) query = query.gte('parking_spaces', filters.parking_spaces)
+      if (filters.price_min != null && filters.price_min > 0) query = query.gte('price', filters.price_min)
+      if (filters.price_max != null && filters.price_max > 0) query = query.lte('price', filters.price_max)
+      if (filters.construction_m2_min != null) query = query.gte('construction_m2', filters.construction_m2_min)
+      if (filters.construction_m2_max != null) query = query.lte('construction_m2', filters.construction_m2_max)
+      if (filters.land_m2_min != null) query = query.gte('land_m2', filters.land_m2_min)
+      if (filters.land_m2_max != null) query = query.lte('land_m2', filters.land_m2_max)
       if (filters.search) {
-        query = query.or(`title.ilike.%${filters.search}%,city.ilike.%${filters.search}%`)
+        const term = filters.search.trim()
+        query = query.or(`title.ilike.%${term}%,city.ilike.%${term}%,address.ilike.%${term}%,neighborhood.ilike.%${term}%`)
       }
 
       const { data, error } = await query
       if (error) throw error
-      return data as Property[]
+      let result = (data ?? []) as Property[]
+
+      if (filters.bounds && result.length > 0) {
+        const { ne, sw } = filters.bounds
+        result = result.filter((p) => {
+          const lat = p.lat ?? (p as any).latitude
+          const lng = p.lng ?? (p as any).longitude
+          if (lat == null || lng == null || typeof lat !== 'number' || typeof lng !== 'number') return false
+          return lat >= sw.lat && lat <= ne.lat && lng >= sw.lng && lng <= ne.lng
+        })
+      }
+      return result
     },
     enabled: !!currentUser,
     staleTime: 30 * 1000,
@@ -236,7 +276,12 @@ export function usePropertiesStats() {
         .select('id', { count: 'exact', head: true })
         .neq('agency_id', currentUser.agency_id)
 
-      return { total: total || 0, mine: mine || 0, network: network || 0 }
+      const { count: mls } = await supabase
+        .from('properties_safe')
+        .select('id', { count: 'exact', head: true })
+        .eq('mls_shared', true)
+
+      return { total: total || 0, mine: mine || 0, network: network || 0, mls: mls || 0 }
     },
     enabled: !!currentUser,
   })

@@ -209,8 +209,8 @@ function BackofficeContent({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-auto w-full lg:w-auto">
+      {/* Main Content - min-w-0 para que el contenido no desborde y corte las tarjetas */}
+      <main className="flex-1 min-w-0 overflow-auto w-full">
         {children}
       </main>
     </div>
