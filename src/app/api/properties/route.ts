@@ -132,6 +132,15 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: error.message }, { status: 500 });
         }
 
+        // Geocodificar al guardar (recomendado): si la propiedad se creó sin lat/lng,
+        // llamar al geocoding para rellenarlos. Puerta abierta:
+        // const hasCoords = body.lat != null && body.lng != null;
+        // if (data?.id && !hasCoords && (body.address || body.city)) {
+        //   const base = process.env.NEXT_PUBLIC_APP_URL || '';
+        //   const res = await fetch(`${base}/api/properties/${data.id}/geocode`, { method: 'POST', headers: { cookie: request.headers.get('cookie') ?? '' } });
+        //   if (res.ok) { const { lat, lng } = await res.json(); if (lat != null) await supabase.from('properties').update({ lat, lng }).eq('id', data.id); }
+        // }
+
         return NextResponse.json({ data }, { status: 201 });
     } catch (error) {
         console.error('Error parsing request:', error);

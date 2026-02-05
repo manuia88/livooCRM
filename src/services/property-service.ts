@@ -100,14 +100,15 @@ export async function getProperties(): Promise<Property[]> {
             *,
             property_features!inner(*),
             agents!inner(*)
-        `);
+        `)
+        .is('deleted_at', null);
 
     if (error) {
         console.error("Error fetching properties:", error);
         return [];
     }
 
-    return data.map(mapRowToProperty);
+    return (data ?? []).map(mapRowToProperty);
 }
 
 export async function getPropertyById(id: string): Promise<Property | undefined> {
@@ -121,6 +122,7 @@ export async function getPropertyById(id: string): Promise<Property | undefined>
             agents!inner(*)
         `)
         .eq('id', id)
+        .is('deleted_at', null)
         .single();
 
     if (error || !data) {
@@ -141,6 +143,7 @@ export async function getFeaturedProperties(): Promise<Property[]> {
             agents!inner(*)
         `)
         .eq('is_featured', true)
+        .is('deleted_at', null)
         .limit(6);
 
     if (error) {
