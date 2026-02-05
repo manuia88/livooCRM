@@ -99,6 +99,10 @@ const MOCK_PROPERTIES: Property[] = [
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     currency: 'MXN',
+    year_built: 2018,
+    pets_allowed: true,
+    balcony_m2: 12,
+    floor_number: 3,
   },
   {
     id: 'mock-2',
@@ -145,6 +149,10 @@ const MOCK_PROPERTIES: Property[] = [
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     currency: 'MXN',
+    year_built: 2020,
+    pets_allowed: false,
+    terrace_m2: 8,
+    floor_number: 5,
   },
   {
     id: 'mock-3',
@@ -333,6 +341,10 @@ export default function PropertiesPage() {
           commission_percentage: 3,
           main_image_url: FOTOS_PH_CONDESA[0],
           images: [...FOTOS_PH_CONDESA],
+          year_built: 2015,
+          pets_allowed: true,
+          roof_garden_m2: 25,
+          floor_number: 2,
         }
       }
       return p
@@ -691,7 +703,7 @@ function PropertyCard({
             <span className="text-4xl" aria-hidden>🏠</span>
           </div>
         )}
-        {/* Flechas adelante / atrás para previsualizar fotos */}
+        {/* Flechas: solo visibles al pasar el mouse por la tarjeta */}
         {imageCount > 0 && (
           <>
             <button
@@ -700,7 +712,7 @@ function PropertyCard({
                 e.stopPropagation()
                 setPhotoIndex((i) => (i <= 0 ? images.length - 1 : i - 1))
               }}
-              className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center shadow-lg transition-all hover:scale-110"
+              className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center shadow-lg transition-all duration-200 opacity-0 group-hover:opacity-100 hover:scale-110"
               aria-label="Foto anterior"
             >
               <ChevronLeft className="h-5 w-5" />
@@ -711,7 +723,7 @@ function PropertyCard({
                 e.stopPropagation()
                 setPhotoIndex((i) => (i >= images.length - 1 ? 0 : i + 1))
               }}
-              className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center shadow-lg transition-all hover:scale-110"
+              className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center shadow-lg transition-all duration-200 opacity-0 group-hover:opacity-100 hover:scale-110"
               aria-label="Siguiente foto"
             >
               <ChevronRight className="h-5 w-5" />

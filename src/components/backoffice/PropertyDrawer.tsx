@@ -25,15 +25,6 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Share2,
-  FileText,
-  Eye,
-  BarChart3,
-  Settings,
-  User,
-  UserCog,
-  Pencil,
-  FileCheck,
-  Trash2,
   ChevronLeft,
   ChevronRight,
   Image as ImageIcon,
@@ -42,12 +33,6 @@ import {
   LayoutGrid,
   MapPin,
   Navigation,
-  Bed,
-  Bath,
-  Car,
-  Square,
-  Phone,
-  MessageCircle,
 } from 'lucide-react'
 import type { Property } from '@/hooks/useProperties'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
@@ -115,34 +100,62 @@ export function PropertyDrawer({ property, open, onClose }: PropertyDrawerProps)
 
   if (!property) return null
 
-  const opLabel = property.operation_type === 'renta' ? 'RENTA' : property.operation_type === 'venta' ? 'VENTA' : 'VENTA/RENTA'
-  const typeLabel = property.property_type.toUpperCase()
+  const opLabel = property.operation_type === 'renta' ? 'Renta' : property.operation_type === 'venta' ? 'Venta' : 'Venta o Renta'
+  const typeLabelMap: Record<string, string> = {
+    casa: 'Casa',
+    departamento: 'Departamento',
+    terreno: 'Terreno',
+    local: 'Local',
+    oficina: 'Oficina',
+    bodega: 'Bodega',
+  }
+  const typeLabel = typeLabelMap[property.property_type] ?? 'Inmueble'
   const publishedDate = property.created_at
     ? new Date(property.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' })
     : '—'
 
+  const isComercial = ['oficina', 'terreno', 'local', 'bodega'].includes(property.property_type ?? '')
+  const isRenta = property.operation_type === 'renta'
+  const isVenta = property.operation_type === 'venta'
+  const headerBannerGradient = isComercial
+    ? 'bg-gradient-to-r from-amber-600 to-orange-600'
+    : isRenta
+      ? 'bg-gradient-to-r from-green-600 to-green-700'
+      : isVenta
+        ? 'bg-gradient-to-r from-blue-600 to-blue-700'
+        : 'bg-gradient-to-r from-violet-600 to-purple-700'
+
+  const currency = property.currency ?? 'MXN'
+
   return (
     <Sheet open={open} onOpenChange={(o) => !o && onClose()}>
       <SheetContent side="right" className="p-0 flex flex-col max-w-2xl w-full">
-        <SheetHeader className="flex-shrink-0 p-6 pb-4 border-b border-[#E5E5E7]">
+        {/* Barra tipo tarjeta: mismo color que el listado */}
+        <div className={`flex-shrink-0 ${headerBannerGradient} py-3 px-6`}>
+          <p className="text-white font-bold text-sm tracking-tight">
+            {typeLabel} en {opLabel}
+          </p>
+        </div>
+        <SheetHeader className="flex-shrink-0 p-6 pb-4 border-b border-gray-200 bg-white">
           <div className="pr-10">
-            <p className="text-xs text-[#86868B] mb-0.5">
+            <p className="text-xs text-gray-500 mb-0.5">
               ID interno: {property.id.slice(0, 8)} · Portal: {property.slug || '—'}
             </p>
-            <SheetTitle className="text-xl font-bold text-[#1D1D1F] mt-0">
+            <SheetTitle className="text-xl font-bold text-gray-900 mt-0">
               {property.address || property.title}
             </SheetTitle>
-            <p className="text-sm text-[#86868B] mt-1">
+            <p className="text-sm text-gray-500 mt-1">
               {[property.neighborhood, property.city].filter(Boolean).join(', ')}
             </p>
             <div className="flex flex-wrap items-center gap-3 mt-4">
-              <span className="text-2xl font-bold text-[#1D1D1F]">
-                {formatPrice(property.price, property.currency ?? 'MXN')}
+              <span className="text-2xl font-bold text-gray-900">
+                {formatPrice(property.price, currency)}
                 {property.operation_type === 'renta' && property.rent_price != null && (
-                  <span className="text-base font-normal text-[#86868B]">/mes</span>
+                  <span className="text-base font-normal text-gray-500">/mes</span>
                 )}
               </span>
-              <span className="rounded-full bg-[#E5E5E7] px-3 py-1 text-xs font-medium text-[#1D1D1F]">
+              <span className="text-sm font-bold text-green-600">{currency}</span>
+              <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700 border border-gray-200">
                 Publicado {publishedDate} · {opLabel}
               </span>
             </div>
@@ -150,55 +163,62 @@ export function PropertyDrawer({ property, open, onClose }: PropertyDrawerProps)
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
-                    className="w-full sm:w-auto rounded-xl bg-amber-400 hover:bg-amber-500 text-[#1D1D1F] font-semibold shadow-sm"
+                    variant="outline"
+                    className="w-full sm:w-auto rounded-xl bg-gradient-to-b from-gray-50 to-gray-100/80 border border-gray-200/80 text-gray-800 font-semibold shadow-sm hover:from-gray-100 hover:to-gray-200/80 hover:border-gray-300/80 gap-2 [&_svg]:size-[1.125rem] [&_svg]:text-gray-600"
                   >
-                    <Share2 className="h-4 w-4 mr-2" />
+                    <Share2 strokeWidth={2.25} />
                     Compartir
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-56 rounded-xl border-[#E5E5E7]">
-                  <DropdownMenuItem className="rounded-lg">
-                    <FileText className="h-4 w-4 mr-2" />
+                <DropdownMenuContent
+                  align="start"
+                  className="w-60 rounded-2xl border border-gray-200/90 bg-white p-2 shadow-xl"
+                >
+                  <DropdownMenuItem className="flex items-center gap-3 rounded-xl py-2.5 px-3 text-sm font-medium text-gray-800 focus:bg-gray-100 data-[highlighted]:bg-gray-100">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-100/80 text-lg" aria-hidden>📋</span>
                     Ficha con mis datos
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="rounded-lg">
-                    <FileText className="h-4 w-4 mr-2" />
+                  <DropdownMenuItem className="flex items-center gap-3 rounded-xl py-2.5 px-3 text-sm font-medium text-gray-800 focus:bg-gray-100 data-[highlighted]:bg-gray-100">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-100/80 text-lg" aria-hidden>📄</span>
                     Ficha sin datos
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="rounded-lg">
-                    <Eye className="h-4 w-4 mr-2" />
+                  <DropdownMenuItem className="flex items-center gap-3 rounded-xl py-2.5 px-3 text-sm font-medium text-gray-800 focus:bg-gray-100 data-[highlighted]:bg-gray-100">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-100/80 text-lg" aria-hidden>👁️</span>
                     Ver en Red
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="rounded-lg">
-                    <BarChart3 className="h-4 w-4 mr-2" />
+                  <DropdownMenuItem className="flex items-center gap-3 rounded-xl py-2.5 px-3 text-sm font-medium text-gray-800 focus:bg-gray-100 data-[highlighted]:bg-gray-100">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-100/80 text-lg" aria-hidden>📡</span>
                     Compartir Radar
                   </DropdownMenuItem>
                   <DropdownMenuSub>
-                    <DropdownMenuSubTrigger className="rounded-lg">
-                      <Settings className="h-4 w-4 mr-2" />
+                    <DropdownMenuSubTrigger className="flex items-center gap-3 rounded-xl py-2.5 px-3 text-sm font-medium text-gray-800 focus:bg-gray-100 data-[highlighted]:bg-gray-100 [&>svg]:size-4 [&>svg]:text-gray-500">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-100/80 text-lg" aria-hidden>⚙️</span>
                       Gestión Interna
                     </DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent className="rounded-xl border-[#E5E5E7]">
-                      <DropdownMenuItem className="rounded-lg">
-                        <UserCog className="h-4 w-4 mr-2" />
+                    <DropdownMenuSubContent className="rounded-2xl border border-gray-200/90 bg-white p-2 shadow-xl min-w-[200px]">
+                      <DropdownMenuItem className="flex items-center gap-3 rounded-xl py-2.5 px-3 text-sm font-medium text-gray-800 focus:bg-gray-100 data-[highlighted]:bg-gray-100">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-100/80 text-lg" aria-hidden>👤</span>
                         Cambiar Productor
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="rounded-lg">
-                        <User className="h-4 w-4 mr-2" />
+                      <DropdownMenuItem className="flex items-center gap-3 rounded-xl py-2.5 px-3 text-sm font-medium text-gray-800 focus:bg-gray-100 data-[highlighted]:bg-gray-100">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-100/80 text-lg" aria-hidden>🧑‍💼</span>
                         Cambiar Vendedor
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link href={`/backoffice/propiedades/${property.id}`} className="rounded-lg flex items-center">
-                          <Pencil className="h-4 w-4 mr-2" />
+                        <Link
+                          href={`/backoffice/propiedades/${property.id}`}
+                          className="flex items-center gap-3 rounded-xl py-2.5 px-3 text-sm font-medium text-gray-800 focus:bg-gray-100 data-[highlighted]:bg-gray-100"
+                        >
+                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-100/80 text-lg" aria-hidden>✏️</span>
                           Editar propiedad
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="rounded-lg">
-                        <FileCheck className="h-4 w-4 mr-2" />
+                      <DropdownMenuItem className="flex items-center gap-3 rounded-xl py-2.5 px-3 text-sm font-medium text-gray-800 focus:bg-gray-100 data-[highlighted]:bg-gray-100">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-100/80 text-lg" aria-hidden>📝</span>
                         Editar ACM
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="rounded-lg text-red-600">
-                        <Trash2 className="h-4 w-4 mr-2" />
+                      <DropdownMenuItem className="flex items-center gap-3 rounded-xl py-2.5 px-3 text-sm font-medium text-red-600 focus:bg-red-50 data-[highlighted]:bg-red-50">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100/80 text-lg" aria-hidden>🗑️</span>
                         Dar de baja
                       </DropdownMenuItem>
                     </DropdownMenuSubContent>
@@ -210,19 +230,21 @@ export function PropertyDrawer({ property, open, onClose }: PropertyDrawerProps)
         </SheetHeader>
 
         <Tabs defaultValue="propiedad" className="flex-1 flex flex-col min-h-0">
-          <TabsList className="flex-shrink-0 mx-6 mt-4 rounded-xl bg-[#F5F5F7] p-1">
-            <TabsTrigger value="propiedad" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">
+          <TabsList className="flex-shrink-0 mx-6 mt-4 rounded-xl bg-gray-100 p-1 border border-gray-200">
+            <TabsTrigger value="propiedad" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-gray-200">
               Propiedad
             </TabsTrigger>
-            <TabsTrigger value="interno" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">
+            <TabsTrigger value="interno" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-gray-200">
               Interno
             </TabsTrigger>
           </TabsList>
 
-          <SheetBody className="flex-1 min-h-0 pt-4">
-            <TabsContent value="propiedad" className="mt-0 flex flex-col h-full data-[state=inactive]:hidden">
-              {/* Galería con lazy loading */}
-              <div className="relative aspect-video rounded-xl overflow-hidden bg-[#F5F5F7] mx-6">
+          <SheetBody className="flex-1 min-h-0 pt-4 overflow-hidden flex flex-col">
+            <TabsContent value="propiedad" className="mt-0 flex-1 flex flex-col min-h-0 data-[state=inactive]:hidden">
+              <ScrollArea className="flex-1 min-h-0">
+                <div className="pb-8">
+              {/* Galería más grande (4:3 como la tarjeta); el resto hace scroll */}
+              <div className="group/gallery relative aspect-[4/3] min-h-[280px] rounded-xl overflow-hidden bg-gray-100 mx-6 flex-shrink-0">
                 {currentImage ? (
                   <Image
                     src={currentImage}
@@ -233,7 +255,7 @@ export function PropertyDrawer({ property, open, onClose }: PropertyDrawerProps)
                     loading="lazy"
                   />
                 ) : (
-                  <div className="absolute inset-0 flex items-center justify-center text-[#86868B]">
+                  <div className="absolute inset-0 flex items-center justify-center text-gray-500">
                     Sin imagen
                   </div>
                 )}
@@ -242,14 +264,14 @@ export function PropertyDrawer({ property, open, onClose }: PropertyDrawerProps)
                     <button
                       type="button"
                       onClick={goPrev}
-                      className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
+                      className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition-all duration-200 opacity-0 group-hover/gallery:opacity-100"
                     >
                       <ChevronLeft className="h-5 w-5" />
                     </button>
                     <button
                       type="button"
                       onClick={goNext}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition-all duration-200 opacity-0 group-hover/gallery:opacity-100"
                     >
                       <ChevronRight className="h-5 w-5" />
                     </button>
@@ -259,12 +281,12 @@ export function PropertyDrawer({ property, open, onClose }: PropertyDrawerProps)
                   </>
                 )}
               </div>
-              {/* Barra de iconos: Fotos, Video, 360, Planos, Mapa, Street View */}
-              <div className="flex flex-wrap gap-2 mx-6 mt-4">
+              {/* Barra de medios compacta */}
+              <div className="flex flex-wrap justify-center gap-1.5 mx-6 mt-3">
                 {[
                   { id: 'fotos', label: 'Fotos', icon: ImageIcon },
                   { id: 'video', label: 'Video', icon: Video },
-                  { id: '360', label: 'Recorrido 360', icon: Maximize2 },
+                  { id: '360', label: '360', icon: Maximize2 },
                   { id: 'planos', label: 'Planos', icon: LayoutGrid },
                   { id: 'mapa', label: 'Ubicación', icon: MapPin },
                   { id: 'street', label: 'Street View', icon: Navigation },
@@ -273,124 +295,214 @@ export function PropertyDrawer({ property, open, onClose }: PropertyDrawerProps)
                     key={id}
                     type="button"
                     onClick={() => setMediaTab(id as typeof mediaTab)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
+                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                       mediaTab === id
-                        ? 'bg-[#1D1D1F] text-white'
-                        : 'bg-[#F5F5F7] text-[#1D1D1F] hover:bg-[#E5E5E7]'
+                        ? 'bg-gray-900 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200'
                     }`}
                   >
-                    <Icon className="h-4 w-4" />
+                    <Icon className="h-3.5 w-3.5" />
                     {label}
                   </button>
                 ))}
               </div>
 
-              {/* Características principales - grid 4 columnas */}
-              <div className="mx-6 mt-6">
-                <p className="text-sm font-semibold text-[#1D1D1F] mb-3">Características</p>
-                <div className="grid grid-cols-4 gap-4">
-                  {[
-                    { icon: Bed, label: 'Recámaras', value: property.bedrooms },
-                    { icon: Bath, label: 'Baños', value: property.bathrooms },
-                    { icon: Car, label: 'Estacionamientos', value: property.parking_spaces },
-                    { icon: Square, label: 'Construcción', value: property.construction_m2 ? `${property.construction_m2} m²` : null },
-                    { icon: Square, label: 'Totales', value: property.total_area ? `${property.total_area} m²` : property.land_m2 ? `${property.land_m2} m²` : null },
-                  ].filter(({ value }) => value != null).map(({ icon: Icon, label, value }) => (
-                    <div key={label} className="flex flex-col items-center gap-1 text-center">
-                      <Icon className="h-5 w-5 text-[#86868B]" strokeWidth={1.5} />
-                      <span className="text-xs text-[#86868B] tabular-nums">{String(value)}</span>
-                      <span className="text-[10px] text-[#86868B]">{label}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              {/* Características: solo en drawer. 5 = una línea llena; más = 2 líneas bien distribuidas. Incluye mantenimiento, antigüedad, mascotas (no en tarjetas del listado). */}
+              {(() => {
+                const yearBuilt = (property as { year_built?: number | null }).year_built
+                const antiguedad = yearBuilt != null && Number.isFinite(yearBuilt)
+                  ? `${new Date().getFullYear() - Number(yearBuilt)} años`
+                  : null
+                const isRenta = property.operation_type === 'renta' || property.operation_type === 'ambos'
+                const mantenimiento = property.maintenance_fee != null && Number.isFinite(property.maintenance_fee)
+                  ? formatPrice(Number(property.maintenance_fee), property.currency ?? 'MXN')
+                  : null
+                const mascotas = property.pets_allowed != null ? (property.pets_allowed ? 'Sí' : 'No') : null
+                const ext = property as { furnished?: boolean | null; occupied?: boolean | null }
+                const amueblado = isRenta && ext.furnished != null ? (ext.furnished ? 'Sí' : 'No') : null
+                const habitado = isRenta && ext.occupied != null ? (ext.occupied ? 'Sí' : 'No') : null
+                const terraceM2 = property.terrace_m2 ?? null
+                const balconyM2 = property.balcony_m2 ?? null
+                const roofGardenM2 = property.roof_garden_m2 ?? null
+                const outdoorLabel =
+                  roofGardenM2 != null && Number.isFinite(roofGardenM2)
+                    ? { label: 'Roof garden', value: `${roofGardenM2} m²` }
+                    : terraceM2 != null && Number.isFinite(terraceM2)
+                      ? { label: 'Terraza', value: `${terraceM2} m²` }
+                      : balconyM2 != null && Number.isFinite(balconyM2)
+                        ? { label: 'Balcón', value: `${balconyM2} m²` }
+                        : null
+                const f = (v: unknown) => v != null && v !== ''
+                const row1 = [
+                  f(property.bedrooms) && { emoji: '🛏️' as const, label: 'Recámaras', value: String(property.bedrooms) },
+                  f(property.bathrooms) && { emoji: '🚿' as const, label: 'Baños', value: String(property.bathrooms) },
+                  f(property.parking_spaces) && { emoji: '🚗' as const, label: 'Estacionamientos', value: String(property.parking_spaces) },
+                  f(mantenimiento) && { emoji: '💰' as const, label: 'Mantenimiento', value: mantenimiento! },
+                  f(antiguedad) && { emoji: '📅' as const, label: 'Antigüedad', value: antiguedad! },
+                ].filter(Boolean) as { emoji: string; label: string; value: string }[]
+                const piso = property.floor_number != null && Number.isFinite(property.floor_number) ? String(property.floor_number) : null
+                const row2 = [
+                  f(piso) && { emoji: '🏢' as const, label: 'Piso', value: piso! },
+                  f(mascotas) && { emoji: '🐕' as const, label: 'Mascotas', value: mascotas! },
+                  f(property.construction_m2) && { emoji: '🏗️' as const, label: 'Construcción', value: `${property.construction_m2} m²` },
+                  outdoorLabel && { emoji: '🌿' as const, label: outdoorLabel.label, value: outdoorLabel.value },
+                  (f(property.total_area) || f(property.land_m2)) && { emoji: '📐' as const, label: 'Totales', value: property.total_area ? `${property.total_area} m²` : `${property.land_m2} m²` },
+                  f(amueblado) && { emoji: '🪑' as const, label: 'Amueblado', value: amueblado! },
+                  f(habitado) && { emoji: '🏠' as const, label: 'Habitado', value: habitado! },
+                ].filter(Boolean) as { emoji: string; label: string; value: string }[]
+                const isComercialType = ['oficina', 'terreno', 'local', 'bodega', 'nave_industrial'].includes(property.property_type ?? '')
+                const allItems = [...row1, ...row2]
+                const cardClass = 'flex flex-col items-center justify-center gap-0 py-2 px-1.5 rounded-lg bg-gradient-to-b from-gray-50 to-gray-100/80 border border-gray-200/80 shadow-sm flex-1 min-w-0'
+                const cardClassSingleLine = 'flex flex-col items-center justify-center gap-0 py-2 px-1.5 rounded-lg bg-gradient-to-b from-gray-50 to-gray-100/80 border border-gray-200/80 shadow-sm flex-shrink-0 min-w-[56px] max-w-[20%]'
+                const Card = ({ emoji, label, value, maxW = true, singleLine = false }: { emoji: string; label: string; value: string; maxW?: boolean; singleLine?: boolean }) => (
+                  <div key={label} className={singleLine ? cardClassSingleLine : `${cardClass} ${maxW ? 'max-w-[20%]' : 'min-w-[56px] max-w-[20%]'}`}>
+                    <span className="text-2xl leading-none opacity-90" aria-hidden>{emoji}</span>
+                    <span className="text-[11px] font-bold text-gray-800 tabular-nums mt-1 leading-tight text-center break-words">{value}</span>
+                    <span className="text-[10px] font-semibold text-gray-700 leading-tight text-center break-words whitespace-normal mt-0.5">{label}</span>
+                  </div>
+                )
+                return (
+                  <div className="mx-6 mt-5">
+                    <p className="text-sm font-semibold text-gray-900 mb-2">Características</p>
+                    {isComercialType && allItems.length > 0 ? (
+                      <div className="flex items-stretch justify-center gap-2 overflow-x-auto pb-1">
+                        {allItems.map((item) => <Card key={item.label} {...item} singleLine />)}
+                      </div>
+                    ) : (
+                      <>
+                        {row1.length > 0 && (
+                          <div className="flex justify-center gap-2 mb-2 flex-wrap">
+                            {row1.map((item) => <Card key={item.label} {...item} />)}
+                          </div>
+                        )}
+                        {row2.length > 0 && (
+                          <div className="flex justify-center gap-2 flex-wrap">
+                            {row2.map((item) => <Card key={item.label} {...item} maxW={false} />)}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                )
+              })()}
 
-              {/* Amenidades */}
-              <div className="mx-6 mt-6">
-                <p className="text-sm font-semibold text-[#1D1D1F] mb-3">Amenidades</p>
+              {/* Amenidades: estilo neutro como la tarjeta */}
+              <div className="mx-6 mt-5">
+                <p className="text-sm font-semibold text-gray-900 mb-3">Amenidades</p>
                 <div className="flex flex-wrap gap-2">
                   {DEFAULT_AMENITIES.map((a) => (
                     <span
                       key={a}
-                      className="rounded-full bg-blue-50 text-blue-800 px-3 py-1 text-xs font-medium"
+                      className="rounded-full bg-gray-100 text-gray-700 px-3 py-1 text-xs font-medium border border-gray-200/80"
                     >
                       {a}
                     </span>
                   ))}
                 </div>
               </div>
+
+              {/* Descripción */}
+              <div className="mx-6 mt-5">
+                <p className="text-sm font-semibold text-gray-900 mb-2">Descripción</p>
+                <div className="rounded-xl border border-gray-200 bg-gray-50/80 p-4 min-h-[100px]">
+                  {property.description ? (
+                    <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{property.description}</p>
+                  ) : (
+                    <p className="text-sm text-gray-400 italic">Sin descripción.</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Reservado: mapa con ubicación exacta de la propiedad (próximamente). Contenedor listo para integrar lat/lng. */}
+              <div
+                id="property-drawer-map-container"
+                data-map-placeholder
+                className="mx-6 mt-6 mb-10 min-h-[120px] rounded-xl border border-dashed border-gray-200 bg-gray-50/50"
+                aria-label="Ubicación en mapa (próximamente)"
+              />
+                </div>
+              </ScrollArea>
             </TabsContent>
 
             <TabsContent value="interno" className="mt-0 flex flex-col h-full data-[state=inactive]:hidden">
               <ScrollArea className="flex-1">
-                {/* Bloque Productor */}
-                <div className="mx-6 mb-6 p-4 rounded-2xl border border-[#E5E5E7] bg-[#F5F5F7]">
-                  <p className="text-xs font-semibold text-[#86868B] uppercase tracking-wide mb-3">Productor</p>
+                <div className="pb-8">
+                {/* Bloque Productor – misma línea que las tarjetas */}
+                <div className="mx-6 mb-6 p-5 rounded-2xl bg-gradient-to-b from-gray-50 to-gray-100/80 border border-gray-200/80 shadow-sm">
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">Productor</p>
                   <div className="flex items-center gap-4">
-                    <Avatar className="h-14 w-14 rounded-xl border-2 border-white shadow">
+                    <Avatar className="h-16 w-16 rounded-2xl border-2 border-white shadow-md flex-shrink-0">
                       <AvatarImage src={producer?.avatar_url ?? undefined} />
-                      <AvatarFallback className="rounded-xl bg-[#E5E5E7] text-[#1D1D1F] text-lg">
+                      <AvatarFallback className="rounded-2xl bg-gray-200 text-gray-700 text-xl font-bold">
                         {(producer?.full_name ?? '?').slice(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-[#1D1D1F]">{producer?.full_name ?? '—'}</p>
+                      <p className="font-bold text-gray-900 text-base">{producer?.full_name ?? '—'}</p>
                       {producer?.email && (
-                        <p className="text-sm text-[#86868B] truncate">{producer.email}</p>
+                        <p className="text-sm text-gray-600 truncate mt-0.5">{producer.email}</p>
                       )}
                     </div>
-                    <div className="flex gap-2">
-                      <Button size="icon" variant="outline" className="rounded-xl border-[#E5E5E7]">
-                        <Phone className="h-4 w-4" />
-                      </Button>
-                      <Button size="icon" variant="outline" className="rounded-xl border-[#E5E5E7]">
-                        <MessageCircle className="h-4 w-4" />
-                      </Button>
+                    <div className="flex gap-2 flex-shrink-0">
+                      <button
+                        type="button"
+                        className="flex flex-col items-center justify-center h-14 w-14 rounded-xl bg-gradient-to-b from-gray-50 to-gray-100/80 border border-gray-200/80 shadow-sm hover:from-gray-100 hover:to-gray-200/80 transition-colors"
+                        aria-label="Llamar"
+                      >
+                        <span className="text-2xl leading-none opacity-90" aria-hidden>📞</span>
+                      </button>
+                      <button
+                        type="button"
+                        className="flex flex-col items-center justify-center h-14 w-14 rounded-xl bg-gradient-to-b from-green-50 to-green-100/80 border border-green-200/80 shadow-sm hover:from-green-100 hover:to-green-200/80 transition-colors"
+                        aria-label="WhatsApp"
+                      >
+                        <svg className="h-7 w-7 shrink-0" viewBox="0 0 24 24" fill="#25D366" aria-hidden>
+                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                        </svg>
+                      </button>
                     </div>
                   </div>
                 </div>
 
-                {/* Tabla de detalles técnicos */}
+                {/* Detalles técnicos – cards por fila, estilo tarjeta */}
                 <div className="mx-6 mb-6">
-                  <p className="text-sm font-semibold text-[#1D1D1F] mb-3">Detalles técnicos</p>
-                  <div className="rounded-2xl border border-[#E5E5E7] overflow-hidden">
-                    <table className="w-full text-sm">
-                      <tbody>
-                        {[
-                          { label: 'Título', value: property.title },
-                          { label: 'Estado', value: STATUS_LABELS[property.status] },
-                          { label: 'Tipo de operación', value: property.operation_type === 'venta' ? 'Venta' : property.operation_type === 'renta' ? 'Renta' : 'Ambos' },
-                          { label: 'Moneda', value: property.currency ?? 'MXN' },
-                          { label: 'Público', value: property.published ? 'Sí' : 'No' },
-                          { label: 'Exclusiva', value: 'Sí' },
-                          { label: 'Comisión', value: property.commission_percentage != null ? `${property.commission_percentage}%` : '—' },
-                        ].map(({ label, value }) => (
-                          <tr key={label} className="border-b border-[#E5E5E7] last:border-0">
-                            <td className="py-3 px-4 text-[#86868B] font-medium w-1/3">{label}</td>
-                            <td className="py-3 px-4 text-[#1D1D1F]">{value}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                  <p className="text-sm font-bold text-gray-900 mb-3">Detalles técnicos</p>
+                  <div className="rounded-2xl bg-gradient-to-b from-gray-50 to-gray-100/80 border border-gray-200/80 shadow-sm overflow-hidden">
+                    {[
+                      { label: 'Título', value: property.title },
+                      { label: 'Estado', value: STATUS_LABELS[property.status] },
+                      { label: 'Tipo de operación', value: property.operation_type === 'venta' ? 'Venta' : property.operation_type === 'renta' ? 'Renta' : 'Ambos' },
+                      { label: 'Moneda', value: property.currency ?? 'MXN' },
+                      { label: 'Público', value: property.published ? 'Sí' : 'No' },
+                      { label: 'Exclusiva', value: 'Sí' },
+                      { label: 'Comisión', value: property.commission_percentage != null ? `${property.commission_percentage}%` : '—' },
+                    ].map(({ label, value }) => (
+                      <div key={label} className="flex items-center justify-between py-3.5 px-4 border-b border-gray-200/80 last:border-0">
+                        <span className="text-sm font-semibold text-gray-600">{label}</span>
+                        <span className="text-sm font-bold text-gray-900 text-right max-w-[60%] truncate">{value}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
-                {/* Datos del propietario (solo si es el productor) */}
+                {/* Datos del propietario (solo si es el productor) – misma línea, acento ámbar */}
                 {isProducer && (
-                  <div className="mx-6 mb-6 p-4 rounded-2xl border border-amber-200 bg-amber-50/50">
-                    <p className="text-sm font-semibold text-[#1D1D1F] mb-3">Datos del propietario</p>
-                    <div className="space-y-2 text-sm">
-                      <p><span className="text-[#86868B]">Nombre:</span> {property.owner_name ?? '—'}</p>
-                      <p><span className="text-[#86868B]">Teléfono:</span> {property.owner_phone ?? '—'}</p>
-                      <p><span className="text-[#86868B]">Correo:</span> {property.owner_email ?? '—'}</p>
+                  <div className="mx-6 mb-6 p-5 rounded-2xl bg-gradient-to-b from-amber-50/80 to-amber-100/50 border border-amber-200/80 shadow-sm">
+                    <p className="text-sm font-bold text-gray-900 mb-3">Datos del propietario</p>
+                    <div className="space-y-2.5 text-sm">
+                      <p className="flex justify-between gap-2"><span className="font-semibold text-gray-600 shrink-0">Nombre</span><span className="font-medium text-gray-900 text-right">{property.owner_name ?? '—'}</span></p>
+                      <p className="flex justify-between gap-2"><span className="font-semibold text-gray-600 shrink-0">Teléfono</span><span className="font-medium text-gray-900 text-right">{property.owner_phone ?? '—'}</span></p>
+                      <p className="flex justify-between gap-2"><span className="font-semibold text-gray-600 shrink-0">Correo</span><span className="font-medium text-gray-900 text-right truncate max-w-[60%]">{property.owner_email ?? '—'}</span></p>
                       {property.description && (
-                        <p className="pt-2 border-t border-amber-200">
-                          <span className="text-[#86868B]">Notas privadas:</span> {property.description}
+                        <p className="pt-3 mt-3 border-t border-amber-200/80">
+                          <span className="font-semibold text-gray-600 block mb-1">Notas privadas</span>
+                          <span className="text-gray-700">{property.description}</span>
                         </p>
                       )}
                     </div>
                   </div>
                 )}
+                </div>
               </ScrollArea>
             </TabsContent>
           </SheetBody>

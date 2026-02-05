@@ -48,6 +48,12 @@ export interface Property {
   views_count?: number
   lat?: number | null
   lng?: number | null
+  year_built?: number | null
+  pets_allowed?: boolean | null
+  terrace_m2?: number | null
+  balcony_m2?: number | null
+  roof_garden_m2?: number | null
+  floor_number?: number | null
 }
 
 export interface PropertiesFilters {
