@@ -1063,7 +1063,9 @@ function Step6Legal({ formData, updateFormData }: any) {
 
   const ivaRate = 0.16
   const commissionDetails = (() => {
-    if (!baseAmount || isNaN(baseAmount)) return null
+    // Always return details, defaulting to 0 if empty
+    // if (!formData.commission_percentage) return null
+    const safeBase = baseAmount || 0
 
     let subtotal = 0
     let iva = 0
@@ -1071,12 +1073,12 @@ function Step6Legal({ formData, updateFormData }: any) {
 
     if (formData.commission_iva_included) {
       // El total calculado YA incluye IVA
-      total = baseAmount
+      total = safeBase
       subtotal = total / (1 + ivaRate)
       iva = total - subtotal
     } else {
       // El total calculado es MÁS IVA
-      subtotal = baseAmount
+      subtotal = safeBase
       iva = subtotal * ivaRate
       total = subtotal + iva
     }
@@ -1213,7 +1215,7 @@ function Step6Legal({ formData, updateFormData }: any) {
                       )}
                     </div>
                     {/* Instant Calculation Feedback */}
-                    {formData.commission_percentage && !isNaN(baseAmount) && baseAmount > 0 && (
+                    {formData.commission_percentage && !isNaN(baseAmount) && (
                       <p className="text-[11px] text-[#059669] font-bold mt-1.5 ml-1 flex items-center gap-1">
                         <span className="opacity-60">=</span>
                         {baseAmount.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}
