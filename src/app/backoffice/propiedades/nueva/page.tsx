@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useCreateProperty } from '@/hooks/useProperties'
 import { PageContainer } from '@/components/backoffice/PageContainer'
 import { Input } from '@/components/ui/input'
-import { ChevronLeft, ChevronRight, Check, Plus, Home, Building2, TreePine, Store, Warehouse, Building, Factory, MoreHorizontal, Minus, Tag, FileText, MapPin, Ruler, Sparkles, FolderOpen, Waves, Dumbbell, Lock, Dog, Leaf, Car, ChefHat, Snowflake, Flame, MoveVertical, Flower2, PartyPopper, BookOpen, Bath, Package, Droplets, Sun, Armchair, Square, Shirt, CircleDollarSign, BedDouble, LocateFixed, Search, Camera, Baby, Footprints, Mountain, Users, Coffee, DoorOpen, ShieldCheck, User, Phone, Mail, FileSignature, Calendar, Percent, Banknote, CheckCircle2, CreditCard } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Check, Plus, Home, Building2, TreePine, Store, Warehouse, Building, Factory, MoreHorizontal, Minus, Tag, FileText, MapPin, Ruler, Sparkles, FolderOpen, Waves, Dumbbell, Lock, Dog, Leaf, Car, ChefHat, Snowflake, Flame, MoveVertical, Flower2, PartyPopper, BookOpen, Bath, Package, Droplets, Sun, Armchair, Square, Shirt, CircleDollarSign, BedDouble, LocateFixed, Search, Camera, Baby, Footprints, Mountain, Users, Coffee, DoorOpen, ShieldCheck, User, Phone, Mail, FileSignature, Calendar, Percent, Banknote, CheckCircle2, CreditCard, Calculator } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 // TEMPORAL: Mapa comentado para ver los cambios de diseño
@@ -148,12 +148,12 @@ const PercentageInput = ({ value, onChange, placeholder, className, icon }: any)
   const format = (val: string | number) => {
     if (val === '' || val === undefined || val === null) return ''
     const num = Number(val)
-    return isNaN(num) ? val : num + ' %'
+    return isNaN(num) ? val : num + '%'
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Remove " %" and non-numeric chars
-    let rawValue = e.target.value.replace(/ %/g, '').replace(/[^0-9.]/g, '')
+    // Remove "%" and non-numeric chars
+    let rawValue = e.target.value.replace(/%/g, '').replace(/[^0-9.]/g, '')
 
     // Prevent multiple dots
     if ((rawValue.match(/\./g) || []).length > 1) return
@@ -231,6 +231,11 @@ export default function NewPropertyWizard() {
   })
 
   const createProperty = useCreateProperty()
+
+  // Scroll to top on step change
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [currentStep])
 
   // Auto-calcular m2 Totales
   useEffect(() => {
@@ -945,69 +950,92 @@ function Step4Amenities({ formData, updateFormData }: any) {
   )
 }
 
-// Paso 5: Contenido IA + Precio y mantenimiento
+// Paso 5: Contenido IA + Precio y mantenimiento (Rediseño Premium)
 function Step5ContentIA({ formData, updateFormData }: any) {
   const [generatingTitle, setGeneratingTitle] = useState(false)
   const [generatingDesc, setGeneratingDesc] = useState(false)
+
+  const inputClass = "w-full h-14 rounded-2xl border border-[#E5E3DB] bg-[#FDFCFB] px-6 text-[17px] font-medium text-[#2C3E2C] placeholder:text-[#9CA3AF] focus:border-[#B8975A] focus:ring-0 transition-all outline-none hover:bg-white"
+  const labelClass = "block text-[13px] font-black text-[#2C3E2C] mb-3 uppercase tracking-widest opacity-60 ml-1"
+
   const handleGenerateTitle = () => {
     setGeneratingTitle(true)
     setTimeout(() => {
-      updateFormData('title', `${formData.property_type === 'casa' ? 'Casa' : formData.property_type === 'departamento' ? 'Departamento' : 'Propiedad'} en ${formData.neighborhood || 'ubicación destacada'}`)
+      // Mock AI generation
+      updateFormData('title', 'Residencia de Lujo con Acabados Premium en Zona Exclusiva')
       setGeneratingTitle(false)
-    }, 800)
+    }, 1500)
   }
+
   const handleGenerateDesc = () => {
     setGeneratingDesc(true)
     setTimeout(() => {
-      updateFormData('description', `Excelente ${formData.property_type} con amplios espacios. ${formData.bedrooms ? `${formData.bedrooms} recámaras. ` : ''}${formData.total_area ? `Superficie total: ${formData.total_area} m². ` : ''}Ubicación inmejorable.`)
+      updateFormData('description', `Espectacular ${formData.property_type} diseñada para quienes buscan exclusividad y confort. \n\nCuenta con amplios espacios iluminados naturalmente, acabados de primera calidad y una distribución inteligente que maximiza cada metro cuadrado. \n\n${formData.bedrooms ? `• ${formData.bedrooms} Recámaras espaciosas\n` : ''}${formData.total_area ? `• ${formData.total_area} m² de superficie total\n` : ''}• Ubicación privilegiada cerca de centros comerciales y vías principales.\n\nUna oportunidad única para invertir en calidad de vida.`)
       setGeneratingDesc(false)
     }, 1500)
   }
+
   return (
-    <div className="space-y-8">
-      <div>
-        <label className={labelClass}>Título *</label>
-        <Input value={formData.title} onChange={(e) => updateFormData('title', e.target.value)} placeholder="Ej: Casa moderna en Polanco" className={inputClass} />
-        <button
-          type="button"
-          onClick={handleGenerateTitle}
-          disabled={generatingTitle}
-          className="mt-2 rounded-lg bg-[#111827] text-white text-sm font-medium px-5 py-2.5 disabled:opacity-60 flex items-center gap-2 hover:bg-[#1F2937] transition-colors"
-        >
-          {generatingTitle ? (
-            <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-          ) : (
-            <Sparkles className="h-4 w-4" strokeWidth={2} />
-          )}
-          Generar título con IA
-        </button>
+    <div className="bg-white p-6 sm:p-10 rounded-[28px] border border-[#E5E3DB] shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+      {/* Header */}
+      <div className="flex items-center gap-4 mb-10 pb-6 border-b border-[#F8F7F4]">
+        <div className="w-14 h-14 rounded-2xl bg-[#FDF2F8] flex items-center justify-center border border-[#FBCFE8] shadow-inner text-[#DB2777]">
+          <Sparkles className="w-7 h-7" />
+        </div>
+        <div>
+          <h3 className="text-2xl font-black text-[#2C3E2C] tracking-tight">Contenido de Alto Impacto</h3>
+          <p className="text-[14px] text-[#6B7B6B]">Utiliza nuestra IA para destacar tu propiedad.</p>
+        </div>
       </div>
-      <div>
-        <label className={labelClass}>Descripción *</label>
-        <textarea
-          value={formData.description}
-          onChange={(e) => updateFormData('description', e.target.value)}
-          placeholder="Describe la propiedad..."
-          className="w-full min-h-[140px] rounded-lg border border-[#E5E7EB] bg-white px-4 py-3 text-sm text-[#111827] placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#111827]/20 focus:border-[#111827] resize-y"
-        />
-        <button
-          type="button"
-          onClick={handleGenerateDesc}
-          disabled={generatingDesc}
-          className="mt-2 rounded-lg bg-[#111827] text-white text-sm font-medium px-5 py-2.5 disabled:opacity-60 flex items-center gap-2 hover:bg-[#1F2937] transition-colors"
-        >
-          {generatingDesc ? (
-            <>
-              <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              <span className="animate-pulse">Generando…</span>
-            </>
-          ) : (
-            <>
-              <Sparkles className="h-4 w-4" strokeWidth={2} />
-              Generar descripción con IA
-            </>
-          )}
-        </button>
+
+      <div className="space-y-10">
+        {/* Title Section */}
+        <div>
+          <div className="flex justify-between items-end mb-3">
+            <label className={labelClass}>Título del Anuncio *</label>
+            <button
+              type="button"
+              onClick={handleGenerateTitle}
+              disabled={generatingTitle}
+              className="group flex items-center gap-2 text-[13px] font-bold text-[#DB2777] hover:text-[#BE185D] transition-colors disabled:opacity-50"
+            >
+              <Sparkles className={`w-4 h-4 ${generatingTitle ? 'animate-spin' : 'group-hover:rotate-12 transition-transform'}`} />
+              {generatingTitle ? 'Generando...' : 'Mejorar con IA'}
+            </button>
+          </div>
+          <Input
+            value={formData.title}
+            onChange={(e) => updateFormData('title', e.target.value)}
+            placeholder="Ej: Casa moderna en Polanco"
+            className={inputClass}
+          />
+          <p className="text-[13px] text-[#9CA3AF] mt-3 ml-1">Un título atractivo aumenta hasta un 40% las visitas. </p>
+        </div>
+
+        {/* Description Section */}
+        <div>
+          <div className="flex justify-between items-end mb-3">
+            <label className={labelClass}>Descripción Detallada *</label>
+            <button
+              type="button"
+              onClick={handleGenerateDesc}
+              disabled={generatingDesc}
+              className="group flex items-center gap-2 text-[13px] font-bold text-[#DB2777] hover:text-[#BE185D] transition-colors disabled:opacity-50"
+            >
+              <Sparkles className={`w-4 h-4 ${generatingDesc ? 'animate-spin' : 'group-hover:rotate-12 transition-transform'}`} />
+              {generatingDesc ? 'Redactando...' : 'Redactar con IA'}
+            </button>
+          </div>
+
+          <div className="relative">
+            <textarea
+              value={formData.description}
+              onChange={(e) => updateFormData('description', e.target.value)}
+              placeholder="Describe las virtudes de la propiedad..."
+              className="w-full min-h-[220px] rounded-2xl border border-[#E5E3DB] bg-[#FDFCFB] px-6 py-5 text-[16px] text-[#2C3E2C] placeholder:text-[#9CA3AF] focus:border-[#B8975A] focus:ring-0 transition-all outline-none resize-y leading-relaxed hover:bg-white"
+            />
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -1215,6 +1243,23 @@ function Step6Legal({ formData, updateFormData }: any) {
                 </div>
               </div>
 
+              {/* Explicit Commission Calculation Text */}
+              {commissionDetails && (
+                <div className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl p-4 flex items-center gap-3 mb-6">
+                  <Calculator className="w-5 h-5 text-[#6B7B6B]" />
+                  <p className="text-[13px] text-[#374151] font-medium font-mono">
+                    <span className="font-bold">Valor:</span> {operationValue ? operationValue.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' }) : '$0'}
+                    <span className="mx-1">x</span>
+                    <span className="font-bold">{formData.commission_percentage}% Comisión</span>
+                    <span className="mx-1">{formData.commission_iva_included ? '(IVA Incluido)' : '+ IVA'}</span>
+                    <span className="mx-1">=</span>
+                    <span className="font-bold text-[#059669] text-[14px]">
+                      {commissionDetails.total.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })} MXN
+                    </span>
+                  </p>
+                </div>
+              )}
+
               {/* Resumen Financiero */}
               <AnimatePresence>
                 {commissionDetails && (
@@ -1273,7 +1318,32 @@ function Step6Legal({ formData, updateFormData }: any) {
               </div>
             </div>
 
-            {/* 3. Créditos Aceptados (Condicional) */}
+            {/* 3. Vigencia del Contrato (Moved Inside) */}
+            <div className="space-y-4 pt-6 border-t border-[#F8F7F4]">
+              <label className="text-[13px] font-bold text-[#2C3E2C] uppercase tracking-wider ml-1">Vigencia del Contrato *</label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="relative">
+                  <Input
+                    type="date"
+                    value={formData.contract_start_date}
+                    onChange={(e) => updateFormData('contract_start_date', e.target.value)}
+                    className="pl-11 h-12 rounded-xl border-[#E5E3DB] bg-[#FDFCFB]"
+                  />
+                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CA3AF]" />
+                </div>
+                <div className="relative">
+                  <Input
+                    type="date"
+                    value={formData.contract_end_date}
+                    onChange={(e) => updateFormData('contract_end_date', e.target.value)}
+                    className="pl-11 h-12 rounded-xl border-[#E5E3DB] bg-[#FDFCFB]"
+                  />
+                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CA3AF]" />
+                </div>
+              </div>
+            </div>
+
+            {/* 4. Créditos Aceptados (Condicional) */}
             {!isRenta && (
               <div className="space-y-4 pt-6 border-t border-[#F8F7F4]">
                 <label className="text-[13px] font-bold text-[#2C3E2C] uppercase tracking-wider ml-1">Créditos Aceptados *</label>
@@ -1299,89 +1369,57 @@ function Step6Legal({ formData, updateFormData }: any) {
         </div>
 
         {/* 3. Vigencia del Contrato */}
-        <div className="mb-12">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-1.5 h-8 bg-[#F59E0B] rounded-full shadow-sm" />
-            <h4 className="text-[16px] font-black text-[#2C3E2C] uppercase tracking-[0.2em]">Vigencia del Contrato *</h4>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-[13px] font-bold text-[#2C3E2C] uppercase tracking-wider ml-1">Fecha de Inicio *</label>
-              <div className="relative">
-                <Input
-                  type="date"
-                  value={formData.contract_start_date}
-                  onChange={(e) => updateFormData('contract_start_date', e.target.value)}
-                  className="pl-11 h-12 rounded-xl border-[#E5E3DB] bg-[#FDFCFB]"
-                />
-                <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CA3AF]" />
+
+        {/* 4. Documentación */}
+        <div className="bg-white p-6 sm:p-10 rounded-[28px] border border-[#E5E3DB] shadow-[0_2px_12px_rgba(0,0,0,0.03)]" >
+          <div className="flex items-center justify-between mb-8 pb-6 border-b border-[#F8F7F4]">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-[#F3F4F6] flex items-center justify-center">
+                <FolderOpen className="w-6 h-6 text-[#4B5563]" />
               </div>
+              <h3 className="text-xl font-black text-[#2C3E2C] tracking-tight">Documentación</h3>
             </div>
-            <div className="space-y-2">
-              <label className="text-[13px] font-bold text-[#2C3E2C] uppercase tracking-wider ml-1">Fecha de Término *</label>
-              <div className="relative">
-                <Input
-                  type="date"
-                  value={formData.contract_end_date}
-                  onChange={(e) => updateFormData('contract_end_date', e.target.value)}
-                  className="pl-11 h-12 rounded-xl border-[#E5E3DB] bg-[#FDFCFB]"
-                />
-                <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CA3AF]" />
+            <button
+              type="button"
+              onClick={() => updateFormData('documents_in_order', !formData.documents_in_order)}
+              className={`flex items-center gap-3 px-5 py-2.5 rounded-full border transition-all ${formData.documents_in_order ? 'bg-[#ECFDF5] border-[#10B981] text-[#047857]' : 'bg-white border-[#E5E3DB] text-[#6B7B6B]'}`}
+            >
+              <span className="text-sm font-bold">Documentación en regla</span>
+              <div className={`w-10 h-6 rounded-full p-1 transition-colors ${formData.documents_in_order ? 'bg-[#10B981]' : 'bg-[#E5E7EB]'}`}>
+                <div className={`w-4 h-full rounded-full bg-white shadow-sm transition-transform ${formData.documents_in_order ? 'translate-x-4' : ''}`} />
               </div>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <DocumentCard title="ID Propietario *" subtitle="INE, Acta Constitutiva" id="drop-owner" files={ownerFiles} onFiles={setOwnerFiles} />
+            <DocumentCard title="De la Propiedad *" subtitle="Escrituras, Título" id="drop-property" files={propertyFiles} onFiles={setPropertyFiles} />
+            <DocumentCard title="Predial *" subtitle="Comprobante de pago" id="drop-predial" files={predialFiles} onFiles={setPredialFiles} />
+            <DocumentCard title="Comprobante Domicilio *" subtitle="CFE, Agua, Teléfono" id="drop-domicilio" files={domicilioFiles} onFiles={setDomicilioFiles} />
+            <DocumentCard title="Situación Fiscal *" subtitle="Constancia SAT" id="drop-fiscal" files={fiscalFiles} onFiles={setFiscalFiles} />
+          </div>
+
+          <div className="mt-8 pt-6 border-t border-[#F8F7F4]">
+            <p className="text-[15px] font-semibold text-[#111827] mb-4">Estado del Proceso Legal *</p>
+            <div className="flex flex-wrap gap-2">
+              {LEGAL_STAGES.map(({ id, label }) => {
+                const selected = formData.legal_status === id
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => updateFormData('legal_status', id)}
+                    className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${selected ? 'bg-[#111827] text-white shadow-lg transform -translate-y-0.5' : 'bg-white border border-[#E5E3DB] text-[#6B7B6B] hover:bg-[#F9FAFB]'}`}
+                  >
+                    {label}
+                  </button>
+                )
+              })}
             </div>
           </div>
         </div>
-      </div >
-
-      {/* 4. Documentación */}
-      < div className="bg-white p-6 sm:p-10 rounded-[28px] border border-[#E5E3DB] shadow-[0_2px_12px_rgba(0,0,0,0.03)]" >
-        <div className="flex items-center justify-between mb-8 pb-6 border-b border-[#F8F7F4]">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-[#F3F4F6] flex items-center justify-center">
-              <FolderOpen className="w-6 h-6 text-[#4B5563]" />
-            </div>
-            <h3 className="text-xl font-black text-[#2C3E2C] tracking-tight">Documentación</h3>
-          </div>
-          <button
-            type="button"
-            onClick={() => updateFormData('documents_in_order', !formData.documents_in_order)}
-            className={`flex items-center gap-3 px-5 py-2.5 rounded-full border transition-all ${formData.documents_in_order ? 'bg-[#ECFDF5] border-[#10B981] text-[#047857]' : 'bg-white border-[#E5E3DB] text-[#6B7B6B]'}`}
-          >
-            <span className="text-sm font-bold">Documentación en regla</span>
-            <div className={`w-10 h-6 rounded-full p-1 transition-colors ${formData.documents_in_order ? 'bg-[#10B981]' : 'bg-[#E5E7EB]'}`}>
-              <div className={`w-4 h-full rounded-full bg-white shadow-sm transition-transform ${formData.documents_in_order ? 'translate-x-4' : ''}`} />
-            </div>
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <DocumentCard title="ID Propietario *" subtitle="INE, Acta Constitutiva" id="drop-owner" files={ownerFiles} onFiles={setOwnerFiles} />
-          <DocumentCard title="De la Propiedad *" subtitle="Escrituras, Título" id="drop-property" files={propertyFiles} onFiles={setPropertyFiles} />
-          <DocumentCard title="Predial *" subtitle="Comprobante de pago" id="drop-predial" files={predialFiles} onFiles={setPredialFiles} />
-          <DocumentCard title="Comprobante Domicilio *" subtitle="CFE, Agua, Teléfono" id="drop-domicilio" files={domicilioFiles} onFiles={setDomicilioFiles} />
-          <DocumentCard title="Situación Fiscal *" subtitle="Constancia SAT" id="drop-fiscal" files={fiscalFiles} onFiles={setFiscalFiles} />
-        </div>
-
-        <div className="mt-8 pt-6 border-t border-[#F8F7F4]">
-          <p className="text-[15px] font-semibold text-[#111827] mb-4">Estado del Proceso Legal *</p>
-          <div className="flex flex-wrap gap-2">
-            {LEGAL_STAGES.map(({ id, label }) => {
-              const selected = formData.legal_status === id
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => updateFormData('legal_status', id)}
-                  className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${selected ? 'bg-[#111827] text-white shadow-lg transform -translate-y-0.5' : 'bg-white border border-[#E5E3DB] text-[#6B7B6B] hover:bg-[#F9FAFB]'}`}
-                >
-                  {label}
-                </button>
-              )
-            })}
-          </div>
-        </div>
-      </div >
-    </div >
+      </div>
+    </div>
   )
 }
 
