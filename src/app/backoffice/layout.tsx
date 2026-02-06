@@ -104,8 +104,13 @@ function BackofficeContent({ children }: { children: React.ReactNode }) {
     })
   }
 
+  const isCrmDesignPage = pathname?.includes('/propiedades/nueva')
   return (
-    <div className="flex h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200">
+    <div
+      className="flex h-screen relative"
+      style={isCrmDesignPage ? { backgroundColor: '#F5F5F7' } : undefined}
+    >
+      {!isCrmDesignPage && <div className="absolute inset-0 -z-10 bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200" aria-hidden />}
       {/* Mobile Menu Button */}
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}

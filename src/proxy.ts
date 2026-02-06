@@ -72,8 +72,10 @@ export async function proxy(request: NextRequest) {
     return supabaseResponse
 }
 
+// Solo ejecutar proxy en rutas que requieren auth (backoffice, auth). El resto (/, /propiedades, etc.) carga sin proxy = mucho más rápido.
 export const config = {
     matcher: [
-        '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+        '/backoffice/:path*',
+        '/auth/:path*',
     ],
 }

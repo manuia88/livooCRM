@@ -18,6 +18,7 @@ interface PageContainerProps {
   icon?: LucideIcon
   actions?: ReactNode
   className?: string
+  variant?: 'default' | 'livoo' | 'crm'
 }
 
 export function PageContainer({
@@ -27,28 +28,54 @@ export function PageContainer({
   icon: Icon,
   actions,
   className = '',
+  variant = 'default',
 }: PageContainerProps) {
+  const isLivoo = variant === 'livoo'
+  const isCrm = variant === 'crm'
+  const bgClass = isCrm ? 'min-h-screen' : isLivoo ? 'min-h-screen bg-gradient-to-br from-[#FAF8F3] via-[#F2F0E9] to-[#E8E6E0]' : 'min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200'
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200">
+    <div className={bgClass} style={isCrm ? { backgroundColor: '#F5F5F7' } : undefined}>
       <div className="p-4 sm:p-6 lg:p-8 max-w-full overflow-hidden">
-        {/* Header */}
+        {/* Header — CRM: Design System (título 20–22px bold #111827, subtitle #6B7280, icon badge 42px) */}
         {(title || actions) && (
-          <div className="mb-6 sm:mb-8">
+          <div className={isCrm ? 'mb-8' : 'mb-6 sm:mb-8'}>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex items-center space-x-3">
-                {Icon && (
-                  <div className="p-3 bg-gradient-to-br from-gray-900 to-gray-700 rounded-2xl shadow-lg">
-                    <Icon className="h-6 w-6 text-white" />
-                  </div>
-                )}
-                <div>
+                {Icon &&
+                  (isCrm ? (
+                    <div
+                      className="flex items-center justify-center flex-shrink-0"
+                      style={{ width: 42, height: 42, borderRadius: '50%', backgroundColor: '#3B82F6' }}
+                    >
+                      <Icon className="h-5 w-5 text-white" strokeWidth={2} />
+                    </div>
+                  ) : (
+                    <div
+                      className={`p-3 rounded-2xl shadow-lg flex-shrink-0 ${isLivoo ? 'bg-[#2C3E2C]' : 'bg-gradient-to-br from-gray-900 to-gray-700'}`}
+                    >
+                      <Icon className="h-6 w-6 text-white" />
+                    </div>
+                  ))}
+                <div className="flex flex-col min-w-0">
                   {title && (
-                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-gray-900">
+                    <h1
+                      className={
+                        isCrm
+                          ? 'text-[20px] sm:text-[22px] font-bold text-[#111827] leading-tight'
+                          : `text-2xl sm:text-3xl lg:text-4xl font-black ${isLivoo ? 'text-[#2C3E2C]' : 'text-gray-900'}`
+                      }
+                    >
                       {title}
                     </h1>
                   )}
                   {subtitle && (
-                    <p className="text-sm sm:text-base text-gray-600 mt-1">
+                    <p
+                      className={
+                        isCrm
+                          ? 'text-[13px] sm:text-[14px] text-[#6B7280] mt-0.5 leading-snug'
+                          : `text-sm sm:text-base mt-1 ${isLivoo ? 'text-[#6B7B6B]' : 'text-gray-600'}`
+                      }
+                    >
                       {subtitle}
                     </p>
                   )}

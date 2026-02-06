@@ -17,6 +17,18 @@ export interface GeocodeResult {
   lat: number
   lng: number
   display_name?: string
+  address?: {
+    road?: string
+    house_number?: string
+    suburb?: string
+    neighbourhood?: string
+    city_district?: string
+    city?: string
+    town?: string
+    state?: string
+    postcode?: string
+    country?: string
+  }
 }
 
 /**
@@ -81,6 +93,7 @@ export async function geocodeAddress(address: string): Promise<GeocodeResult | n
     q: trimmed,
     format: 'json',
     limit: '1',
+    addressdetails: '1',
     countrycodes: 'mx', // priorizar México
   })
 
@@ -108,6 +121,7 @@ export async function geocodeAddress(address: string): Promise<GeocodeResult | n
     lat,
     lng,
     display_name: first.display_name,
+    address: first.address,
   }
   cacheSet(cacheKey, result)
   return result
