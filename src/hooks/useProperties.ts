@@ -40,6 +40,7 @@ export interface Property {
   owner_name: string | null
   owner_phone: string | null
   owner_email: string | null
+  legal_status?: string | null
   is_my_agency: boolean
   is_mine: boolean
   source: 'own' | 'agency' | 'network'

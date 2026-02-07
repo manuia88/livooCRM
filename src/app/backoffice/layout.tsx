@@ -74,7 +74,7 @@ function BackofficeContent({ children }: { children: React.ReactNode }) {
     )
   }
 
-  const menuItems = [
+  const baseMenuItems = [
     // Grupo Primario
     { href: '/backoffice', icon: LayoutDashboard, label: 'Inicio' },
     { href: '/backoffice/propiedades', icon: Home, label: 'Propiedades' },
@@ -95,14 +95,10 @@ function BackofficeContent({ children }: { children: React.ReactNode }) {
     { href: '/backoffice/actividad', icon: Activity, label: 'Academia' },
   ]
 
-  // Add Usuarios only for admins
-  if (isAdmin) {
-    menuItems.push({
-      href: '/backoffice/usuarios',
-      icon: Settings,
-      label: 'Usuarios'
-    })
-  }
+  // Add Usuarios only for admins (using spread to avoid mutation)
+  const menuItems = isAdmin 
+    ? [...baseMenuItems, { href: '/backoffice/usuarios', icon: Settings, label: 'Usuarios' }]
+    : baseMenuItems
 
   const isCrmDesignPage = pathname?.includes('/propiedades/nueva')
   return (

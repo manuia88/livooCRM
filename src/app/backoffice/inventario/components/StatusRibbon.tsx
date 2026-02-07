@@ -5,10 +5,10 @@ import { Info } from 'lucide-react'
 
 const statuses = [
     { label: 'Sin Contrato', value: 'sin_contrato', hasTooltip: true },
-    { label: 'Documentos Pendientes', value: 'documentos_pendientes' },
+    { label: 'Documentos Pendientes', value: 'docs_pendientes' },
     { label: 'En Revisión', value: 'en_revision' },
-    { label: 'Aprobados', value: 'aprobados' },
-    { label: 'Rechazados', value: 'rechazados' },
+    { label: 'Aprobado', value: 'aprobados' },
+    { label: 'Rechazado', value: 'rechazados' },
     { label: 'Contrato Enviado', value: 'contrato_enviado' },
     { label: 'Contrato Firmado', value: 'contrato_firmado' },
 ]

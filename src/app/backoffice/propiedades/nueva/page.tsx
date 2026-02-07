@@ -105,8 +105,8 @@ const LEGAL_STAGES = [
   { id: 'sin_contrato', label: 'Sin Contrato' },
   { id: 'docs_pendientes', label: 'Documentos Pendientes' },
   { id: 'en_revision', label: 'En Revisión' },
-  { id: 'aprobados', label: 'Aprobados' },
-  { id: 'rechazados', label: 'Rechazados' },
+  { id: 'aprobados', label: 'Aprobado' },
+  { id: 'rechazados', label: 'Rechazado' },
   { id: 'contrato_enviado', label: 'Contrato Enviado' },
   { id: 'contrato_firmado', label: 'Contrato Firmado' },
 ]
@@ -216,7 +216,7 @@ export default function NewPropertyWizard() {
     rent_price: '',
     maintenance_fee: '',
     currency: 'MXN' as 'MXN' | 'USD',
-    legal_status: 'solicitud_docs',
+    legal_status: 'sin_contrato',
     // New Fields for Step 6
     owner_name: '',
     owner_email: '',
@@ -314,6 +314,7 @@ export default function NewPropertyWizard() {
         owner_email: formData.owner_email || null,
         published: formData.published,
         mls_shared: formData.mls_shared,
+        legal_status: formData.legal_status || null,
         images: formData.images || [],
         main_image_url: formData.main_image_url || null,
         amenities: formData.amenities || [],
@@ -1312,7 +1313,10 @@ function Step6Legal({ formData, updateFormData }: any) {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <button
                   type="button"
-                  onClick={() => updateFormData('exclusivity_contract', true)}
+                  onClick={() => {
+                    updateFormData('exclusivity_contract', true)
+                    updateFormData('mls_shared', false) // Exclusiva = NO se comparte en MLS
+                  }}
                   className={`h-16 rounded-2xl border flex items-center justify-center gap-3 transition-all ${formData.exclusivity_contract === true ? 'bg-[#111827] border-[#111827] text-white shadow-lg scale-[1.01]' : 'bg-white border-[#E5E3DB] text-[#6B7B6B] hover:border-[#B8975A] hover:bg-[#FAF8F3]'}`}
                 >
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center ${formData.exclusivity_contract === true ? 'bg-white/20' : 'bg-[#F3F4F6]'}`}>
@@ -1322,7 +1326,10 @@ function Step6Legal({ formData, updateFormData }: any) {
                 </button>
                 <button
                   type="button"
-                  onClick={() => updateFormData('exclusivity_contract', false)}
+                  onClick={() => {
+                    updateFormData('exclusivity_contract', false)
+                    updateFormData('mls_shared', true) // Opción = SÍ se comparte en MLS
+                  }}
                   className={`h-16 rounded-2xl border flex items-center justify-center gap-3 transition-all ${formData.exclusivity_contract === false ? 'bg-[#111827] border-[#111827] text-white shadow-lg scale-[1.01]' : 'bg-white border-[#E5E3DB] text-[#6B7B6B] hover:border-[#B8975A] hover:bg-[#FAF8F3]'}`}
                 >
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center ${formData.exclusivity_contract === false ? 'bg-white/20' : 'bg-[#F3F4F6]'}`}>

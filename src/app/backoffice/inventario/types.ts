@@ -1,5 +1,28 @@
 import { Property } from '@/hooks/useProperties'
 
+export type ExclusivityFilter = null | 'exclusive' | 'option'
+export type QualityFilter = 'quality_alta' | 'quality_media' | 'quality_baja'
+export type ValuationFilter = 'valuation_optimo' | 'valuation_medio' | 'valuation_fuera'
+
+export interface DashboardFiltersState {
+    exclusivity: ExclusivityFilter
+    qualities: QualityFilter[]
+    valuations: ValuationFilter[]
+}
+
+/** @deprecated Use DashboardFiltersState for multi-select */
+export type DashboardFilter =
+    | null
+    | 'all'
+    | 'exclusive'
+    | 'option'
+    | 'quality_alta'
+    | 'quality_media'
+    | 'quality_baja'
+    | 'valuation_optimo'
+    | 'valuation_medio'
+    | 'valuation_fuera'
+
 export interface PropertyStats {
     queries: number
     visits: number

@@ -8,7 +8,9 @@ const nextConfig: NextConfig = {
   },
   images: {
     remotePatterns: [
-      new URL('https://picsum.photos/**'),
+      { protocol: 'https', hostname: 'picsum.photos' },
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: '*.supabase.co' },
     ],
   },
   async headers() {
@@ -17,7 +19,7 @@ const nextConfig: NextConfig = {
       default-src 'self';
       script-src 'self' 'unsafe-eval' 'unsafe-inline' https://maps.googleapis.com;
       style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-      img-src 'self' blob: data: https://*.supabase.co https://maps.googleapis.com https://maps.gstatic.com https://picsum.photos https://*.tile.openstreetmap.org;
+      img-src 'self' blob: data: https://*.supabase.co https://maps.googleapis.com https://maps.gstatic.com https://picsum.photos https://images.unsplash.com https://*.tile.openstreetmap.org;
       font-src 'self' data: https://fonts.gstatic.com;
       connect-src 'self' https://*.supabase.co wss://*.supabase.co https://maps.googleapis.com https://nominatim.openstreetmap.org;
       frame-src 'self' https://maps.googleapis.com;

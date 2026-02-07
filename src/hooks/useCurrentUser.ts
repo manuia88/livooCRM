@@ -22,16 +22,46 @@ export function useCurrentUser() {
                 return null
             }
 
-            // Obtener perfil con agencia
-            const { data: profile, error: profileError } = await supabase
+            // Intentar obtener perfil con agencia
+            let profile = null
+            let agency = null
+
+            // Primera intentar: query completa con JOIN
+            const { data: profileWithAgency, error: profileError } = await supabase
                 .from('user_profiles')
                 .select('*, agency:agencies(*)')
                 .eq('id', user.id)
                 .maybeSingle()
 
+            // Si falla (ej: error 406 por RLS), intentar query sin JOIN
             if (profileError) {
-                console.error('Error fetching user profile:', profileError)
-                return null
+                console.warn('Error fetching profile with agency (intentando sin JOIN):', profileError)
+                
+                const { data: basicProfile, error: basicError } = await supabase
+                    .from('user_profiles')
+                    .select('*')
+                    .eq('id', user.id)
+                    .maybeSingle()
+
+                if (basicError) {
+                    console.error('Error fetching basic profile:', basicError)
+                    return null
+                }
+
+                profile = basicProfile
+
+                // Intentar obtener agencia por separado
+                if (profile?.agency_id) {
+                    const { data: agencyData } = await supabase
+                        .from('agencies')
+                        .select('*')
+                        .eq('id', profile.agency_id)
+                        .maybeSingle()
+                    
+                    agency = agencyData
+                }
+            } else {
+                profile = profileWithAgency
             }
 
             if (!profile) {
@@ -43,10 +73,11 @@ export function useCurrentUser() {
             return {
                 ...profile,
                 email: user.email || '',
+                agency: agency || (profile as any).agency || null,
             } as CurrentUser
         },
         staleTime: 5 * 60 * 1000, // 5 minutos
-        retry: 1,
+        retry: 2,
     })
 }
 
