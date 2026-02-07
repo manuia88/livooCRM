@@ -1,3 +1,7 @@
+'use client'
+
+import React from 'react'
+import { Building2, ShieldCheck, FileCheck, TrendingUp, Activity } from 'lucide-react'
 import { InventoryProperty } from '../types'
 
 interface InventoryDashboardProps {
@@ -8,101 +12,138 @@ interface InventoryDashboardProps {
 export default function InventoryDashboard({ onValuationClick, properties }: InventoryDashboardProps) {
     const totalCount = properties.length
     const exclusiveCount = properties.filter(p => p.exclusive).length
+    const optionCount = properties.filter(p => !p.exclusive).length
 
-    const highQuality = properties.filter(p => p.health_score >= 80).length
-    const midQuality = properties.filter(p => p.health_score >= 50 && p.health_score < 80).length
-    const lowQuality = properties.filter(p => p.health_score < 50).length
+    // Quality stats
+    const qualityStats = {
+        alta: properties.filter(p => p.health_score >= 80).length,
+        media: properties.filter(p => p.health_score >= 50 && p.health_score < 80).length,
+        baja: properties.filter(p => p.health_score < 50).length
+    }
 
-    const avgHealth = totalCount > 0
-        ? Math.round(properties.reduce((acc, p) => acc + (p.health_score || 0), 0) / totalCount)
-        : 0
+    // Market Valuation - pricing competitiveness
+    const marketValuation = {
+        optimo: properties.filter(p => p.health_score >= 80).length,
+        noCompetitivo: properties.filter(p => p.health_score >= 40 && p.health_score < 80).length,
+        fueraMercado: properties.filter(p => p.health_score < 40).length
+    }
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Card 1: Conteo */}
-            <div className="bg-white rounded-[20px] p-6 border border-[#E5E7EB] shadow-sm flex flex-col justify-center gap-4">
-                <div>
-                    <p className="text-[32px] font-bold text-[#111827] leading-none">{totalCount}</p>
-                    <p className="text-sm font-medium text-[#6B7280] mt-1">Propiedades</p>
-                </div>
-                <div>
-                    <p className="text-[20px] font-bold text-[#111827] leading-none">{exclusiveCount}</p>
-                    <p className="text-xs font-medium text-[#6B7280] mt-1 uppercase tracking-wider">Exclusivas</p>
-                </div>
-            </div>
+        <div className="bg-white p-6 sm:p-8 rounded-[28px] border border-[#E5E3DB] shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 lg:gap-6">
 
-            {/* Card 2: Calidad General */}
-            <div className="bg-white rounded-[20px] p-6 border border-[#E5E7EB] shadow-sm flex flex-col gap-4">
-                <p className="text-sm font-bold text-[#111827] uppercase tracking-wider">Alta Calidad Gral.</p>
+                {/* Section 1: Core Metrics */}
+                <div className="flex items-center justify-center gap-4 sm:gap-6 flex-1">
 
-                <div className="flex items-center gap-6">
-                    <div className="relative w-20 h-20">
-                        {/* SVG Progress Rings */}
-                        <svg className="w-full h-full transform -rotate-90">
-                            <circle cx="40" cy="40" r="32" stroke="#F3F4F6" strokeWidth="6" fill="transparent" />
-                            <circle
-                                cx="40" cy="40" r="32"
-                                stroke="#0D9488" strokeWidth="6" fill="transparent"
-                                strokeDasharray={2 * Math.PI * 32}
-                                strokeDashoffset={2 * Math.PI * 32 * (1 - avgHealth / 100)}
-                                strokeLinecap="round"
-                            />
-                        </svg>
-                        <div className="absolute inset-0 flex items-center justify-center">
-                            <span className="text-lg font-bold text-[#111827]">{avgHealth}%</span>
+                    {/* Total */}
+                    <div className="flex flex-col items-center w-[80px] sm:w-[90px]">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0EA5E9] to-[#0284C7] flex items-center justify-center shadow-md mb-2">
+                            <Building2 className="w-5 h-5 text-white" strokeWidth={2.5} />
                         </div>
+                        <span className="text-xl sm:text-2xl font-black text-[#2C3E2C] tabular-nums leading-none mb-1">{totalCount}</span>
+                        <span className="text-[10px] font-extrabold text-[#6B7B6B] uppercase tracking-[0.06em] opacity-80 text-center">Total</span>
                     </div>
 
-                    <div className="flex-1 space-y-2">
-                        <div className="flex items-center justify-between text-xs font-medium text-[#6B7280]">
-                            <div className="flex items-center gap-1.5">
-                                <div className="w-2 h-2 rounded-full bg-[#0D9488]" />
-                                <span>Alta: {highQuality}</span>
-                            </div>
+                    {/* Divider */}
+                    <div className="h-12 lg:h-16 w-px bg-[#E5E3DB]"></div>
+
+                    {/* Exclusivas */}
+                    <div className="flex flex-col items-center w-[80px] sm:w-[90px]">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#F59E0B] to-[#D97706] flex items-center justify-center shadow-md mb-2">
+                            <ShieldCheck className="w-5 h-5 text-white" strokeWidth={2.5} />
                         </div>
-                        <div className="flex items-center justify-between text-xs font-medium text-[#6B7280]">
-                            <div className="flex items-center gap-1.5">
-                                <div className="w-2 h-2 rounded-full bg-[#F59E0B]" />
-                                <span>Media: {midQuality}</span>
-                            </div>
+                        <span className="text-xl sm:text-2xl font-black text-[#2C3E2C] tabular-nums leading-none mb-1">{exclusiveCount}</span>
+                        <span className="text-[10px] font-extrabold text-[#6B7B6B] uppercase tracking-[0.06em] opacity-80 text-center">Exclusivas</span>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="h-12 lg:h-16 w-px bg-[#E5E3DB]"></div>
+
+                    {/* Opción */}
+                    <div className="flex flex-col items-center w-[80px] sm:w-[90px]">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#8B5CF6] to-[#7C3AED] flex items-center justify-center shadow-md mb-2">
+                            <FileCheck className="w-5 h-5 text-white" strokeWidth={2.5} />
                         </div>
-                        <div className="flex items-center justify-between text-xs font-medium text-[#6B7280]">
-                            <div className="flex items-center gap-1.5">
-                                <div className="w-2 h-2 rounded-full bg-[#EF4444]" />
-                                <span>Baja: {lowQuality}</span>
+                        <span className="text-xl sm:text-2xl font-black text-[#2C3E2C] tabular-nums leading-none mb-1">{optionCount}</span>
+                        <span className="text-[10px) font-extrabold text-[#6B7B6B] uppercase tracking-[0.06em] opacity-80 text-center">Opción</span>
+                    </div>
+
+                </div>
+
+                {/* Main Separator */}
+                <div className="hidden lg:block h-20 w-px bg-[#E5E3DB]"></div>
+                <div className="block lg:hidden h-px w-full bg-[#E5E3DB]/50"></div>
+
+                {/* Section 2: Quality */}
+                <div className="flex-1">
+                    <div className="flex items-center justify-center gap-2 mb-3">
+                        <TrendingUp className="w-4 h-4 text-[#6B7B6B]" />
+                        <span className="text-[10px] font-extrabold text-[#6B7B6B] uppercase tracking-[0.08em] opacity-80">Calidad</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-3 sm:gap-4">
+                        {/* Alta */}
+                        <div className="flex flex-col items-center w-[60px] sm:w-[70px]">
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#10B981] to-[#059669] flex items-center justify-center shadow-md mb-2">
+                                <span className="text-[15px] font-black text-white tabular-nums">{qualityStats.alta}</span>
                             </div>
+                            <span className="text-[10px] font-extrabold text-[#6B7B6B] uppercase tracking-[0.06em] opacity-80 text-center">Alta</span>
+                        </div>
+
+                        {/* Media */}
+                        <div className="flex flex-col items-center w-[60px] sm:w-[70px]">
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#F59E0B] to-[#D97706] flex items-center justify-center shadow-md mb-2">
+                                <span className="text-[15px] font-black text-white tabular-nums">{qualityStats.media}</span>
+                            </div>
+                            <span className="text-[10px] font-extrabold text-[#6B7B6B] uppercase tracking-[0.06em] opacity-80 text-center">Media</span>
+                        </div>
+
+                        {/* Baja */}
+                        <div className="flex flex-col items-center w-[60px] sm:w-[70px]">
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#EF4444] to-[#DC2626] flex items-center justify-center shadow-md mb-2">
+                                <span className="text-[15px] font-black text-white tabular-nums">{qualityStats.baja}</span>
+                            </div>
+                            <span className="text-[10px] font-extrabold text-[#6B7B6B] uppercase tracking-[0.06em] opacity-80 text-center">Baja</span>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            {/* Card 3: Valuación */}
-            <div
-                className="bg-white rounded-[20px] p-6 border border-[#E5E7EB] shadow-sm hover:shadow-md transition-all cursor-pointer group flex flex-col gap-4"
-                onClick={onValuationClick}
-            >
-                <p className="text-sm font-bold text-[#111827] uppercase tracking-wider">Valuación</p>
+                {/* Main Separator */}
+                <div className="hidden lg:block h-20 w-px bg-[#E5E3DB]"></div>
+                <div className="block lg:hidden h-px w-full bg-[#E5E3DB]/50"></div>
 
-                <div className="flex items-end h-20 gap-3">
-                    {/* Mini-Gráfico de Barras */}
-                    {[
-                        { color: '#0D9488', height: 'h-[80%]' },
-                        { color: '#F59E0B', height: 'h-[50%]' },
-                        { color: '#EF4444', height: 'h-[30%]' },
-                        { color: '#D1D5DB', height: 'h-[10%]' }
-                    ].map((bar, i) => (
-                        <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
-                            <div className="w-full flex flex-col gap-0.5 h-full justify-end">
-                                <div className="w-full h-2 rounded-full bg-gray-100 mb-0.5" />
-                                <div className="w-full h-2 rounded-full bg-gray-100 mb-0.5" />
-                                <div className="w-full h-2 rounded-full bg-gray-100 mb-0.5" />
-                                <div className={`w-full ${bar.height} rounded-full`} style={{ backgroundColor: bar.color }} />
+                {/* Section 3: Valuation */}
+                <div className="flex-1">
+                    <div className="flex items-center justify-center gap-2 mb-3">
+                        <Activity className="w-4 h-4 text-[#6B7B6B]" />
+                        <span className="text-[10px] font-extrabold text-[#6B7B6B] uppercase tracking-[0.08em] opacity-80">Valuación</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-3 sm:gap-4">
+                        {/* Óptimo */}
+                        <div className="flex flex-col items-center w-[60px] sm:w-[70px]">
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#10B981] to-[#059669] flex items-center justify-center shadow-md mb-2">
+                                <span className="text-[15px] font-black text-white tabular-nums">{marketValuation.optimo}</span>
                             </div>
-                            <div className="w-full h-1 rounded-full bg-gray-100 group-hover:bg-gray-200 transition-colors" />
+                            <span className="text-[10px] font-extrabold text-[#6B7B6B] uppercase tracking-[0.06em] opacity-80 text-center">Óptimo</span>
                         </div>
-                    ))}
+
+                        {/* Medio */}
+                        <div className="flex flex-col items-center w-[60px] sm:w-[70px]">
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#F59E0B] to-[#D97706] flex items-center justify-center shadow-md mb-2">
+                                <span className="text-[15px] font-black text-white tabular-nums">{marketValuation.noCompetitivo}</span>
+                            </div>
+                            <span className="text-[10px] font-extrabold text-[#6B7B6B] uppercase tracking-[0.06em] opacity-80 text-center">Medio</span>
+                        </div>
+
+                        {/* Fuera */}
+                        <div className="flex flex-col items-center w-[60px] sm:w-[70px]">
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#EF4444] to-[#DC2626] flex items-center justify-center shadow-md mb-2">
+                                <span className="text-[15px] font-black text-white tabular-nums">{marketValuation.fueraMercado}</span>
+                            </div>
+                            <span className="text-[10px] font-extrabold text-[#6B7B6B] uppercase tracking-[0.06em] opacity-80 text-center">Fuera</span>
+                        </div>
+                    </div>
                 </div>
-                <p className="text-[10px] text-[#9CA3AF] font-medium text-center italic">Click para ver análisis detallado</p>
+
             </div>
         </div>
     )

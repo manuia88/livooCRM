@@ -1,16 +1,19 @@
 'use client'
 
 import React from 'react'
+import { X, Share2, ChevronRight, TrendingUp } from 'lucide-react'
 import { motion } from 'framer-motion'
-import { X, Share2, AlertCircle, ChevronRight } from 'lucide-react'
 
 interface ValuationModalProps {
+    isOpen: boolean
     onClose: () => void
 }
 
-export default function ValuationModal({ onClose }: ValuationModalProps) {
+export default function ValuationModal({ isOpen, onClose }: ValuationModalProps) {
+    if (!isOpen) return null
+
     return (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -20,76 +23,69 @@ export default function ValuationModal({ onClose }: ValuationModalProps) {
             />
 
             <motion.div
-                initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 20, scale: 0.95 }}
-                className="relative w-full max-w-[680px] bg-white rounded-[28px] shadow-2xl overflow-hidden"
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                className="relative w-full max-w-2xl bg-white rounded-[32px] shadow-2xl overflow-hidden border border-[#E5E3DB]"
             >
-                {/* Banner Amarillo */}
-                <div className="bg-[#FEF3C7] border-b border-[#FDE68A] px-6 py-4 flex items-center gap-3">
-                    <div className="w-6 h-6 rounded-full bg-[#F59E0B] flex items-center justify-center text-white shrink-0">
-                        <AlertCircle size={14} strokeWidth={3} />
+                {/* Header */}
+                <div className="p-8 border-b border-[#E5E3DB] flex items-center justify-between bg-[#FAF8F3]/50">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-[#111827] flex items-center justify-center text-[#B8975A]">
+                            <TrendingUp size={20} />
+                        </div>
+                        <div>
+                            <h2 className="text-[20px] font-black text-[#111827] tracking-tight">Análisis de Valuación</h2>
+                            <p className="text-[11px] font-bold text-[#6B7B6B] uppercase tracking-widest opacity-60">Benchmarks de mercado en tiempo real</p>
+                        </div>
                     </div>
-                    <p className="text-sm font-bold text-[#92400E]">El precio de la propiedad es poco competitivo</p>
                     <button
                         onClick={onClose}
-                        className="ml-auto text-[#B45309] hover:bg-black/5 rounded-full p-2 transition-colors"
+                        className="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-[#E5E3DB] text-[#6B7280] hover:text-[#111827] hover:border-[#111827] transition-all"
                     >
                         <X size={20} />
                     </button>
                 </div>
 
+                {/* Body */}
                 <div className="p-8 space-y-8">
-                    <div>
-                        <h2 className="text-[20px] font-bold text-[#111827]">Análisis de Valuación</h2>
-                        <p className="text-sm text-[#6B7280] font-medium mt-1">Comparativa basada en 24 propiedades similares en la zona</p>
-                    </div>
-
-                    {/* Gráfico Comparativo */}
+                    {/* Comparative Graph area */}
                     <div className="space-y-6">
-                        <div className="h-24 flex items-end gap-1.5 relative">
-                            {/* Optimal Range (Green) */}
-                            <div className="flex-1 h-[40%] bg-[#0D9488]/10 border-t-2 border-[#0D9488] rounded-t-lg relative group">
-                                <div className="absolute inset-0 bg-[#0D9488]/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                            </div>
-                            {/* Non-competitive (Yellow) */}
-                            <div className="flex-1 h-[70%] bg-[#F59E0B]/10 border-t-2 border-[#F59E0B] rounded-t-lg relative group">
-                                <div className="absolute inset-0 bg-[#F59E0B]/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                            </div>
-                            {/* Off-market (Red) */}
-                            <div className="flex-1 h-[100%] bg-[#EF4444]/10 border-t-2 border-[#EF4444] rounded-t-lg relative group">
-                                <div className="absolute inset-0 bg-[#EF4444]/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                            </div>
+                        <div className="flex justify-between items-end mb-2">
+                            <span className="text-[11px] font-black text-[#6B7B6B] uppercase tracking-widest">Distribución de Precios / m²</span>
+                            <span className="text-[12px] font-black text-[#111827]">MXN $40,000</span>
+                        </div>
+                        <div className="h-24 flex items-end gap-2 px-1">
+                            {/* Simple, sharp bars */}
+                            <div className="flex-1 h-[30%] bg-[#0D9488]/10 border-t-2 border-[#0D9488] rounded-t-lg relative" />
+                            <div className="flex-1 h-[60%] bg-[#F59E0B]/10 border-t-2 border-[#F59E0B] rounded-t-lg relative" />
+                            <div className="flex-1 h-[100%] bg-[#EF4444]/10 border-t-2 border-[#EF4444] rounded-t-lg relative" />
 
-                            {/* Indicador Actual */}
-                            <div className="absolute left-[65%] top-0 bottom-0 w-px bg-[#6B7280] dashed border-l border-dashed border-[#6B7280] flex flex-col items-center">
-                                <div className="absolute -top-8 px-2 py-1 bg-[#111827] text-white text-[11px] font-bold rounded-md whitespace-nowrap shadow-lg">
-                                    Actual: 40,000 MXN/m²
-                                </div>
-                                <div className="w-2 h-2 rounded-full bg-[#111827] mt-auto -mb-1 shadow-md" />
+                            {/* Current price marker */}
+                            <div className="absolute left-[65%] top-0 bottom-0 w-px border-l-2 border-dashed border-[#111827]/40 flex flex-col items-center">
+                                <div className="absolute -top-8 px-2.5 py-1 bg-[#111827] text-white text-[10px] font-black rounded-lg shadow-lg">ACTUAL</div>
+                                <div className="w-3 h-3 rounded-full bg-[#111827] border-2 border-white shadow-sm mt-auto -mb-1.5" />
                             </div>
                         </div>
-
-                        <div className="flex justify-between text-[11px] font-bold text-[#9CA3AF] uppercase tracking-wider">
-                            <span>$21,800</span>
-                            <span className="text-[#0D9488]">Óptimo</span>
-                            <span className="text-[#F59E0B]">No competitivo</span>
-                            <span className="text-[#EF4444]">Fuera de mercado</span>
-                            <span>$54,200</span>
+                        <div className="flex justify-between text-[9px] font-black text-[#6B7B6B] uppercase tracking-[0.2em] opacity-40">
+                            <span>$21k Min</span>
+                            <span>Óptimo</span>
+                            <span>Competencia</span>
+                            <span>Fuera</span>
+                            <span>$54k Max</span>
                         </div>
                     </div>
 
-                    {/* Conclusiones */}
-                    <div className="bg-[#F9FAFB] rounded-2xl p-6 border border-[#E5E7EB]">
-                        <h3 className="text-[15px] font-bold text-[#111827] mb-4">Conclusiones</h3>
+                    {/* Conclusions */}
+                    <div className="bg-[#FAF8F3] rounded-2xl p-6 border border-[#E5E3DB] border-dashed">
+                        <h3 className="text-[12px] font-black text-[#2C3E2C] uppercase tracking-widest mb-4 opacity-70">Diagnóstico Estratégico</h3>
                         <ul className="space-y-3">
                             {[
                                 'El precio por m² es 15% superior al promedio de la zona.',
-                                'Se identificaron 24 propiedades con características similares a menor precio.',
-                                'Recomendación: Ajustar un 8% para entrar en el rango de alta competitividad.'
+                                'Se identificaron 24 propiedades comparables con mayor absorción.',
+                                'Recomendación: Ajuste del 8% para penetrar el rango óptimo.'
                             ].map((point, i) => (
-                                <li key={i} className="flex gap-3 text-sm text-[#374151] font-medium leading-normal">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-[#111827] mt-1.5 shrink-0" />
+                                <li key={i} className="flex gap-3 text-[13px] text-[#374151] font-bold leading-snug">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-[#B8975A] mt-1.5 shrink-0" />
                                     {point}
                                 </li>
                             ))}
@@ -98,14 +94,14 @@ export default function ValuationModal({ onClose }: ValuationModalProps) {
                 </div>
 
                 {/* Footer */}
-                <div className="bg-white border-t border-[#E5E7EB] p-6 flex items-center justify-between gap-4">
-                    <button className="flex items-center gap-2 px-6 h-12 bg-white border border-[#E5E7EB] rounded-xl text-sm font-bold text-[#374151] hover:bg-[#F9FAFB] transition-all active:scale-95">
-                        <Share2 size={18} />
-                        <span>Compartir</span>
+                <div className="p-8 bg-white border-t border-[#E5E3DB] flex items-center justify-between gap-4">
+                    <button className="flex items-center gap-2 px-6 h-12 bg-white border border-[#E5E3DB] rounded-xl text-[12px] font-black text-[#111827] hover:bg-[#FAF8F3] transition-all active:scale-95 shadow-sm">
+                        <Share2 size={16} />
+                        <span>COMPARTIR</span>
                     </button>
-                    <button className="flex items-center gap-2 px-8 h-12 bg-[#111827] text-white rounded-xl text-sm font-bold hover:bg-[#1F2937] transition-all active:scale-95 shadow-lg shadow-black/10">
-                        <span>Ver o editar comparables (24)</span>
-                        <ChevronRight size={18} />
+                    <button className="flex-1 flex items-center justify-center gap-2 px-8 h-12 bg-[#111827] text-white rounded-xl text-[12px] font-black hover:bg-black transition-all shadow-xl shadow-black/10 active:scale-95">
+                        <span>EDITAR COMPARABLES (24)</span>
+                        <ChevronRight size={16} strokeWidth={3} />
                     </button>
                 </div>
             </motion.div>

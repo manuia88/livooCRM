@@ -19,6 +19,8 @@ export interface InventoryProperty extends Property {
     quality: string
     qualityScore: number
     advisors: Advisor[]
+    valuation?: string // optimo | medio | fuera
+    legal_status?: string
     // metadata overrides/extensions if needed
     exclusive?: boolean
     contract_status?: string

@@ -22,6 +22,8 @@ const BADGE_INDIGO = '#6366F1'       // Tarea, ubicación
 const BADGE_TEAL = '#0D9488'        // Curso, datos
 const BADGE_PURPLE = '#8B5CF6'       // Social, contenido
 const BADGE_AMBER = '#F59E0B'        // Tiempo, legal/expiración
+const BADGE_GREY = '#6B7280'         // Neutral, sin estado
+const BADGE_RED = '#EF4444'          // Rechazado, error
 
 const STEP_COLORS = [BADGE_PROPERTIES, BADGE_GREEN, BADGE_INDIGO, BADGE_TEAL, BADGE_PURPLE, BADGE_AMBER] as const
 
@@ -99,12 +101,14 @@ const AMENITIES_OPTIONS = [
   { id: 'estacionamiento_techado', label: 'Estacionamiento techado', Icon: Car, category: 'feature' },
 ]
 
-const LEGAL_STAGE_COLORS = [BADGE_INDIGO, BADGE_GREEN, BADGE_AMBER, BADGE_PURPLE] as const
 const LEGAL_STAGES = [
-  { id: 'solicitud_docs', label: 'Solicitud de docs', color: LEGAL_STAGE_COLORS[0] },
-  { id: 'cargada', label: 'Cargada', color: LEGAL_STAGE_COLORS[1] },
-  { id: 'aprobacion', label: 'Aprobación', color: LEGAL_STAGE_COLORS[2] },
-  { id: 'firma', label: 'Firma', color: LEGAL_STAGE_COLORS[3] },
+  { id: 'sin_contrato', label: 'Sin Contrato' },
+  { id: 'docs_pendientes', label: 'Documentos Pendientes' },
+  { id: 'en_revision', label: 'En Revisión' },
+  { id: 'aprobados', label: 'Aprobados' },
+  { id: 'rechazados', label: 'Rechazados' },
+  { id: 'contrato_enviado', label: 'Contrato Enviado' },
+  { id: 'contrato_firmado', label: 'Contrato Firmado' },
 ]
 
 // Design System: tarjetas base (fondo blanco, 14px radius, sombra/borde)
@@ -1057,6 +1061,7 @@ function Step6Legal({ formData, updateFormData }: any) {
   const [predialFiles, setPredialFiles] = useState<File[]>([])
   const [domicilioFiles, setDomicilioFiles] = useState<File[]>([])
   const [fiscalFiles, setFiscalFiles] = useState<File[]>([])
+  const [contratoFirmadoFiles, setContratoFirmadoFiles] = useState<File[]>([])
 
   // Detect operation type (venta vs renta) from Step 2
   const isRenta = formData.operation_types.includes('renta') && !formData.operation_types.includes('venta')
@@ -1407,11 +1412,12 @@ function Step6Legal({ formData, updateFormData }: any) {
             <DocumentCard title="Predial *" subtitle="Comprobante de pago" id="drop-predial" files={predialFiles} onFiles={setPredialFiles} />
             <DocumentCard title="Comprobante Domicilio *" subtitle="CFE, Agua, Teléfono" id="drop-domicilio" files={domicilioFiles} onFiles={setDomicilioFiles} />
             <DocumentCard title="Situación Fiscal *" subtitle="Constancia SAT" id="drop-fiscal" files={fiscalFiles} onFiles={setFiscalFiles} />
+            <DocumentCard title="Contrato Firmado" subtitle="Contrato firmado y validado" id="drop-contrato-firmado" files={contratoFirmadoFiles} onFiles={setContratoFirmadoFiles} />
           </div>
 
           <div className="mt-8 pt-6 border-t border-[#F8F7F4]">
             <p className="text-[15px] font-semibold text-[#111827] mb-4">Estado del Proceso Legal *</p>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-nowrap gap-1.5">
               {LEGAL_STAGES.map(({ id, label }) => {
                 const selected = formData.legal_status === id
                 return (
@@ -1419,7 +1425,7 @@ function Step6Legal({ formData, updateFormData }: any) {
                     key={id}
                     type="button"
                     onClick={() => updateFormData('legal_status', id)}
-                    className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${selected ? 'bg-[#111827] text-white shadow-lg transform -translate-y-0.5' : 'bg-white border border-[#E5E3DB] text-[#6B7B6B] hover:bg-[#F9FAFB]'}`}
+                    className={`px-3 py-2 rounded-lg text-[11px] font-bold transition-all whitespace-nowrap flex-shrink-0 ${selected ? 'bg-[#111827] text-white shadow-lg transform -translate-y-0.5' : 'bg-white border border-[#E5E3DB] text-[#6B7B6B] hover:bg-[#F9FAFB]'}`}
                   >
                     {label}
                   </button>
