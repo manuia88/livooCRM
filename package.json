@@ -14,6 +14,7 @@
     "setup-test-users": "tsx __tests__/security/setup-test-users.ts",
     "setup-whatsapp-storage": "tsx scripts/setup-whatsapp-storage.ts",
     "validate-config": "tsx scripts/validate-config.ts",
+    "seed-properties": "npx tsx scripts/seed-three-properties.ts",
     "pre-deploy": "npm run validate-config && npm run lint && npm run build"
   },
   "dependencies": {

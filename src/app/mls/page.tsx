@@ -4,7 +4,7 @@ import { MlsFilterBar } from "@/features/mls/components/mls-filter-bar";
 import MapLoader from "@/components/map-loader";
 
 export default async function MlsPage() {
-    // Fetch only properties with shared commission
+    // Fetch all published properties (always visible in MLS when published)
     const properties = await getMlsProperties();
 
     return (
@@ -21,7 +21,7 @@ export default async function MlsPage() {
 
                     {properties.length === 0 ? (
                         <div className="text-center py-10 text-muted-foreground">
-                            No hay propiedades compartidas disponibles en este momento.
+                            No hay propiedades publicadas disponibles en este momento.
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

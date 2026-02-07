@@ -26,10 +26,17 @@ import {
   Mail,
   User,
   Network,
-  ExternalLink
+  ExternalLink,
+  Calendar,
+  Building2,
+  Dog,
+  Ruler,
+  TreePine
 } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
+
+const TIPOS_SIN_CARACT_RESIDENCIALES = ['oficina', 'terreno', 'bodega', 'nave_industrial']
 
 export default function PropertyDetailPage() {
   const params = useParams()
@@ -70,7 +77,10 @@ export default function PropertyDetailPage() {
   }
 
   const canEdit = property.is_mine || currentUser?.role === 'admin' || currentUser?.role === 'manager'
-  const canSeeOwnerData = property.is_my_agency
+  // Datos del propietario: solo productor o admins/manager de la inmobiliaria (no red, otros agentes ni MLS)
+  const canSeeOwnerData =
+    property.is_mine ||
+    (property.is_my_agency && (currentUser?.role === 'admin' || currentUser?.role === 'manager'))
 
   const handleEdit = () => {
     setEditData({
@@ -305,82 +315,114 @@ export default function PropertyDetailPage() {
             </CardContent>
           </Card>
 
-          {/* Characteristics */}
+          {/* Características obligatorias: todas salvo en oficina, terreno, bodega, nave */}
           <Card>
             <CardHeader>
               <CardTitle>Características</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <Bed className="h-6 w-6 mx-auto mb-2 text-gray-600" />
-                  {isEditing ? (
-                    <Input
-                      type="number"
-                      value={editData.bedrooms}
-                      onChange={(e) => setEditData({ ...editData, bedrooms: e.target.value })}
-                      className="text-center"
-                    />
-                  ) : (
-                    <>
-                      <p className="text-2xl font-bold">{property.bedrooms || '-'}</p>
-                      <p className="text-sm text-gray-600">Recámaras</p>
-                    </>
-                  )}
-                </div>
-
-                <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <Bath className="h-6 w-6 mx-auto mb-2 text-gray-600" />
-                  {isEditing ? (
-                    <Input
-                      type="number"
-                      step="0.5"
-                      value={editData.bathrooms}
-                      onChange={(e) => setEditData({ ...editData, bathrooms: e.target.value })}
-                      className="text-center"
-                    />
-                  ) : (
-                    <>
-                      <p className="text-2xl font-bold">{property.bathrooms || '-'}</p>
-                      <p className="text-sm text-gray-600">Baños</p>
-                    </>
-                  )}
-                </div>
-
-                <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <Car className="h-6 w-6 mx-auto mb-2 text-gray-600" />
-                  {isEditing ? (
-                    <Input
-                      type="number"
-                      value={editData.parking_spaces}
-                      onChange={(e) => setEditData({ ...editData, parking_spaces: e.target.value })}
-                      className="text-center"
-                    />
-                  ) : (
-                    <>
-                      <p className="text-2xl font-bold">{property.parking_spaces || '-'}</p>
-                      <p className="text-sm text-gray-600">Estacionamiento</p>
-                    </>
-                  )}
-                </div>
-
-                <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <Maximize className="h-6 w-6 mx-auto mb-2 text-gray-600" />
-                  {isEditing ? (
-                    <Input
-                      type="number"
-                      value={editData.construction_m2}
-                      onChange={(e) => setEditData({ ...editData, construction_m2: e.target.value })}
-                      className="text-center"
-                    />
-                  ) : (
-                    <>
-                      <p className="text-2xl font-bold">{property.construction_m2 || property.total_area || '-'}</p>
-                      <p className="text-sm text-gray-600">m² construidos</p>
-                    </>
-                  )}
-                </div>
-              </div>
+              {(() => {
+                const prop = property as typeof property & {
+                  year_built?: number | null
+                  maintenance_fee?: number | null
+                  terrace_m2?: number | null
+                  balcony_m2?: number | null
+                  roof_garden_m2?: number | null
+                  furnished?: boolean | null
+                  occupied?: boolean | null
+                }
+                const yearBuilt = prop.year_built
+                const antiguedad = yearBuilt != null && Number.isFinite(yearBuilt)
+                  ? `${new Date().getFullYear() - Number(yearBuilt)} años`
+                  : '—'
+                const mantenimiento = prop.maintenance_fee != null && Number.isFinite(prop.maintenance_fee)
+                  ? formatPrice(Number(prop.maintenance_fee), 'MXN')
+                  : '—'
+                const mascotas = prop.pets_allowed != null ? (prop.pets_allowed ? 'Sí' : 'No') : '—'
+                const constructionM2 = Number(property.construction_m2) || 0
+                const terraceM2 = Number(prop.terrace_m2) || 0
+                const balconyM2 = Number(prop.balcony_m2) || 0
+                const roofGardenM2 = Number(prop.roof_garden_m2) || 0
+                const openAreasSum = terraceM2 + balconyM2 + roofGardenM2
+                const hasTerrace = terraceM2 > 0
+                const hasBalcony = balconyM2 > 0
+                const hasRoofGarden = roofGardenM2 > 0
+                const openAreasCount = [hasTerrace, hasBalcony, hasRoofGarden].filter(Boolean).length
+                // 1 elemento → nombre (Balcón, Terraza o Roof garden); 2 o más → Áreas abiertas; sin datos → Áreas abiertas con "—"
+                const outdoorLabel =
+                  openAreasSum > 0
+                    ? openAreasCount >= 2
+                      ? { label: 'Áreas Abiertas', value: `${Math.round(openAreasSum)} m²` }
+                      : hasRoofGarden
+                        ? { label: 'Roof garden', value: `${Math.round(roofGardenM2)} m²` }
+                        : hasTerrace
+                          ? { label: 'Terraza', value: `${Math.round(terraceM2)} m²` }
+                          : { label: 'Balcón', value: `${Math.round(balconyM2)} m²` }
+                    : { label: 'Áreas Abiertas', value: '—' }
+                const totalM2Computed = constructionM2 + openAreasSum
+                const totalM2Display = totalM2Computed > 0 ? totalM2Computed : (property.total_area ?? (property as { land_m2?: number | null }).land_m2 ?? null)
+                const totalM2Str = totalM2Display != null && Number(totalM2Display) > 0 ? `${Math.round(Number(totalM2Display))} m²` : '—'
+                const piso = property.floor_number != null && Number.isFinite(property.floor_number) ? String(property.floor_number) : '—'
+                const dash = '—'
+                const isSinCaract = TIPOS_SIN_CARACT_RESIDENCIALES.includes(property.property_type ?? '')
+                const getVal = (key: string) => (isEditing && key in editData ? editData[key as keyof typeof editData] : null)
+                const fullItems: { Icon: typeof Bed; label: string; value: string; editKey?: string }[] = [
+                  { Icon: Bed, label: 'Recámaras', value: getVal('bedrooms') != null ? String(getVal('bedrooms')) : (property.bedrooms != null ? String(property.bedrooms) : dash), editKey: 'bedrooms' },
+                  { Icon: Bath, label: 'Baños', value: getVal('bathrooms') != null ? String(getVal('bathrooms')) : (property.bathrooms != null ? String(property.bathrooms) : dash), editKey: 'bathrooms' },
+                  { Icon: Car, label: 'Estacionamientos', value: getVal('parking_spaces') != null ? String(getVal('parking_spaces')) : (property.parking_spaces != null ? String(property.parking_spaces) : dash), editKey: 'parking_spaces' },
+                  { Icon: DollarSign, label: 'Mantenimiento', value: mantenimiento },
+                  { Icon: Calendar, label: 'Antigüedad', value: antiguedad },
+                  { Icon: Building2, label: 'Piso', value: piso },
+                  { Icon: Dog, label: 'Mascotas', value: mascotas },
+                  { Icon: Maximize, label: 'Construcción', value: getVal('construction_m2') != null ? `${getVal('construction_m2')} m²` : (property.construction_m2 != null ? `${property.construction_m2} m²` : dash), editKey: 'construction_m2' },
+                  { Icon: TreePine, label: outdoorLabel.label, value: outdoorLabel.value },
+                  { Icon: Ruler, label: 'Totales', value: totalM2Str },
+                ]
+                const reducedItems: { Icon: typeof Bed; label: string; value: string; editKey?: string }[] = [
+                  { Icon: Car, label: 'Estacionamientos', value: property.parking_spaces != null ? String(property.parking_spaces) : dash, editKey: 'parking_spaces' },
+                  { Icon: DollarSign, label: 'Mantenimiento', value: mantenimiento },
+                  { Icon: Calendar, label: 'Antigüedad', value: antiguedad },
+                  { Icon: Building2, label: 'Piso', value: piso },
+                  { Icon: Maximize, label: 'Construcción', value: property.construction_m2 != null ? `${property.construction_m2} m²` : dash, editKey: 'construction_m2' },
+                  { Icon: Ruler, label: 'Totales', value: totalM2Str },
+                ]
+                const items = isSinCaract ? reducedItems : fullItems
+                return (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {items.map(({ Icon, label, value, editKey }) => (
+                      <div key={label} className="text-center p-4 bg-gray-50 rounded-lg">
+                        <Icon className="h-6 w-6 mx-auto mb-2 text-gray-600" />
+                        {isEditing && editKey ? (
+                          <>
+                            {editKey === 'construction_m2' ? (
+                              <Input
+                                type="number"
+                                value={editData.construction_m2 ?? ''}
+                                onChange={(e) => setEditData({ ...editData, construction_m2: e.target.value })}
+                                className="text-center"
+                              />
+                            ) : (
+                              <Input
+                                type="number"
+                                step={editKey === 'bathrooms' ? '0.5' : undefined}
+                                value={(editData as Record<string, unknown>)[editKey] ?? ''}
+                                onChange={(e) => setEditData({ ...editData, [editKey]: e.target.value })}
+                                className="text-center"
+                              />
+                            )}
+                            <p className="text-sm text-gray-600 mt-1">{label}</p>
+                          </>
+                        ) : (
+                          <>
+                            <p className="text-2xl font-bold">{value}</p>
+                            <p className="text-sm text-gray-600">{label}</p>
+                          </>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )
+              })()}
             </CardContent>
           </Card>
         </div>

@@ -97,7 +97,7 @@ export function useProperties(filters: PropertiesFilters = {}) {
       } else if (filters.source === 'network') {
         query = query.neq('agency_id', currentUser.agency_id)
       } else if (filters.source === 'mls') {
-        query = query.eq('mls_shared', true)
+        query = query.not('published_at', 'is', null)
       }
 
       if (filters.status) {
@@ -162,6 +162,28 @@ export function useProperty(propertyId?: string) {
   })
 }
 
+/**
+ * Reglas de visibilidad (dónde se muestra la propiedad en el módulo Propiedades):
+ * - Propias: producer_id = usuario que la subió.
+ * - Inmobiliaria: agency_id = agencia del creador (todos los de la agencia la ven).
+ * - Red: propiedades de otras agencias (agency_id ≠ mi agencia).
+ * - MLS: published_at IS NOT NULL (todas las publicadas se muestran siempre en MLS).
+ * Los datos del propietario solo son visibles para el productor y admin/manager de la inmobiliaria.
+ */
+export const PROPERTY_VISIBILITY_SOURCES = {
+  own: 'producer_id = usuario actual',
+  agency: 'agency_id = agencia del usuario',
+  network: 'agency_id ≠ mi agencia',
+  mls: 'published_at IS NOT NULL',
+} as const
+
+/**
+ * Crea una propiedad. Usado por Captaciones y Propiedades/nueva (mismo wizard).
+ * - Identifica al usuario: producer_id = currentUser.id (quien la sube).
+ * - Ubicación: agency_id = currentUser.agency_id (se acomoda en esa inmobiliaria).
+ * - Visibilidad: Propias (producer_id), Inmobiliaria (agency_id), Red (otras agencias), MLS (publicadas).
+ * producer_id y agency_id siempre se fijan en el servidor y no se aceptan del payload.
+ */
 export function useCreateProperty() {
   const queryClient = useQueryClient()
   const supabase = createClient()
@@ -169,23 +191,28 @@ export function useCreateProperty() {
 
   return useMutation({
     mutationFn: async (propertyData: Partial<Property>) => {
-      if (!currentUser) throw new Error('Not authenticated')
+      if (!currentUser?.id || !currentUser?.agency_id) throw new Error('Not authenticated')
+
+      const { agency_id: _a, producer_id: _p, ...rest } = propertyData as Partial<Property> & { agency_id?: string; producer_id?: string }
+      const payload = {
+        ...rest,
+        agency_id: currentUser.agency_id,
+        producer_id: currentUser.id,
+      }
 
       const { data, error } = await supabase
         .from('properties')
-        .insert({
-          ...propertyData,
-          agency_id: currentUser.agency_id,
-          producer_id: currentUser.id,
-        })
+        .insert(payload)
         .select()
         .single()
 
       if (error) throw error
       return data
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ['properties'] })
+      queryClient.invalidateQueries({ queryKey: ['properties-stats'] })
+      await queryClient.refetchQueries({ queryKey: ['properties'] })
     },
   })
 }
@@ -209,6 +236,7 @@ export function useUpdateProperty() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['properties'] })
       queryClient.invalidateQueries({ queryKey: ['property', variables.id] })
+      queryClient.invalidateQueries({ queryKey: ['properties-stats'] })
     },
   })
 }
@@ -235,8 +263,15 @@ export function useTogglePublishProperty() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['properties'] })
       queryClient.invalidateQueries({ queryKey: ['property', variables.id] })
+      queryClient.invalidateQueries({ queryKey: ['properties-stats'] })
     },
   })
+}
+
+export interface DeletePropertyPayload {
+  id: string
+  /** Motivo de baja (obligatorio en UI; se guarda en deletion_reason) */
+  reason?: string
 }
 
 export function useDeleteProperty() {
@@ -244,10 +279,17 @@ export function useDeleteProperty() {
   const supabase = createClient()
 
   return useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: async (payload: DeletePropertyPayload | string) => {
+      const id = typeof payload === 'string' ? payload : payload.id
+      const reason = typeof payload === 'string' ? undefined : payload.reason
+      const updates: { deleted_at: string; deletion_reason?: string } = {
+        deleted_at: new Date().toISOString(),
+      }
+      if (reason?.trim()) updates.deletion_reason = reason.trim()
+
       const { error } = await supabase
         .from('properties')
-        .update({ deleted_at: new Date().toISOString() })
+        .update(updates)
         .eq('id', id)
 
       if (error) throw error
@@ -255,41 +297,42 @@ export function useDeleteProperty() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['properties'] })
+      queryClient.invalidateQueries({ queryKey: ['properties-stats'] })
     },
   })
 }
 
+/**
+ * Conteos por segmento para las pestañas del módulo Propiedades.
+ * Misma vista (properties_safe) y mismos criterios que useProperties:
+ * - mine (Propias): producer_id = usuario actual
+ * - total (Inmobiliaria): agency_id = agencia del usuario (incluye propias + resto de la agencia)
+ * - network (Red): agency_id distinto a mi agencia
+ * - mls: published_at IS NOT NULL
+ */
 export function usePropertiesStats() {
   const supabase = createClient()
   const { data: currentUser } = useCurrentUser()
 
   return useQuery({
-    queryKey: ['properties-stats', currentUser?.id],
+    queryKey: ['properties-stats', currentUser?.id, currentUser?.agency_id],
     queryFn: async () => {
-      if (!currentUser) return null
+      if (!currentUser?.id || !currentUser?.agency_id) return null
 
-      const { count: total } = await supabase
-        .from('properties_safe')
-        .select('id', { count: 'exact', head: true })
-        .eq('agency_id', currentUser.agency_id)
+      const [resMine, resTotal, resNetwork, resMls] = await Promise.all([
+        supabase.from('properties_safe').select('id', { count: 'exact', head: true }).eq('producer_id', currentUser.id),
+        supabase.from('properties_safe').select('id', { count: 'exact', head: true }).eq('agency_id', currentUser.agency_id),
+        supabase.from('properties_safe').select('id', { count: 'exact', head: true }).neq('agency_id', currentUser.agency_id),
+        supabase.from('properties_safe').select('id', { count: 'exact', head: true }).not('published_at', 'is', null),
+      ])
 
-      const { count: mine } = await supabase
-        .from('properties_safe')
-        .select('id', { count: 'exact', head: true })
-        .eq('producer_id', currentUser.id)
-
-      const { count: network } = await supabase
-        .from('properties_safe')
-        .select('id', { count: 'exact', head: true })
-        .neq('agency_id', currentUser.agency_id)
-
-      const { count: mls } = await supabase
-        .from('properties_safe')
-        .select('id', { count: 'exact', head: true })
-        .eq('mls_shared', true)
-
-      return { total: total || 0, mine: mine || 0, network: network || 0, mls: mls || 0 }
+      return {
+        mine: resMine.count ?? 0,
+        total: resTotal.count ?? 0,
+        network: resNetwork.count ?? 0,
+        mls: resMls.count ?? 0,
+      }
     },
-    enabled: !!currentUser,
+    enabled: !!currentUser?.id && !!currentUser?.agency_id,
   })
 }

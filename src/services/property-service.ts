@@ -164,7 +164,7 @@ export async function getMlsProperties(): Promise<Property[]> {
             property_features!inner(*),
             agents!inner(*)
         `)
-        .eq('commission_shared', true);
+        .not('published_at', 'is', null);
 
     if (error) {
         console.error("Error fetching MLS properties:", error);

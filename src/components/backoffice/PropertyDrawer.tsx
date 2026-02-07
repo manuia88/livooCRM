@@ -32,9 +32,12 @@ import {
   LayoutGrid,
   MapPin,
   Navigation,
+  Trash2,
 } from 'lucide-react'
 import type { Property } from '@/hooks/useProperties'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
+import { getPricePerM2, VALUATION_COLORS, type ValuationLevel } from '@/lib/valuation'
+import { getOperationBannerGradient, getOperationLabel, getPropertyTypeLabel } from '@/lib/property-card-theme'
 
 const STATUS_LABELS: Record<Property['status'], string> = {
   draft: 'Borrador',
@@ -66,10 +69,23 @@ const DEFAULT_AMENITIES = [
   'Área de lavado',
 ]
 
+/** Tipos donde no se muestran todas las características residenciales (obligatorias en captación para casa/dep/local) */
+const TIPOS_SIN_CARACT_RESIDENCIALES = ['oficina', 'terreno', 'bodega', 'nave_industrial']
+
+/** Valuación calculada con la misma lógica que el módulo Inventario */
+export interface PropertyDrawerValuation {
+  pricePerM2: number | null
+  valuation: ValuationLevel
+}
+
 interface PropertyDrawerProps {
   property: Property | null
   open: boolean
   onClose: () => void
+  /** Si se define, se muestra el botón de eliminar (basura roja) al lado de Compartir */
+  onDelete?: () => void
+  /** Precio/m² y nivel de valuación (vinculado a Inventario) */
+  valuation?: PropertyDrawerValuation
 }
 
 function formatPrice(price: number, currency = 'MXN') {
@@ -80,12 +96,19 @@ function formatPrice(price: number, currency = 'MXN') {
   }).format(price)
 }
 
-export function PropertyDrawer({ property, open, onClose }: PropertyDrawerProps) {
+export function PropertyDrawer({ property, open, onClose, onDelete, valuation }: PropertyDrawerProps) {
   const [galleryIndex, setGalleryIndex] = useState(0)
   const [mediaTab, setMediaTab] = useState<'fotos' | 'video' | '360' | 'planos' | 'mapa' | 'street'>('fotos')
   const { data: currentUser } = useCurrentUser()
 
   const isProducer = !!currentUser && !!property && property.producer_id === currentUser.id
+  // Datos del propietario: solo productor o admins/manager de la inmobiliaria (no red, otros agentes ni MLS)
+  const canSeeOwnerData =
+    !!currentUser &&
+    !!property &&
+    (property.producer_id === currentUser.id ||
+      (property.agency_id === currentUser.agency_id &&
+        (currentUser.role === 'admin' || currentUser.role === 'manager')))
   const rawImages = property?.images
   const images: string[] =
     Array.isArray(rawImages) && rawImages.length > 0
@@ -107,32 +130,30 @@ export function PropertyDrawer({ property, open, onClose }: PropertyDrawerProps)
 
   if (!property) return null
 
-  const opLabel = property.operation_type === 'renta' ? 'Renta' : property.operation_type === 'venta' ? 'Venta' : 'Venta o Renta'
-  const typeLabelMap: Record<string, string> = {
-    casa: 'Casa',
-    departamento: 'Departamento',
-    terreno: 'Terreno',
-    local: 'Local',
-    oficina: 'Oficina',
-    bodega: 'Bodega',
-  }
-  const typeLabel = typeLabelMap[property.property_type] ?? 'Inmueble'
+  const opLabel = getOperationLabel(property.operation_type)
+  const typeLabel = getPropertyTypeLabel(property.property_type)
   const publishedDate = property.created_at
     ? new Date(property.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' })
     : '—'
 
-  const isComercial = ['oficina', 'terreno', 'local', 'bodega'].includes(property.property_type ?? '')
+  const headerBannerGradient = getOperationBannerGradient(property.operation_type, property.property_type ?? undefined)
   const isRenta = property.operation_type === 'renta'
   const isVenta = property.operation_type === 'venta'
-  const headerBannerGradient = isComercial
-    ? 'bg-gradient-to-r from-amber-600 to-orange-600'
-    : isRenta
-      ? 'bg-gradient-to-r from-green-600 to-green-700'
-      : isVenta
-        ? 'bg-gradient-to-r from-blue-600 to-blue-700'
-        : 'bg-gradient-to-r from-violet-600 to-purple-700'
 
   const currency = property.currency ?? 'MXN'
+
+  /** Precio/m² para la ficha: venta usa price, renta usa rent_price, ambos muestra los dos */
+  const pricePerM2Sale =
+    property.operation_type === 'venta' || property.operation_type === 'ambos'
+      ? (valuation?.pricePerM2 ?? getPricePerM2({ ...property, operation_type: 'venta' }))
+      : null
+  const pricePerM2Rent =
+    property.operation_type === 'renta' || property.operation_type === 'ambos'
+      ? (property.operation_type === 'renta' ? valuation?.pricePerM2 : null) ?? getPricePerM2({ ...property, operation_type: 'renta' })
+      : null
+  const valuationLevel = valuation?.valuation ?? 'medio'
+  const showPriceM2 = (pricePerM2Sale != null && pricePerM2Sale > 0) || (pricePerM2Rent != null && pricePerM2Rent > 0)
+  const style = VALUATION_COLORS[valuationLevel]
 
   return (
     <Sheet open={open} onOpenChange={(o) => !o && onClose()}>
@@ -166,12 +187,38 @@ export function PropertyDrawer({ property, open, onClose }: PropertyDrawerProps)
                 Publicado {publishedDate} · {opLabel}
               </span>
             </div>
-            <div className="mt-4">
+            {/* Precio/m² y valuación en todas las fichas (venta, renta, venta o renta) */}
+            {showPriceM2 && (
+              <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                {pricePerM2Sale != null && pricePerM2Sale > 0 && (
+                  <span className={`text-sm font-bold ${style.text}`}>
+                    {property.operation_type === 'ambos' ? 'Venta: ' : ''}
+                    ${Math.round(pricePerM2Sale).toLocaleString('es-MX')}/m²
+                  </span>
+                )}
+                {pricePerM2Rent != null && pricePerM2Rent > 0 && (
+                  <span className={`text-sm font-bold ${style.text}`}>
+                    {property.operation_type === 'ambos' ? 'Renta: ' : ''}
+                    ${Math.round(pricePerM2Rent).toLocaleString('es-MX')}/m²
+                  </span>
+                )}
+                <span className={`text-xs font-semibold px-2 py-0.5 rounded ${style.bg} ${style.text}`}>
+                  {style.label}
+                </span>
+                <Link
+                  href="/backoffice/inventario"
+                  className="text-xs font-medium text-gray-600 hover:text-gray-900 underline"
+                >
+                  Ver valuación en Inventario
+                </Link>
+              </div>
+            )}
+            <div className="mt-4 flex items-center gap-2 flex-wrap">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
-                    className="w-full sm:w-auto rounded-xl bg-gradient-to-b from-gray-50 to-gray-100/80 border border-gray-200/80 text-gray-800 font-semibold shadow-sm hover:from-gray-100 hover:to-gray-200/80 hover:border-gray-300/80 gap-2 [&_svg]:size-[1.125rem] [&_svg]:text-gray-600"
+                    className="flex-1 min-w-[140px] sm:min-w-[180px] rounded-xl bg-gradient-to-b from-gray-50 to-gray-100/80 border border-gray-200/80 text-gray-800 font-semibold shadow-sm hover:from-gray-100 hover:to-gray-200/80 hover:border-gray-300/80 gap-2 [&_svg]:size-[1.125rem] [&_svg]:text-gray-600"
                   >
                     <Share2 strokeWidth={2.25} />
                     Compartir
@@ -224,6 +271,18 @@ export function PropertyDrawer({ property, open, onClose }: PropertyDrawerProps)
                   </DropdownMenuSub>
                 </DropdownMenuContent>
               </DropdownMenu>
+              {onDelete && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className="rounded-xl border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 hover:border-red-300 shrink-0 h-11 w-11"
+                  onClick={onDelete}
+                  aria-label="Eliminar propiedad"
+                >
+                  <Trash2 className="h-5 w-5" />
+                </Button>
+              )}
             </div>
           </div>
         </SheetHeader>
@@ -274,7 +333,7 @@ export function PropertyDrawer({ property, open, onClose }: PropertyDrawerProps)
                     >
                       <ChevronRight className="h-5 w-5" />
                     </button>
-                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/50 text-white text-xs font-medium">
+                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/50 text-white text-xs font-medium transition-opacity duration-200 opacity-0 group-hover/gallery:opacity-100">
                       {galleryIndex + 1}/{totalImages} fotos
                     </div>
                   </>
@@ -306,51 +365,65 @@ export function PropertyDrawer({ property, open, onClose }: PropertyDrawerProps)
                 ))}
               </div>
 
-              {/* Características: solo en drawer. 5 = una línea llena; más = 2 líneas bien distribuidas. Incluye mantenimiento, antigüedad, mascotas (no en tarjetas del listado). */}
+              {/* Características obligatorias de captación: todas en todas las fichas salvo oficina, terreno, bodega, nave */}
               {(() => {
                 const yearBuilt = (property as { year_built?: number | null }).year_built
                 const antiguedad = yearBuilt != null && Number.isFinite(yearBuilt)
                   ? `${new Date().getFullYear() - Number(yearBuilt)} años`
-                  : null
-                const isRenta = property.operation_type === 'renta' || property.operation_type === 'ambos'
+                  : '—'
                 const mantenimiento = property.maintenance_fee != null && Number.isFinite(property.maintenance_fee)
                   ? formatPrice(Number(property.maintenance_fee), property.currency ?? 'MXN')
-                  : null
-                const mascotas = property.pets_allowed != null ? (property.pets_allowed ? 'Sí' : 'No') : null
-                const ext = property as { furnished?: boolean | null; occupied?: boolean | null }
-                const amueblado = isRenta && ext.furnished != null ? (ext.furnished ? 'Sí' : 'No') : null
-                const habitado = isRenta && ext.occupied != null ? (ext.occupied ? 'Sí' : 'No') : null
-                const terraceM2 = property.terrace_m2 ?? null
-                const balconyM2 = property.balcony_m2 ?? null
-                const roofGardenM2 = property.roof_garden_m2 ?? null
+                  : '—'
+                const mascotas = property.pets_allowed != null ? (property.pets_allowed ? 'Sí' : 'No') : '—'
+                const constructionM2 = Number(property.construction_m2) || 0
+                const terraceM2 = Number(property.terrace_m2) || 0
+                const balconyM2 = Number(property.balcony_m2) || 0
+                const roofGardenM2 = Number(property.roof_garden_m2) || 0
+                const openAreasSum = terraceM2 + balconyM2 + roofGardenM2
+                const hasTerrace = terraceM2 > 0
+                const hasBalcony = balconyM2 > 0
+                const hasRoofGarden = roofGardenM2 > 0
+                const openAreasCount = [hasTerrace, hasBalcony, hasRoofGarden].filter(Boolean).length
+                // 1 elemento → nombre (Balcón, Terraza o Roof garden); 2 o más → Áreas abiertas; sin datos → Áreas abiertas con "—"
                 const outdoorLabel =
-                  roofGardenM2 != null && Number.isFinite(roofGardenM2)
-                    ? { label: 'Roof garden', value: `${roofGardenM2} m²` }
-                    : terraceM2 != null && Number.isFinite(terraceM2)
-                      ? { label: 'Terraza', value: `${terraceM2} m²` }
-                      : balconyM2 != null && Number.isFinite(balconyM2)
-                        ? { label: 'Balcón', value: `${balconyM2} m²` }
-                        : null
-                const f = (v: unknown) => v != null && v !== ''
-                const row1 = [
-                  f(property.bedrooms) && { emoji: '🛏️' as const, label: 'Recámaras', value: String(property.bedrooms) },
-                  f(property.bathrooms) && { emoji: '🚿' as const, label: 'Baños', value: String(property.bathrooms) },
-                  f(property.parking_spaces) && { emoji: '🚗' as const, label: 'Estacionamientos', value: String(property.parking_spaces) },
-                  f(mantenimiento) && { emoji: '💰' as const, label: 'Mantenimiento', value: mantenimiento! },
-                  f(antiguedad) && { emoji: '📅' as const, label: 'Antigüedad', value: antiguedad! },
-                ].filter(Boolean) as { emoji: string; label: string; value: string }[]
-                const piso = property.floor_number != null && Number.isFinite(property.floor_number) ? String(property.floor_number) : null
-                const row2 = [
-                  f(piso) && { emoji: '🏢' as const, label: 'Piso', value: piso! },
-                  f(mascotas) && { emoji: '🐕' as const, label: 'Mascotas', value: mascotas! },
-                  f(property.construction_m2) && { emoji: '🏗️' as const, label: 'Construcción', value: `${property.construction_m2} m²` },
-                  outdoorLabel && { emoji: '🌿' as const, label: outdoorLabel.label, value: outdoorLabel.value },
-                  (f(property.total_area) || f(property.land_m2)) && { emoji: '📐' as const, label: 'Totales', value: property.total_area ? `${property.total_area} m²` : `${property.land_m2} m²` },
-                  f(amueblado) && { emoji: '🪑' as const, label: 'Amueblado', value: amueblado! },
-                  f(habitado) && { emoji: '🏠' as const, label: 'Habitado', value: habitado! },
-                ].filter(Boolean) as { emoji: string; label: string; value: string }[]
-                const isComercialType = ['oficina', 'terreno', 'local', 'bodega', 'nave_industrial'].includes(property.property_type ?? '')
-                const allItems = [...row1, ...row2]
+                  openAreasSum > 0
+                    ? openAreasCount >= 2
+                      ? { label: 'Áreas Abiertas', value: `${Math.round(openAreasSum)} m²` }
+                      : hasRoofGarden
+                        ? { label: 'Roof garden', value: `${Math.round(roofGardenM2)} m²` }
+                        : hasTerrace
+                          ? { label: 'Terraza', value: `${Math.round(terraceM2)} m²` }
+                          : { label: 'Balcón', value: `${Math.round(balconyM2)} m²` }
+                    : { label: 'Áreas Abiertas', value: '—' as string }
+                const totalM2Computed = constructionM2 + openAreasSum
+                const totalM2Display = totalM2Computed > 0 ? totalM2Computed : (property.total_area ?? property.land_m2 ?? null)
+                const totalM2Str = totalM2Display != null && Number(totalM2Display) > 0 ? `${Math.round(Number(totalM2Display))} m²` : '—'
+                const piso = property.floor_number != null && Number.isFinite(property.floor_number) ? String(property.floor_number) : '—'
+                const isSinCaractResidenciales = TIPOS_SIN_CARACT_RESIDENCIALES.includes(property.property_type ?? '')
+                const dash = '—'
+                const fullRow1: { emoji: string; label: string; value: string }[] = [
+                  { emoji: '🛏️', label: 'Recámaras', value: property.bedrooms != null ? String(property.bedrooms) : dash },
+                  { emoji: '🚿', label: 'Baños', value: property.bathrooms != null ? String(property.bathrooms) : dash },
+                  { emoji: '🚗', label: 'Estacionamientos', value: property.parking_spaces != null ? String(property.parking_spaces) : dash },
+                  { emoji: '💰', label: 'Mantenimiento', value: mantenimiento },
+                  { emoji: '📅', label: 'Antigüedad', value: antiguedad },
+                ]
+                const fullRow2: { emoji: string; label: string; value: string }[] = [
+                  { emoji: '🏢', label: 'Piso', value: piso },
+                  { emoji: '🐕', label: 'Mascotas', value: mascotas },
+                  { emoji: '🏗️', label: 'Construcción', value: property.construction_m2 != null ? `${property.construction_m2} m²` : dash },
+                  { emoji: '🌿', label: outdoorLabel.label, value: outdoorLabel.value },
+                  { emoji: '📐', label: 'Totales', value: totalM2Str },
+                ]
+                const reducedItems: { emoji: string; label: string; value: string }[] = [
+                  { emoji: '🚗', label: 'Estacionamientos', value: property.parking_spaces != null ? String(property.parking_spaces) : dash },
+                  { emoji: '💰', label: 'Mantenimiento', value: mantenimiento },
+                  { emoji: '📅', label: 'Antigüedad', value: antiguedad },
+                  { emoji: '🏢', label: 'Piso', value: piso },
+                  { emoji: '🏗️', label: 'Construcción', value: property.construction_m2 != null ? `${property.construction_m2} m²` : dash },
+                  { emoji: '📐', label: 'Totales', value: totalM2Str },
+                ]
+                const items = isSinCaractResidenciales ? reducedItems : [...fullRow1, ...fullRow2]
                 const cardClass = 'flex flex-col items-center justify-center gap-0 py-2 px-1.5 rounded-lg bg-gradient-to-b from-gray-50 to-gray-100/80 border border-gray-200/80 shadow-sm flex-1 min-w-0'
                 const cardClassSingleLine = 'flex flex-col items-center justify-center gap-0 py-2 px-1.5 rounded-lg bg-gradient-to-b from-gray-50 to-gray-100/80 border border-gray-200/80 shadow-sm flex-shrink-0 min-w-[56px] max-w-[20%]'
                 const Card = ({ emoji, label, value, maxW = true, singleLine = false }: { emoji: string; label: string; value: string; maxW?: boolean; singleLine?: boolean }) => (
@@ -363,22 +436,18 @@ export function PropertyDrawer({ property, open, onClose }: PropertyDrawerProps)
                 return (
                   <div className="mx-6 mt-5">
                     <p className="text-sm font-semibold text-gray-900 mb-2">Características</p>
-                    {isComercialType && allItems.length > 0 ? (
-                      <div className="flex items-stretch justify-center gap-2 overflow-x-auto pb-1">
-                        {allItems.map((item) => <Card key={item.label} {...item} singleLine />)}
+                    {isSinCaractResidenciales ? (
+                      <div className="flex items-stretch justify-center gap-2 overflow-x-auto pb-1 flex-wrap">
+                        {items.map((item) => <Card key={item.label} {...item} singleLine />)}
                       </div>
                     ) : (
                       <>
-                        {row1.length > 0 && (
-                          <div className="flex justify-center gap-2 mb-2 flex-wrap">
-                            {row1.map((item) => <Card key={item.label} {...item} />)}
-                          </div>
-                        )}
-                        {row2.length > 0 && (
-                          <div className="flex justify-center gap-2 flex-wrap">
-                            {row2.map((item) => <Card key={item.label} {...item} maxW={false} />)}
-                          </div>
-                        )}
+                        <div className="flex justify-center gap-2 mb-2 flex-wrap">
+                          {fullRow1.map((item) => <Card key={item.label} {...item} />)}
+                        </div>
+                        <div className="flex justify-center gap-2 flex-wrap">
+                          {fullRow2.map((item) => <Card key={item.label} {...item} maxW={false} />)}
+                        </div>
                       </>
                     )}
                   </div>
@@ -433,7 +502,7 @@ export function PropertyDrawer({ property, open, onClose }: PropertyDrawerProps)
                     {[
                       { label: 'Título', value: property.title },
                       { label: 'Estado', value: STATUS_LABELS[property.status] },
-                      { label: 'Tipo de operación', value: property.operation_type === 'venta' ? 'Venta' : property.operation_type === 'renta' ? 'Renta' : 'Ambos' },
+                      { label: 'Tipo de operación', value: getOperationLabel(property.operation_type) },
                       { label: 'Moneda', value: property.currency ?? 'MXN' },
                       { label: 'Público', value: property.published ? 'Sí' : 'No' },
                       { label: 'Tipo', value: property.mls_shared ? 'Opción' : 'Exclusiva' },
@@ -448,8 +517,8 @@ export function PropertyDrawer({ property, open, onClose }: PropertyDrawerProps)
                   </div>
                 </div>
 
-                {/* Datos del propietario (solo si es el productor) – misma línea, acento ámbar */}
-                {isProducer && (
+                {/* Datos del propietario: solo productor o admin/manager de la inmobiliaria */}
+                {canSeeOwnerData && (
                   <div className="mx-6 mb-6 p-5 rounded-2xl bg-gradient-to-b from-amber-50/80 to-amber-100/50 border border-amber-200/80 shadow-sm">
                     <p className="text-sm font-bold text-gray-900 mb-3">Datos del propietario</p>
                     <div className="space-y-2.5 text-sm">

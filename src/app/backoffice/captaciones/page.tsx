@@ -2,11 +2,11 @@
 
 import { NewPropertyWizard } from '@/components/backoffice/NewPropertyWizard'
 
-export default function NuevaPropiedadPage() {
+export default function CaptacionesPage() {
   return (
     <NewPropertyWizard
-      title="Nueva Propiedad"
-      redirectOnSuccess="/backoffice/propiedades"
+      title="Captaciones"
+      redirectOnSuccess="/backoffice/captaciones"
       submitButtonLabel="Crear Propiedad"
     />
   )

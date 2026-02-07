@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect } from 'react'
-import { useProperties, usePropertiesStats, type Property, type PropertiesFilters } from '@/hooks/useProperties'
+import { useProperties, usePropertiesStats, useDeleteProperty, type Property, type PropertiesFilters } from '@/hooks/useProperties'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -29,10 +29,34 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { PropertyFiltersSidebar, INITIAL_ADVANCED, type AdvancedFiltersState } from './PropertyFiltersSidebar'
 import { PriceFilterPopover } from './PriceFilterPopover'
+import { getPricePerM2, getValuationClassification, type ValuationLevel } from '@/lib/valuation'
+import { getOperationBannerGradient, getOperationLabel, getPropertyTypeLabel, getBannerText } from '@/lib/property-card-theme'
 import { PropertyDrawer } from '@/components/backoffice/PropertyDrawer'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAgencyUsers } from '@/hooks/useAgencyUsers'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Label } from '@/components/ui/label'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Textarea } from '@/components/ui/textarea'
+
+/** Motivos de baja para eliminar una propiedad (obligatorio preguntar al asesor) */
+const DELETE_REASONS = [
+  { value: 'propietario_no_quiso', label: 'El propietario decidió no vender ni rentar' },
+  { value: 'operacion_cerrada_exito', label: 'Operación cerrada con éxito (vendida o rentada por nosotros)' },
+  { value: 'vendida_rentada_otro', label: 'Vendida o rentada por otro medio o inmobiliaria' },
+  { value: 'baja_interna', label: 'Baja interna (ya no manejamos esta propiedad)' },
+  { value: 'listado_duplicado', label: 'Listado duplicado' },
+  { value: 'error_registro', label: 'Error en el registro (carga incorrecta)' },
+  { value: 'otro', label: 'Otro motivo' },
+] as const
 
 const PRICE_RANGE = [0, 50_000_000] as const
 const PAGE_SIZE = 12
@@ -52,67 +76,17 @@ const PROPERTY_TYPES = [
   { value: 'bodega', label: 'Bodega' },
 ] as const
 
-/** Tarjetas de prueba para visualizar el diseño (3 por defecto) */
-const MOCK_PROPERTIES: Property[] = [
+/** 3 ejemplos fijos en la pestaña Propias: Renta (verde), Venta o Renta (violeta), Oficina (ámbar) */
+const PROPIAS_EJEMPLOS: Property[] = [
   {
-    id: 'mock-1',
+    id: 'ejemplo-renta',
     agency_id: '',
     producer_id: '',
-    title: 'Departamento en Venta y Renta',
-    description: null,
-    property_type: 'departamento',
-    operation_type: 'ambos',
-    address: 'Av. Álvaro Obregón 123',
-    neighborhood: 'Roma Norte',
-    city: 'Ciudad de México',
-    state: 'CDMX',
-    price: 5_000_000,
-    rent_price: 30_000,
-    bedrooms: 3,
-    bathrooms: 2,
-    half_bathrooms: 1,
-    parking_spaces: 2,
-    total_area: 120,
-    construction_m2: 120,
-    land_m2: null,
-    maintenance_fee: 2500,
-    commission_percentage: 3,
-    main_image_url: 'https://picsum.photos/seed/depto-venta-renta-1/800/600',
-    images: [
-      'https://picsum.photos/seed/depto-venta-renta-1/800/600',
-      'https://picsum.photos/seed/depto-venta-renta-2/800/600',
-      'https://picsum.photos/seed/depto-venta-renta-3/800/600',
-      'https://picsum.photos/seed/depto-venta-renta-4/800/600',
-    ],
-    status: 'active',
-    visibility: 'public',
-    published: true,
-    health_score: 85,
-    mls_shared: false,
-    slug: null,
-    owner_name: null,
-    owner_phone: null,
-    owner_email: null,
-    is_my_agency: true,
-    is_mine: false,
-    source: 'agency',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    currency: 'MXN',
-    year_built: 2018,
-    pets_allowed: true,
-    balcony_m2: 12,
-    floor_number: 3,
-  },
-  {
-    id: 'mock-2',
-    agency_id: '',
-    producer_id: '',
-    title: 'Departamento Condesa',
+    title: 'Departamento en Renta',
     description: null,
     property_type: 'departamento',
     operation_type: 'renta',
-    address: 'Calle Amsterdam 456',
+    address: 'Av. Amsterdam 456',
     neighborhood: 'Condesa',
     city: 'Ciudad de México',
     state: 'CDMX',
@@ -128,12 +102,7 @@ const MOCK_PROPERTIES: Property[] = [
     maintenance_fee: 2500,
     commission_percentage: null,
     main_image_url: 'https://picsum.photos/seed/condesa-1/800/600',
-    images: [
-      'https://picsum.photos/seed/condesa-1/800/600',
-      'https://picsum.photos/seed/condesa-2/800/600',
-      'https://picsum.photos/seed/condesa-3/800/600',
-      'https://picsum.photos/seed/condesa-4/800/600',
-    ],
+    images: ['https://picsum.photos/seed/condesa-1/800/600', 'https://picsum.photos/seed/condesa-2/800/600'],
     status: 'active',
     visibility: 'public',
     published: true,
@@ -145,20 +114,57 @@ const MOCK_PROPERTIES: Property[] = [
     owner_email: null,
     is_my_agency: true,
     is_mine: false,
-    source: 'agency',
+    source: 'own',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     currency: 'MXN',
-    year_built: 2020,
-    pets_allowed: false,
-    terrace_m2: 8,
-    floor_number: 5,
   },
   {
-    id: 'mock-3',
+    id: 'ejemplo-venta-renta',
     agency_id: '',
     producer_id: '',
-    title: 'Oficina Polanco',
+    title: 'Casa en Venta o Renta',
+    description: null,
+    property_type: 'casa',
+    operation_type: 'ambos',
+    address: 'Av. Álvaro Obregón 123',
+    neighborhood: 'Roma Norte',
+    city: 'Ciudad de México',
+    state: 'CDMX',
+    price: 5_500_000,
+    rent_price: 35_000,
+    bedrooms: 3,
+    bathrooms: 2,
+    half_bathrooms: 1,
+    parking_spaces: 2,
+    total_area: 150,
+    construction_m2: 150,
+    land_m2: null,
+    maintenance_fee: 2500,
+    commission_percentage: 3,
+    main_image_url: 'https://picsum.photos/seed/depto-venta-renta-1/800/600',
+    images: ['https://picsum.photos/seed/depto-venta-renta-1/800/600', 'https://picsum.photos/seed/depto-venta-renta-2/800/600'],
+    status: 'active',
+    visibility: 'public',
+    published: true,
+    health_score: 85,
+    mls_shared: false,
+    slug: null,
+    owner_name: null,
+    owner_phone: null,
+    owner_email: null,
+    is_my_agency: true,
+    is_mine: false,
+    source: 'own',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    currency: 'MXN',
+  },
+  {
+    id: 'ejemplo-oficina',
+    agency_id: '',
+    producer_id: '',
+    title: 'Oficina en Venta',
     description: null,
     property_type: 'oficina',
     operation_type: 'venta',
@@ -178,12 +184,7 @@ const MOCK_PROPERTIES: Property[] = [
     maintenance_fee: null,
     commission_percentage: 5,
     main_image_url: 'https://picsum.photos/seed/polanco-1/800/600',
-    images: [
-      'https://picsum.photos/seed/polanco-1/800/600',
-      'https://picsum.photos/seed/polanco-2/800/600',
-      'https://picsum.photos/seed/polanco-3/800/600',
-      'https://picsum.photos/seed/polanco-4/800/600',
-    ],
+    images: ['https://picsum.photos/seed/polanco-1/800/600', 'https://picsum.photos/seed/polanco-2/800/600'],
     status: 'active',
     visibility: 'public',
     published: true,
@@ -195,11 +196,15 @@ const MOCK_PROPERTIES: Property[] = [
     owner_email: null,
     is_my_agency: true,
     is_mine: false,
-    source: 'agency',
+    source: 'own',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
-    currency: 'USD',
+    currency: 'MXN',
   },
+]
+
+/** Tarjetas de prueba (legacy, por si se usan en otro lugar) */
+const MOCK_PROPERTIES: Property[] = [
   {
     id: 'mock-4',
     agency_id: '',
@@ -269,9 +274,13 @@ export default function PropertiesPage() {
   const [advancedFilters, setAdvancedFilters] = useState<AdvancedFiltersState>(INITIAL_ADVANCED)
   const [page, setPage] = useState(1)
   const [drawerProperty, setDrawerProperty] = useState<Property | null>(null)
+  const [propertyToDelete, setPropertyToDelete] = useState<Property | null>(null)
+  const [deletionReason, setDeletionReason] = useState<string>('')
+  const [deletionReasonOther, setDeletionReasonOther] = useState('')
 
   const { data: currentUser } = useCurrentUser()
   const { data: agencyUsers = [] } = useAgencyUsers()
+  const deletePropertyMutation = useDeleteProperty()
 
   useEffect(() => {
     setPage(1)
@@ -300,17 +309,35 @@ export default function PropertiesPage() {
   const { data: stats } = usePropertiesStats()
 
   const totalItems = properties.length
+  const numEjemplos = PROPIAS_EJEMPLOS.length
+  /** Conteos por pestaña: la activa usa la longitud de la lista; Propias incluye siempre los 3 ejemplos fijos */
+  const countOwn = (activeTab === 'own' ? totalItems : (stats?.mine ?? 0)) + numEjemplos
+  const countAgency = activeTab === 'agency' ? totalItems : (stats?.total ?? 0)
+  const countNetwork = activeTab === 'network' ? totalItems : (stats?.network ?? 0)
+  const countMls = activeTab === 'mls' ? totalItems : (stats?.mls ?? 0)
   const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE))
   const currentPage = Math.min(page, totalPages)
   const paginatedProperties = useMemo(
     () => properties.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
     [properties, currentPage]
   )
-  /** Lista a mostrar: propiedades reales + hasta 4 de prueba si hay menos de 4 en la página (para completar la fila de 4 tarjetas) */
-  const rawDisplayList = useMemo(() => {
-    if (paginatedProperties.length >= 4) return paginatedProperties
-    return [...paginatedProperties, ...MOCK_PROPERTIES.slice(0, 4 - paginatedProperties.length)]
-  }, [paginatedProperties])
+  /** Lista a mostrar: en Propias se muestran primero 3 ejemplos (Renta, Venta/Renta, Oficina) con sus colores; luego las reales */
+  const rawDisplayList = useMemo(
+    () => (activeTab === 'own' ? [...PROPIAS_EJEMPLOS, ...paginatedProperties] : paginatedProperties),
+    [activeTab, paginatedProperties]
+  )
+
+  /** Valuación (precio/m² y nivel) por propiedad, usando la misma lógica que Inventario */
+  const valuationByProperty = useMemo(() => {
+    const map = new Map<string, { pricePerM2: number | null; valuation: ValuationLevel }>()
+    const pool = properties.filter((p) => !p.id.startsWith('mock-') && !p.id.startsWith('ejemplo-'))
+    for (const p of rawDisplayList) {
+      const pricePerM2 = getPricePerM2(p)
+      const valuation = getValuationClassification(p, pool.length > 0 ? pool : rawDisplayList)
+      map.set(p.id, { pricePerM2, valuation })
+    }
+    return map
+  }, [rawDisplayList, properties])
 
   /** PH Condesa / propiedades Condesa sin fotos: completar tarjeta en Venta con datos y fotos de demo */
   const displayList = useMemo(() => {
@@ -391,28 +418,28 @@ export default function PropertiesPage() {
                 className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-gray-900 data-[state=active]:to-gray-800 data-[state=active]:text-white data-[state=active]:shadow-lg px-4 sm:px-6 transition-all"
               >
                 <Home className="h-4 w-4 mr-2" />
-                Propias ({stats?.mine ?? 0})
+                Propias ({countOwn})
               </TabsTrigger>
               <TabsTrigger
                 value="agency"
                 className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-gray-900 data-[state=active]:to-gray-800 data-[state=active]:text-white data-[state=active]:shadow-lg px-4 sm:px-6 transition-all"
               >
                 <Building2 className="h-4 w-4 mr-2" />
-                Inmobiliaria ({stats?.total ?? 0})
+                Inmobiliaria ({countAgency})
               </TabsTrigger>
               <TabsTrigger
                 value="network"
                 className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-gray-900 data-[state=active]:to-gray-800 data-[state=active]:text-white data-[state=active]:shadow-lg px-4 sm:px-6 transition-all"
               >
                 <Network className="h-4 w-4 mr-2" />
-                Red ({stats?.network ?? 0})
+                Red ({countNetwork})
               </TabsTrigger>
               <TabsTrigger
                 value="mls"
                 className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-gray-900 data-[state=active]:to-gray-800 data-[state=active]:text-white data-[state=active]:shadow-lg px-4 sm:px-6 transition-all"
               >
                 <Layers className="h-4 w-4 mr-2" />
-                MLS ({stats?.mls ?? 0})
+                MLS ({countMls})
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -490,7 +517,7 @@ export default function PropertiesPage() {
                       <div key={p.id} className="min-w-0">
                         <PropertyCard
                           property={p}
-                          producer={p.id.startsWith('mock-') ? undefined : agencyUsers.find((u) => u.id === p.producer_id)}
+                          producer={p.id.startsWith('mock-') || p.id.startsWith('ejemplo-') ? undefined : agencyUsers.find((u) => u.id === p.producer_id)}
                           onOpenDrawer={() => setDrawerProperty(p)}
                         />
                       </div>
@@ -579,7 +606,108 @@ export default function PropertiesPage() {
         property={drawerProperty}
         open={!!drawerProperty}
         onClose={() => setDrawerProperty(null)}
+        onDelete={drawerProperty ? () => setPropertyToDelete(drawerProperty) : undefined}
+        valuation={drawerProperty ? valuationByProperty.get(drawerProperty.id) : undefined}
       />
+      <Dialog
+        open={!!propertyToDelete}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPropertyToDelete(null)
+            setDeletionReason('')
+            setDeletionReasonOther('')
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Dar de baja propiedad</DialogTitle>
+            <DialogDescription>
+              Indica el motivo de la baja. Esta información se guarda para reportes y auditoría.
+              {propertyToDelete && (
+                <span className="mt-2 block font-medium text-foreground">
+                  {propertyToDelete.address || propertyToDelete.title || propertyToDelete.id}
+                </span>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-3">
+              <Label className="text-sm font-semibold">¿Por qué deseas dar de baja esta propiedad?</Label>
+              <RadioGroup
+                value={deletionReason}
+                onValueChange={(v) => {
+                  setDeletionReason(v)
+                  if (v !== 'otro') setDeletionReasonOther('')
+                }}
+                className="grid gap-2"
+              >
+                {DELETE_REASONS.map((r) => (
+                  <div key={r.value} className="flex items-center space-x-2">
+                    <RadioGroupItem value={r.value} id={`reason-${r.value}`} />
+                    <Label htmlFor={`reason-${r.value}`} className="text-sm font-normal cursor-pointer">
+                      {r.label}
+                    </Label>
+                  </div>
+                ))}
+              </RadioGroup>
+            </div>
+            {deletionReason === 'otro' && (
+              <div className="space-y-2">
+                <Label htmlFor="deletion-reason-other" className="text-sm font-semibold">
+                  Especifica el motivo (opcional)
+                </Label>
+                <Textarea
+                  id="deletion-reason-other"
+                  placeholder="Ej.: Cambio de estrategia, propiedad ya no disponible..."
+                  value={deletionReasonOther}
+                  onChange={(e) => setDeletionReasonOther(e.target.value)}
+                  className="min-h-[80px] resize-none"
+                  maxLength={500}
+                />
+              </div>
+            )}
+          </div>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setPropertyToDelete(null)
+                setDeletionReason('')
+                setDeletionReasonOther('')
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={async () => {
+                if (!propertyToDelete) return
+                const isMock = propertyToDelete.id.startsWith('mock-') || propertyToDelete.id.startsWith('ejemplo-')
+                if (isMock) {
+                  setPropertyToDelete(null)
+                  setDeletionReason('')
+                  setDeletionReasonOther('')
+                  setDrawerProperty((prev) => (prev?.id === propertyToDelete.id ? null : prev))
+                  return
+                }
+                const reasonLabel = DELETE_REASONS.find((r) => r.value === deletionReason)?.label ?? deletionReason
+                const reasonText = deletionReason === 'otro' && deletionReasonOther.trim()
+                  ? `Otro motivo: ${deletionReasonOther.trim()}`
+                  : reasonLabel
+                await deletePropertyMutation.mutateAsync({ id: propertyToDelete.id, reason: reasonText })
+                setPropertyToDelete(null)
+                setDeletionReason('')
+                setDeletionReasonOther('')
+                setDrawerProperty((prev) => (prev?.id === propertyToDelete.id ? null : prev))
+              }}
+              disabled={deletePropertyMutation.isPending || !deletionReason}
+            >
+              {deletePropertyMutation.isPending ? 'Eliminando…' : 'Dar de baja'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
@@ -645,22 +773,10 @@ function PropertyCard({
   }, [property?.images, property?.main_image_url])
   const currentImage = images[photoIndex] ?? images[0]
   const hasMultiplePhotos = images.length > 1
-  const opLabel =
-    property.operation_type === 'renta'
-      ? 'Renta'
-      : property.operation_type === 'venta'
-        ? 'Venta'
-        : 'Venta o Renta'
-  const typeMap: Record<string, string> = {
-    casa: 'Casa',
-    departamento: 'Departamento',
-    terreno: 'Terreno',
-    local: 'Local',
-    oficina: 'Oficina',
-    bodega: 'Bodega',
-  }
-  const typeLabel = typeMap[property.property_type ?? ''] ?? 'Inmueble'
-  const bannerText = `${typeLabel} en ${opLabel}`
+  const opLabel = getOperationLabel(property.operation_type)
+  const typeLabel = getPropertyTypeLabel(property.property_type)
+  const bannerText = getBannerText(property.operation_type, property.property_type ?? undefined)
+  const bannerGradient = getOperationBannerGradient(property.operation_type, property.property_type ?? undefined)
   const m2 = property.construction_m2 ?? property.land_m2 ?? null
   const publishedDate = property.created_at
     ? new Date(property.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' })
@@ -670,15 +786,6 @@ function PropertyCard({
   const displayAddress = formatStreetAddress(property.address || property.title) || property.address || property.title
   const isVenta = property.operation_type === 'venta'
   const isRenta = property.operation_type === 'renta'
-  /** Ramo comercial: oficina, terreno, local, bodega (y en el futuro nave industrial) → barra ámbar/naranja */
-  const isComercial = ['oficina', 'terreno', 'local', 'bodega'].includes(property.property_type ?? '')
-  const bannerGradient = isComercial
-    ? 'bg-gradient-to-r from-amber-600 to-orange-600'
-    : isRenta
-      ? 'bg-gradient-to-r from-green-600 to-green-700'
-      : isVenta
-        ? 'bg-gradient-to-r from-blue-600 to-blue-700'
-        : 'bg-gradient-to-r from-violet-600 to-purple-700'
 
   return (
     <div
@@ -751,7 +858,7 @@ function PropertyCard({
           )}
         </div>
         {imageCount > 0 && (
-          <div className="absolute top-2 right-2 z-10 rounded-lg bg-black/60 px-2 py-0.5 text-[11px] font-medium text-white">
+          <div className="absolute top-2 right-2 z-10 rounded-lg bg-black/60 px-2 py-0.5 text-[11px] font-medium text-white transition-opacity duration-200 opacity-0 group-hover:opacity-100">
             📷 {photoIndex + 1}/{imageCount}
           </div>
         )}
