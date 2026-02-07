@@ -79,15 +79,15 @@ function BackofficeContent({ children }: { children: React.ReactNode }) {
     { href: '/backoffice', icon: LayoutDashboard, label: 'Inicio' },
     { href: '/backoffice/propiedades', icon: Home, label: 'Propiedades' },
     { href: '/backoffice/contactos', icon: Users, label: 'Contactos', divider: true },
-    
+
     // Grupo Operativo
     { href: '/backoffice/busquedas', icon: Search, label: 'Búsquedas' },
     { href: '/backoffice/captaciones', icon: FileText, label: 'Captaciones' },
     { href: '/backoffice/tareas', icon: CheckSquare, label: 'Tareas', divider: true },
-    
+
     // Sección Activa
     { href: '/backoffice/inventario', icon: Package, label: 'Inventario', active: true, divider: true },
-    
+
     // Grupo Estratégico
     { href: '/backoffice/inbox', icon: Inbox, label: 'Operaciones' },
     { href: '/backoffice/marketing', icon: Megaphone, label: 'Marketing' },
@@ -161,8 +161,8 @@ function BackofficeContent({ children }: { children: React.ReactNode }) {
                     ${isInventory
                       ? 'bg-gray-900 text-white rounded-2xl shadow-xl hover:bg-gray-800 hover:scale-105'
                       : isActive
-                      ? 'bg-gray-200/60 text-gray-900 rounded-2xl shadow-md'
-                      : 'text-gray-600 hover:bg-gray-100/60 hover:text-gray-900 rounded-2xl hover:shadow-sm'
+                        ? 'bg-gray-200/60 text-gray-900 rounded-2xl shadow-md'
+                        : 'text-gray-600 hover:bg-gray-100/60 hover:text-gray-900 rounded-2xl hover:shadow-sm'
                     }
                   `}
                 >
@@ -215,7 +215,7 @@ function BackofficeContent({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* Main Content - min-w-0 para que el contenido no desborde y corte las tarjetas */}
-      <main className="flex-1 min-w-0 overflow-auto w-full">
+      <main id="backoffice-main" className="flex-1 min-w-0 overflow-auto w-full">
         {children}
       </main>
     </div>

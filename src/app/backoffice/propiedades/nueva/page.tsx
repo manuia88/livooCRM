@@ -148,7 +148,7 @@ const PercentageInput = ({ value, onChange, placeholder, className, icon }: any)
   const format = (val: string | number) => {
     if (val === '' || val === undefined || val === null) return ''
     const num = Number(val)
-    return isNaN(num) ? val : num + '%'
+    return isNaN(num) ? val : num.toString()
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -170,8 +170,8 @@ const PercentageInput = ({ value, onChange, placeholder, className, icon }: any)
         placeholder={placeholder}
         className={className}
       />
-      <div className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center text-[#9CA3AF]">
-        {icon}
+      <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[#9CA3AF] font-bold pointer-events-none">
+        %
       </div>
     </div>
   )
@@ -232,9 +232,15 @@ export default function NewPropertyWizard() {
 
   const createProperty = useCreateProperty()
 
-  // Scroll to top on step change
+  // Scroll to top on step change (targeting main layout container)
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    const mainContainer = document.getElementById('backoffice-main')
+    if (mainContainer) {
+      mainContainer.scrollTo({ top: 0, behavior: 'smooth' })
+    } else {
+      // Fallback
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
   }, [currentStep])
 
   // Auto-calcular m2 Totales
@@ -333,9 +339,12 @@ export default function NewPropertyWizard() {
               const isOn = isCompleted || isActive
               return (
                 <div key={step.id} className="flex items-center flex-1 min-w-[64px] sm:min-w-[72px]">
-                  <div className="flex flex-col items-center w-full">
+                  <div
+                    className="flex flex-col items-center w-full cursor-pointer group"
+                    onClick={() => setCurrentStep(step.id)}
+                  >
                     <div
-                      className="w-[42px] h-[42px] rounded-full flex items-center justify-center flex-shrink-0 transition-colors duration-200"
+                      className="w-[42px] h-[42px] rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-200 group-hover:scale-110 group-hover:shadow-lg"
                       style={{
                         backgroundColor: isOn ? step.color : '#E5E7EB',
                         color: isOn ? '#FFFFFF' : '#6B7280',
@@ -343,7 +352,7 @@ export default function NewPropertyWizard() {
                     >
                       {isCompleted ? <Check className="h-5 w-5" strokeWidth={2} style={{ color: 'inherit' }} /> : <StepIcon className="h-5 w-5" strokeWidth={2} aria-hidden style={{ color: 'inherit' }} />}
                     </div>
-                    <p className={`text-[10px] sm:text-xs mt-2 text-center font-medium ${isOn ? 'text-[#111827]' : 'text-[#6B7280]'}`}>{step.name}</p>
+                    <p className={`text-[10px] sm:text-xs mt-2 text-center font-medium transition-colors ${isOn ? 'text-[#111827]' : 'text-[#6B7280]'} group-hover:text-[#111827]`}>{step.name}</p>
                   </div>
                   {index < STEPS.length - 1 && (
                     <div className="flex-1 h-0.5 mx-0.5 sm:mx-1 rounded-full min-w-[8px] bg-[#E5E7EB]" style={isCompleted ? { backgroundColor: step.color } : undefined} />
@@ -1171,7 +1180,7 @@ function Step6Legal({ formData, updateFormData }: any) {
             <div className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-[13px] font-bold text-[#2C3E2C] uppercase tracking-wider ml-1">Valor Estimado de Operación</label>
+                  <label className="text-[13px] font-bold text-[#2C3E2C] uppercase tracking-wider ml-1 h-10 flex items-end pb-2">Valor Estimado de Operación</label>
                   <div className="relative">
                     <Input
                       disabled
@@ -1187,8 +1196,8 @@ function Step6Legal({ formData, updateFormData }: any) {
 
                 <div className="flex gap-4">
                   <div className="space-y-2 flex-1">
-                    <label className="text-[13px] font-bold text-[#2C3E2C] uppercase tracking-wider ml-1">
-                      {isRenta ? 'Meses de Renta' : '% Comisión'} *
+                    <label className="text-[13px] font-bold text-[#2C3E2C] uppercase tracking-wider ml-1 h-10 flex items-end pb-2">
+                      {isRenta ? 'Meses de Renta' : 'Porcentaje de Comisión Pactado'} *
                     </label>
                     <div className="relative">
                       {isRenta ? (
@@ -1208,23 +1217,15 @@ function Step6Legal({ formData, updateFormData }: any) {
                         <PercentageInput
                           value={formData.commission_percentage}
                           onChange={(val: string) => updateFormData('commission_percentage', val)}
-                          placeholder="5"
-                          className="pl-11 h-12 rounded-xl border-[#E5E3DB] bg-[#FDFCFB]"
-                          icon={<Percent className="w-4 h-4" />}
+                          placeholder="Ingresa %"
+                          className="pl-4 pr-8 h-12 rounded-xl border-[#E5E3DB] bg-[#FDFCFB]"
                         />
                       )}
                     </div>
-                    {/* Instant Calculation Feedback */}
-                    {formData.commission_percentage && !isNaN(baseAmount) && (
-                      <p className="text-[11px] text-[#059669] font-bold mt-1.5 ml-1 flex items-center gap-1">
-                        <span className="opacity-60">=</span>
-                        {baseAmount.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}
-                      </p>
-                    )}
                   </div>
 
                   <div className="space-y-2 flex-1">
-                    <label className="text-[13px] font-bold text-[#2C3E2C] uppercase tracking-wider ml-1">Impuestos</label>
+                    <label className="text-[13px] font-bold text-[#2C3E2C] uppercase tracking-wider ml-1 h-10 flex items-end pb-2">Impuestos</label>
                     <div className="flex bg-[#FDFCFB] p-1 rounded-xl border border-[#E5E3DB] h-12">
                       <button
                         type="button"
@@ -1245,47 +1246,54 @@ function Step6Legal({ formData, updateFormData }: any) {
                 </div>
               </div>
 
-              {/* Explicit Commission Calculation Text */}
-              {commissionDetails && (
-                <div className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl p-4 flex items-center gap-3 mb-6">
-                  <Calculator className="w-5 h-5 text-[#6B7B6B]" />
-                  <p className="text-[13px] text-[#374151] font-medium font-mono">
-                    <span className="font-bold">Valor:</span> {operationValue ? operationValue.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' }) : '$0'}
-                    <span className="mx-1">x</span>
-                    <span className="font-bold">{formData.commission_percentage}% Comisión</span>
-                    <span className="mx-1">{formData.commission_iva_included ? '(IVA Incluido)' : '+ IVA'}</span>
-                    <span className="mx-1">=</span>
-                    <span className="font-bold text-[#059669] text-[14px]">
-                      {commissionDetails.total.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })} MXN
-                    </span>
-                  </p>
-                </div>
-              )}
-
-              {/* Resumen Financiero */}
+              {/* Redesigned Commission Calculator - Clean Receipt */}
               <AnimatePresence>
                 {commissionDetails && (
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.98 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="bg-[#111827] rounded-2xl p-6 shadow-xl relative overflow-hidden"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-2xl p-6 relative overflow-hidden group hover:border-[#D1D5DB] transition-colors"
                   >
-                    <div className="absolute top-0 right-0 p-4 opacity-10">
-                      <CircleDollarSign className="w-24 h-24 text-white" />
-                    </div>
-                    <h5 className="text-white/90 text-sm font-bold uppercase tracking-widest mb-4 border-b border-white/10 pb-2">Resumen Financiero</h5>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 relative z-10">
-                      <div>
-                        <p className="text-white/60 text-xs mb-1">Subtotal Comisión</p>
-                        <p className="text-white text-lg font-mono">{commissionDetails.subtotal.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</p>
+                    <div className="flex flex-col sm:flex-row justify-between items-center gap-6 relative z-10">
+
+                      {/* Left: Calculation Formula */}
+                      <div className="flex flex-col items-center sm:items-start gap-1 w-full sm:w-auto text-center sm:text-left">
+                        <span className="text-[11px] font-bold text-[#6B7B6B] uppercase tracking-wider flex items-center gap-2">
+                          <Calculator className="w-3.5 h-3.5" />
+                          Cálculo Base
+                        </span>
+                        <div className="flex items-baseline gap-2 text-[#1F2937] text-sm sm:text-base font-bold tracking-tight">
+                          <span>
+                            {operationValue ? operationValue.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' }) : '$0'}
+                          </span>
+                          <span className="text-[#9CA3AF] font-light">×</span>
+                          <span>{formData.commission_percentage}{isRenta ? ' mes' : '%'}</span>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-white/60 text-xs mb-1">IVA (16%)</p>
-                        <p className="text-white text-lg font-mono">{commissionDetails.iva.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</p>
-                      </div>
-                      <div>
-                        <p className="text-[#34D399] text-xs mb-1 font-bold">Total a Facturar</p>
-                        <p className="text-[#34D399] text-2xl font-black font-mono tracking-tight">{commissionDetails.total.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</p>
+
+                      {/* Divider (Mobile) */}
+                      <div className="w-full h-px bg-[#E5E7EB] sm:hidden"></div>
+
+                      {/* Right: Totals Grid */}
+                      <div className="flex items-center gap-4 sm:gap-8 w-full sm:w-auto justify-between sm:justify-end">
+                        <div className="text-center sm:text-right">
+                          <p className="text-[10px] text-[#6B7B6B] mb-0.5 font-medium uppercase tracking-wide">Subtotal</p>
+                          <p className="text-sm font-bold text-[#374151] tracking-tight tabular-nums">
+                            {commissionDetails.subtotal.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}
+                          </p>
+                        </div>
+                        <div className="text-center sm:text-right">
+                          <p className="text-[10px] text-[#6B7B6B] mb-0.5 font-medium uppercase tracking-wide">IVA</p>
+                          <p className="text-sm font-bold text-[#374151] tracking-tight tabular-nums">
+                            {commissionDetails.iva.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}
+                          </p>
+                        </div>
+                        <div className="pl-4 sm:pl-8 border-l border-[#E5E7EB] text-center sm:text-right">
+                          <p className="text-[10px] text-[#059669] font-bold mb-0.5 uppercase tracking-wide">Total</p>
+                          <p className="text-xl font-black text-[#059669] tracking-tight tabular-nums">
+                            {commissionDetails.total.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </motion.div>
@@ -1421,7 +1429,7 @@ function Step6Legal({ formData, updateFormData }: any) {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   )
 }
 
