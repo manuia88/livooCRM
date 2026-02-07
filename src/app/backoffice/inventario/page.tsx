@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useMemo } from 'react'
 import { flushSync } from 'react-dom'
 import { AnimatePresence } from 'framer-motion'
 import InventoryHeader from './components/InventoryHeader'
@@ -8,6 +8,7 @@ import InventoryDashboard from './components/InventoryDashboard'
 import StatusRibbon from './components/StatusRibbon'
 import PropertyCard from './components/PropertyCard'
 import ValuationModal from './components/ValuationModal'
+import { computeQualityScore } from './lib/qualityScore'
 import { InventoryProperty, DashboardFiltersState, ExclusivityFilter, QualityFilter, ValuationFilter } from './types'
 
 const MOCK_INVENTORY: InventoryProperty[] = [
@@ -552,8 +553,19 @@ const initialDashboardFilters: DashboardFiltersState = {
 
 export default function InventoryPage() {
     const [showValuationModal, setShowValuationModal] = useState(false)
-    const [properties] = useState<InventoryProperty[]>(MOCK_INVENTORY)
+    const [propertyForValuation, setPropertyForValuation] = useState<InventoryProperty | null>(null)
+    const [propertiesRaw] = useState<InventoryProperty[]>(MOCK_INVENTORY)
     const [selectedStatus, setSelectedStatus] = useState<string | null>(null)
+
+    // Calidad calculada por criterios (fotos, título, descripción, documentación, etc.)
+    const properties = useMemo(() => {
+        return propertiesRaw.map(p => {
+            const result = computeQualityScore(p)
+            const pct = result.percentage
+            const qualityLabel = pct >= 80 ? 'Alta' : pct >= 50 ? 'Media' : 'Baja'
+            return { ...p, health_score: pct, quality: qualityLabel, qualityScore: pct / 100 }
+        })
+    }, [propertiesRaw])
     const [dashboardFilters, setDashboardFilters] = useState<DashboardFiltersState>(initialDashboardFilters)
     const resultsStartRef = useRef<HTMLDivElement>(null)
     const isFirstMount = useRef(true)
@@ -614,7 +626,7 @@ export default function InventoryPage() {
 
                 {/* 2. Dashboard de Métricas (KPI Cards) */}
                 <InventoryDashboard
-                    onValuationClick={() => setShowValuationModal(true)}
+                    onValuationClick={() => { setPropertyForValuation(null); setShowValuationModal(true) }}
                     properties={properties}
                     dashboardFilters={dashboardFilters}
                     onClearAll={() => setDashboardFilters(initialDashboardFilters)}
@@ -633,7 +645,11 @@ export default function InventoryPage() {
                 <div ref={resultsStartRef} className="space-y-4">
                     {filteredProperties.length > 0 ? (
                         filteredProperties.map(property => (
-                            <PropertyCard key={property.id} {...property} />
+                            <PropertyCard
+                                key={property.id}
+                                {...property}
+                                onValuationClick={(p) => { setPropertyForValuation(p); setShowValuationModal(true) }}
+                            />
                         ))
                     ) : (
                         <div className="text-center py-12 bg-white rounded-2xl border border-[#E5E3DB]">
@@ -649,7 +665,9 @@ export default function InventoryPage() {
                 {showValuationModal && (
                     <ValuationModal
                         isOpen={showValuationModal}
-                        onClose={() => setShowValuationModal(false)}
+                        onClose={() => { setShowValuationModal(false); setPropertyForValuation(null) }}
+                        property={propertyForValuation}
+                        allProperties={properties}
                     />
                 )}
             </AnimatePresence>

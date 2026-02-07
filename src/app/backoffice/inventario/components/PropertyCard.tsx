@@ -1,10 +1,12 @@
 'use client'
 
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useMemo } from 'react'
 import { ChevronRight, Eye, MessageSquare, MoreHorizontal, FileText } from 'lucide-react'
 import ConsultationsList from './ConsultationsList'
 import VisitsList from './VisitsList'
 import OffersList from './OffersList'
+import QualityRecommendationsModal from './QualityRecommendationsModal'
+import { getMockLeadsForProperty } from '../lib/propertyLeads'
 import { InventoryProperty } from '../types'
 
 const LEGAL_STATUS_LABELS: Record<string, string> = {
@@ -17,7 +19,11 @@ const LEGAL_STATUS_LABELS: Record<string, string> = {
     'contrato_firmado': 'Contrato Firmado'
 }
 
-export default function PropertyCard(props: InventoryProperty) {
+export interface PropertyCardProps extends InventoryProperty {
+    onValuationClick?: (property: InventoryProperty) => void
+}
+
+export default function PropertyCard(props: PropertyCardProps) {
     const {
         id,
         title,
@@ -26,7 +32,7 @@ export default function PropertyCard(props: InventoryProperty) {
         state,
         price,
         operation_type,
-        stats,
+        stats: statsProp,
         quality,
         qualityScore,
         pendingTasks,
@@ -37,12 +43,18 @@ export default function PropertyCard(props: InventoryProperty) {
         total_area,
         valuation,
         main_image_url,
-        legal_status
+        legal_status,
+        onValuationClick
     } = props
+
+    // Una sola fuente por propiedad: mismo lead en consulta, visita y oferta (se vinculará con calendario/contacto)
+    const leadsData = useMemo(() => getMockLeadsForProperty(id, statsProp), [id, statsProp])
+    const stats = leadsData.stats
 
     const [showConsultations, setShowConsultations] = useState(false)
     const [showVisits, setShowVisits] = useState(false)
     const [showOffers, setShowOffers] = useState(false)
+    const [showQualityModal, setShowQualityModal] = useState(false)
     const [checked, setChecked] = useState(false)
 
     // Refs for expandable sections (scroll automático desactivado para no molestar al usar filtros)
@@ -124,9 +136,11 @@ export default function PropertyCard(props: InventoryProperty) {
                 {/* Header: Commission, Exclusive, Legal Status + Actions */}
                 <div className="px-5 py-2 border-b border-[#E5E3DB] flex flex-col md:flex-row md:items-center justify-between gap-2.5">
                     <div className="flex flex-wrap items-center gap-2">
-                        <span className="px-2.5 py-1 rounded-md bg-[#F3F4F6] text-[11px] font-semibold text-[#6B7B6B] whitespace-nowrap">
-                            Comisión: {commission_percentage}%
-                        </span>
+                        {commission_percentage != null && (
+                            <span className="px-2.5 py-1 rounded-md bg-[#F3F4F6] text-[11px] font-semibold text-[#6B7B6B] whitespace-nowrap">
+                                Comisión: {operation_type === 'renta' ? `${commission_percentage} ${Number(commission_percentage) === 1 ? 'mes' : 'meses'}` : `${commission_percentage}%`}
+                            </span>
+                        )}
                         <span className="px-2.5 py-1 rounded-md bg-[#F3F4F6] text-[11px] font-semibold text-[#6B7B6B] whitespace-nowrap">
                             {isExclusive ? 'Exclusiva' : 'Opción'}
                         </span>
@@ -185,50 +199,13 @@ export default function PropertyCard(props: InventoryProperty) {
                         {/* Metrics Group */}
                         <div className="flex items-center gap-3.5">
                             {[
-                                {
-                                    label: 'Consultas',
-                                    value: stats.queries,
-                                    icon: MessageSquare,
-                                    action: () => {
-                                        setShowConsultations(!showConsultations)
-                                        setShowVisits(false)
-                                        setShowOffers(false)
-                                    },
-                                    gradient: 'from-[#0EA5E9] to-[#0284C7]',
-                                    isActive: showConsultations
-                                },
-                                {
-                                    label: 'Visitas',
-                                    value: stats.visits,
-                                    icon: Eye,
-                                    action: () => {
-                                        setShowVisits(!showVisits)
-                                        setShowConsultations(false)
-                                        setShowOffers(false)
-                                    },
-                                    gradient: 'from-[#F59E0B] to-[#D97706]',
-                                    isActive: showVisits
-                                },
-                                {
-                                    label: 'Ofertas',
-                                    value: stats.offers,
-                                    icon: ChevronRight,
-                                    action: () => {
-                                        setShowOffers(!showOffers)
-                                        setShowConsultations(false)
-                                        setShowVisits(false)
-                                    },
-                                    gradient: 'from-[#8B5CF6] to-[#7C3AED]',
-                                    isActive: showOffers
-                                }
+                                { label: 'Consultas', value: stats.queries, icon: MessageSquare, action: () => { setShowConsultations(!showConsultations); setShowVisits(false); setShowOffers(false) }, isActive: showConsultations },
+                                { label: 'Visitas', value: stats.visits, icon: Eye, action: () => { setShowVisits(!showVisits); setShowConsultations(false); setShowOffers(false) }, isActive: showVisits },
+                                { label: 'Ofertas', value: stats.offers, icon: ChevronRight, action: () => { setShowOffers(!showOffers); setShowConsultations(false); setShowVisits(false) }, isActive: showOffers }
                             ].map((stat, i) => (
-                                <div
-                                    key={i}
-                                    onClick={stat.action}
-                                    className="flex flex-col items-center w-[60px] cursor-pointer group/stat"
-                                >
-                                    <div className={`w-8 h-8 rounded-xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center shadow-md mb-1.5 group-hover/stat:scale-110 transition-transform ${stat.isActive ? 'ring-2 ring-offset-2 ring-current' : ''}`}>
-                                        <stat.icon className="w-4 h-4 text-white" strokeWidth={2.5} />
+                                <div key={i} onClick={stat.action} className="flex flex-col items-center w-[60px] cursor-pointer group/stat">
+                                    <div className={`w-8 h-8 rounded-xl bg-[#F3F4F6] border border-[#E5E7EB] flex items-center justify-center mb-1.5 transition-all group-hover/stat:bg-[#E5E7EB] group-hover/stat:border-[#D1D5DB] ${stat.isActive ? 'ring-2 ring-offset-2 ring-[#9CA3AF] bg-[#E5E7EB] border-[#D1D5DB]' : ''}`}>
+                                        <stat.icon className="w-4 h-4 text-[#4B5563]" strokeWidth={2.5} />
                                     </div>
                                     <span className="text-base font-black text-[#2C3E2C] tabular-nums leading-none mb-1">{stat.value}</span>
                                     <span className="text-[9px] font-extrabold text-[#6B7B6B] uppercase tracking-[0.06em] opacity-80 text-center">{stat.label}</span>
@@ -241,9 +218,13 @@ export default function PropertyCard(props: InventoryProperty) {
 
                         {/* Quality & Valuation & Tasks Group */}
                         <div className="flex items-center gap-3.5">
-                            {/* Detailed Quality Badge */}
-                            <div className="flex flex-col items-center w-[60px]">
-                                <div className={`w-8 h-8 rounded-xl bg-gradient-to-br ${qualityConfig.gradient} flex items-center justify-center shadow-md mb-1.5`}>
+                            {/* Detailed Quality Badge - click opens recommendations */}
+                            <button
+                                type="button"
+                                onClick={() => setShowQualityModal(true)}
+                                className="flex flex-col items-center w-[60px] cursor-pointer group/quality hover:opacity-90 transition-opacity"
+                            >
+                                <div className={`w-8 h-8 rounded-xl bg-gradient-to-br ${qualityConfig.gradient} flex items-center justify-center shadow-md mb-1.5 group-hover/quality:scale-110 transition-transform`}>
                                     <span className="text-[12px] font-black text-white">
                                         {quality.substring(0, 1)}
                                     </span>
@@ -252,11 +233,15 @@ export default function PropertyCard(props: InventoryProperty) {
                                     {qualityScore ? `${qualityScore <= 1 ? Math.round(qualityScore * 100) : qualityScore}%` : qualityConfig.label}
                                 </span>
                                 <span className="text-[9px] font-extrabold text-[#6B7B6B] uppercase tracking-[0.06em] opacity-80 text-center">Calidad</span>
-                            </div>
+                            </button>
 
-                            {/* Valuation Badge */}
-                            <div className="flex flex-col items-center w-[60px]">
-                                <div className={`w-8 h-8 rounded-xl bg-gradient-to-br ${valuationColor === 'text-[#10B981]' ? 'from-[#10B981] to-[#059669]' : valuationColor === 'text-[#F59E0B]' ? 'from-[#F59E0B] to-[#D97706]' : 'from-[#EF4444] to-[#DC2626]'} flex items-center justify-center shadow-md mb-1.5`}>
+                            {/* Valuation Badge - click abre informe comparativo */}
+                            <button
+                                type="button"
+                                onClick={() => onValuationClick?.(props)}
+                                className="flex flex-col items-center w-[60px] cursor-pointer group/val hover:opacity-90 transition-opacity"
+                            >
+                                <div className={`w-8 h-8 rounded-xl bg-gradient-to-br ${valuationColor === 'text-[#10B981]' ? 'from-[#10B981] to-[#059669]' : valuationColor === 'text-[#F59E0B]' ? 'from-[#F59E0B] to-[#D97706]' : 'from-[#EF4444] to-[#DC2626]'} flex items-center justify-center shadow-md mb-1.5 group-hover/val:scale-110 transition-transform`}>
                                     <span className="text-[12px] font-black text-white">
                                         {valuation === 'optimo' ? 'O' : valuation === 'medio' || valuation === 'no_competitivo' ? 'M' : 'F'}
                                     </span>
@@ -265,7 +250,7 @@ export default function PropertyCard(props: InventoryProperty) {
                                     {valuation === 'optimo' ? 'Óptimo' : valuation === 'medio' || valuation === 'no_competitivo' ? 'Medio' : 'Fuera'}
                                 </span>
                                 <span className="text-[9px] font-extrabold text-[#6B7B6B] uppercase tracking-[0.06em] opacity-80 text-center">Valuación</span>
-                            </div>
+                            </button>
 
                             {/* Divider */}
                             <div className="hidden sm:block h-14 w-px bg-[#E5E3DB]"></div>
@@ -305,21 +290,27 @@ export default function PropertyCard(props: InventoryProperty) {
             {/* Expandable Areas - Consultas, Visitas, Ofertas - Outside main flex-row */}
             {showConsultations && (
                 <div ref={consultationsRef} className="px-5 pb-4 pt-3 bg-[#FAF8F3] border-t border-[#E5E3DB]">
-                    <ConsultationsList />
+                    <ConsultationsList items={leadsData.consultations} />
                 </div>
             )}
             
             {showVisits && (
                 <div ref={visitsRef} className="px-5 pb-4 pt-3 bg-[#FAF8F3] border-t border-[#E5E3DB]">
-                    <VisitsList />
+                    <VisitsList items={leadsData.visits} />
                 </div>
             )}
             
             {showOffers && (
                 <div ref={offersRef} className="px-5 pb-4 pt-3 bg-[#FAF8F3] border-t border-[#E5E3DB]">
-                    <OffersList />
+                    <OffersList items={leadsData.offers} />
                 </div>
             )}
+
+            <QualityRecommendationsModal
+                isOpen={showQualityModal}
+                onClose={() => setShowQualityModal(false)}
+                property={props}
+            />
         </div>
     )
 }

@@ -437,7 +437,7 @@ export function PropertyDrawer({ property, open, onClose }: PropertyDrawerProps)
                       { label: 'Moneda', value: property.currency ?? 'MXN' },
                       { label: 'Público', value: property.published ? 'Sí' : 'No' },
                       { label: 'Tipo', value: property.mls_shared ? 'Opción' : 'Exclusiva' },
-                      { label: 'Comisión', value: property.commission_percentage != null ? `${property.commission_percentage}%` : '—' },
+                      { label: 'Comisión', value: property.commission_percentage != null ? (property.operation_type === 'renta' ? `${property.commission_percentage} ${Number(property.commission_percentage) === 1 ? 'mes' : 'meses'}` : `${property.commission_percentage}%`) : '—' },
                       { label: 'Estado Legal', value: property.legal_status ? LEGAL_STATUS_LABELS[property.legal_status] ?? property.legal_status : '—' },
                     ].map(({ label, value }) => (
                       <div key={label} className="flex items-center justify-between py-3.5 px-4 border-b border-gray-200/80 last:border-0">

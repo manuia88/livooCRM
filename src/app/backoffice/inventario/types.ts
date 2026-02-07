@@ -47,4 +47,30 @@ export interface InventoryProperty extends Property {
     // metadata overrides/extensions if needed
     exclusive?: boolean
     contract_status?: string
+    // Calidad de publicación (opcionales; si no existen se calculan o se asume false)
+    has_video?: boolean
+    has_floor_plans?: boolean
+    has_360_tour?: boolean
+    /** Número de documentos legales entregados (máx 6). Si no viene, se infiere de legal_status. */
+    docs_count?: number
+    /** Días publicada (para informe de valuación: promedio de no competitivas). */
+    days_on_market?: number
+}
+
+/** Criterio de calidad con puntaje y recomendación */
+export interface QualityCriterion {
+    id: string
+    label: string
+    weight: number
+    earned: number
+    max: number
+    ok: boolean
+    recommendation: string
+}
+
+export interface QualityScoreResult {
+    totalEarned: number
+    totalMax: number
+    percentage: number
+    criteria: QualityCriterion[]
 }

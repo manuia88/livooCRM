@@ -68,14 +68,14 @@ export default function InventoryDashboard({
                         <button
                             type="button"
                             onClick={() => onExclusivityClick('exclusive')}
-                            className={`${btnBase} w-[110px] cursor-pointer focus:ring-amber-400 py-1.5 px-1 rounded-xl ${dashboardFilters.exclusivity === 'exclusive' ? selectedStyle('ring-amber-500', 'bg-amber-100') : ''}`}
+                            className={`${btnBase} w-[110px] cursor-pointer focus:ring-cyan-400 py-1.5 px-1 rounded-xl ${dashboardFilters.exclusivity === 'exclusive' ? selectedStyle('ring-cyan-500', 'bg-cyan-100') : ''}`}
                         >
-                            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#F59E0B] to-[#D97706] flex items-center justify-center shadow-md mb-1.5">
+                            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#06B6D4] to-[#0891B2] flex items-center justify-center shadow-md mb-1.5">
                                 <ShieldCheck className="w-5 h-5 text-white" strokeWidth={2.5} />
                             </div>
                             <span className="text-[24px] font-black text-[#2C3E2C] tabular-nums leading-none mb-1">{exclusiveCount}</span>
                             <span className="text-[11px] font-extrabold text-[#6B7B6B] uppercase tracking-wider opacity-80 text-center leading-tight">Exclusivas</span>
-                            {dashboardFilters.exclusivity === 'exclusive' && <span className="mt-1 flex items-center gap-0.5 text-[9px] font-bold text-amber-700"><Check className="w-3 h-3" />Seleccionado</span>}
+                            {dashboardFilters.exclusivity === 'exclusive' && <span className="mt-1 flex items-center gap-0.5 text-[9px] font-bold text-cyan-700"><Check className="w-3 h-3" />Seleccionado</span>}
                         </button>
 
                         <div className="h-10 w-px bg-[#E5E3DB]" />
