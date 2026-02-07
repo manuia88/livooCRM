@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useState } from 'react'
-import { MoreHorizontal } from 'lucide-react'
-import ClientAttentionAnalysisModal from './ClientAttentionAnalysisModal'
+import { Sparkles } from 'lucide-react'
+import ClientAttentionAnalysisModal, { type ClientStages } from './ClientAttentionAnalysisModal'
 import type { ConsultationItem } from '../lib/propertyLeads'
 
 const defaultConsultations: ConsultationItem[] = [
@@ -36,8 +36,16 @@ function listForCount<T>(arr: T[], count: number): T[] {
   return out
 }
 
-export default function ConsultationsList({ items, count }: { items?: ConsultationItem[]; count?: number }) {
-  const [openAnalysisFor, setOpenAnalysisFor] = useState<string | null>(null)
+export default function ConsultationsList({
+  items,
+  count,
+  getStagesForClient,
+}: {
+  items?: ConsultationItem[]
+  count?: number
+  getStagesForClient?: (clientName: string) => ClientStages
+}) {
+  const [openAnalysisFor, setOpenAnalysisFor] = useState<{ clientName: string; stages: ClientStages } | null>(null)
   const list = items ?? listForCount(defaultConsultations, count ?? 0)
 
   return (
@@ -63,23 +71,26 @@ export default function ConsultationsList({ items, count }: { items?: Consultati
                   {c.initials}
                 </div>
                 <div className="min-w-0 flex-1 space-y-4">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
                       <p className={VALUE + ' text-[15px]'}>{c.clientName}</p>
                       <p className={LABEL + ' mt-0.5'}>Cliente</p>
                     </div>
-                    <div className="flex items-center gap-2 shrink-0">
+                    <div className="flex items-center gap-3 shrink-0">
                       <span className={`text-[10px] font-black px-3 py-1.5 rounded-lg border tracking-widest ${
                         c.etapa === 'PERDIDA' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200'
                       }`}>{c.etapa}</span>
                       <button
                         type="button"
-                        onClick={() => setOpenAnalysisFor(c.clientName)}
-                        className="w-9 h-9 flex items-center justify-center rounded-lg border border-[#E5E7EB] text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#111827] hover:border-[#D1D5DB] transition-all"
-                        title="Ver análisis de atención (IA)"
-                        aria-label="Ver análisis de atención al cliente"
+                        onClick={() => setOpenAnalysisFor({
+  clientName: c.clientName,
+  stages: getStagesForClient?.(c.clientName) ?? { consulta: true, visita: true, oferta: true },
+})}
+                        className="inline-flex items-center gap-2 py-2 px-3 rounded-lg border border-[#E5E7EB] bg-white text-[11px] font-bold text-[#4F46E5] hover:bg-[#EEF2FF] hover:border-[#C7D2FE] transition-all"
+                        title="Ver análisis de atención por etapa (consulta, visita, oferta)"
                       >
-                        <MoreHorizontal size={18} />
+                        <Sparkles size={14} />
+                        Feedback
                       </button>
                     </div>
                   </div>
@@ -137,9 +148,10 @@ export default function ConsultationsList({ items, count }: { items?: Consultati
 
       {openAnalysisFor && (
         <ClientAttentionAnalysisModal
-          isOpen={!!openAnalysisFor}
+          isOpen
           onClose={() => setOpenAnalysisFor(null)}
-          clientName={openAnalysisFor}
+          clientName={openAnalysisFor.clientName}
+          stages={openAnalysisFor.stages}
         />
       )}
     </div>

@@ -7,6 +7,7 @@ import VisitsList from './VisitsList'
 import OffersList from './OffersList'
 import QualityRecommendationsModal from './QualityRecommendationsModal'
 import { getMockLeadsForProperty } from '../lib/propertyLeads'
+import type { ClientStages } from './ClientAttentionAnalysisModal'
 import { InventoryProperty } from '../types'
 
 const LEGAL_STATUS_LABELS: Record<string, string> = {
@@ -50,6 +51,14 @@ export default function PropertyCard(props: PropertyCardProps) {
     // Una sola fuente por propiedad: mismo lead en consulta, visita y oferta (se vinculará con calendario/contacto)
     const leadsData = useMemo(() => getMockLeadsForProperty(id, statsProp), [id, statsProp])
     const stats = leadsData.stats
+
+    const getStagesForClient = useMemo((): ((clientName: string) => ClientStages) => {
+      return (clientName: string) => ({
+        consulta: leadsData.consultations.some(c => c.clientName === clientName),
+        visita: leadsData.visits.some(v => v.clientName === clientName),
+        oferta: leadsData.offers.some(o => o.clientName === clientName),
+      })
+    }, [leadsData.consultations, leadsData.visits, leadsData.offers])
 
     const [showConsultations, setShowConsultations] = useState(false)
     const [showVisits, setShowVisits] = useState(false)
@@ -290,19 +299,19 @@ export default function PropertyCard(props: PropertyCardProps) {
             {/* Expandable Areas - Consultas, Visitas, Ofertas - Outside main flex-row */}
             {showConsultations && (
                 <div ref={consultationsRef} className="px-5 pb-4 pt-3 bg-[#FAF8F3] border-t border-[#E5E3DB]">
-                    <ConsultationsList items={leadsData.consultations} />
+                    <ConsultationsList items={leadsData.consultations} getStagesForClient={getStagesForClient} />
                 </div>
             )}
             
             {showVisits && (
                 <div ref={visitsRef} className="px-5 pb-4 pt-3 bg-[#FAF8F3] border-t border-[#E5E3DB]">
-                    <VisitsList items={leadsData.visits} />
+                    <VisitsList items={leadsData.visits} getStagesForClient={getStagesForClient} />
                 </div>
             )}
             
             {showOffers && (
                 <div ref={offersRef} className="px-5 pb-4 pt-3 bg-[#FAF8F3] border-t border-[#E5E3DB]">
-                    <OffersList items={leadsData.offers} />
+                    <OffersList items={leadsData.offers} getStagesForClient={getStagesForClient} />
                 </div>
             )}
 
