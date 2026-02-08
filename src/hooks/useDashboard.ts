@@ -8,6 +8,19 @@ import { useCurrentUser } from './useCurrentUser'
 /**
  * Interface for the Dashboard Summary returned by RPC
  */
+export interface DashboardMetrics {
+    properties_active: number
+    properties_count: number
+    properties_trend: number
+    leads_hot: number
+    leads_count: number
+    leads_trend: number
+    tasks_pending: number
+    tasks_overdue: number
+    conversion_rate: number
+    deals_closed: number
+}
+
 export interface DashboardSummary {
     level: string
     objective: {
@@ -16,12 +29,7 @@ export interface DashboardSummary {
         current: number
         percentage: number
     }
-    metrics: {
-        properties_active: number
-        new_leads: number
-        sales_this_month: number
-        tasks_pending: number
-    }
+    metrics: DashboardMetrics
     user: {
         id: string
         full_name: string
@@ -29,19 +37,29 @@ export interface DashboardSummary {
     }
 }
 
-interface AgencyMetrics {
-    total_properties: number
-    total_leads: number
-    total_sales: number
-    active_agents: number
-    agents_performance: Array<{
-        user_id: string
-        full_name: string
-        properties_count: number
-        leads_count: number
-        sales_amount: number
-        level: string
-    }>
+/**
+ * Hook para obtener métricas optimizadas del dashboard
+ * Usa la función SQL get_user_dashboard que lee de la vista materializada
+ */
+export function useDashboard() {
+    const supabase = createClient()
+
+    return useQuery<DashboardMetrics>({
+        queryKey: ['dashboard'],
+        queryFn: async () => {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) throw new Error('Not authenticated')
+
+            const { data, error } = await supabase
+                .rpc('get_user_dashboard', { p_user_id: user.id })
+                .single()
+
+            if (error) throw error
+            return data as DashboardMetrics
+        },
+        staleTime: 60 * 1000, // 1 minuto
+        refetchInterval: 2 * 60 * 1000 // Auto-refetch cada 2 minutos
+    })
 }
 
 /**
@@ -67,11 +85,10 @@ export function useDashboardSummary() {
                 throw error
             }
 
-            // Return raw data as it matches the expectations of the new dashboard_page.tsx
             return data as DashboardSummary
         },
         enabled: !!currentUser,
-        staleTime: 60 * 1000,
+        staleTime: 2 * 60 * 1000,
     })
 }
 

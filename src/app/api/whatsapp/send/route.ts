@@ -1,38 +1,56 @@
-import { NextResponse, NextRequest } from 'next/server';
-import { textWhatsAppService } from '@/lib/whatsapp/service';
-import { withAuth, errorResponse, successResponse } from '@/lib/auth/middleware';
-import { withRateLimit, RateLimitPresets } from '@/lib/rate-limit';
+import { NextRequest, NextResponse } from 'next/server'
+import { getWhatsAppClient } from '@/lib/whatsapp/baileys-client'
+import { createClient } from '@/utils/supabase/server'
 
-/**
- * Endpoint para enviar mensajes de WhatsApp
- * 
- * SEGURIDAD: 
- * - Requiere autenticación
- * - Rate limit: 10 mensajes por minuto
- * Solo usuarios autenticados de la agencia pueden enviar mensajes
- */
-export const POST = withRateLimit(
-  RateLimitPresets.standard, // 10 req/min
-  withAuth(async (request: NextRequest, user) => {
-    try {
-        const body = await request.json();
-        const { to, message } = body;
+export async function POST(request: NextRequest) {
+  try {
+    const supabase = await createClient()
 
-        if (!to || !message) {
-            return errorResponse('Missing "to" or "message" fields', 400);
-        }
-
-        // Ensure connection is active
-        if (textWhatsAppService.getStatus() !== 'connected') {
-            return errorResponse('WhatsApp is not connected', 503);
-        }
-
-        const result = await textWhatsAppService.sendMessage(to, message);
-
-        return successResponse({ result }, 'Message sent successfully');
-    } catch (error: any) {
-        console.error('Error in /api/whatsapp/send:', error);
-        return errorResponse(error.message || 'Failed to send message', 500);
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-  })
-);
+
+    const { phoneNumber, message, contactId } = await request.json()
+
+    if (!phoneNumber || !message) {
+      return NextResponse.json(
+        { error: 'Phone number and message are required' },
+        { status: 400 }
+      )
+    }
+
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('agency_id')
+      .eq('id', user.id)
+      .single()
+
+    if (!profile) {
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+    }
+
+    const client = getWhatsAppClient(profile.agency_id)
+
+    if (!client.isConnected()) {
+      return NextResponse.json(
+        { error: 'WhatsApp not connected. Please scan QR code first.' },
+        { status: 400 }
+      )
+    }
+
+    const result = await client.sendMessage(phoneNumber, message, contactId)
+
+    return NextResponse.json({
+      success: true,
+      messageId: result.messageId
+    })
+
+  } catch (error: any) {
+    console.error('Send WhatsApp message error:', error)
+    return NextResponse.json(
+      { error: error.message },
+      { status: 500 }
+    )
+  }
+}

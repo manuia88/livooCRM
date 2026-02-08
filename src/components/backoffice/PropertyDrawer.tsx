@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import Image from 'next/image'
+import OptimizedImage from '@/components/ui/OptimizedImage'
 import Link from 'next/link'
 import {
   Sheet,
@@ -113,8 +113,8 @@ export function PropertyDrawer({ property, open, onClose, onDelete, valuation }:
   const images: string[] =
     Array.isArray(rawImages) && rawImages.length > 0
       ? (rawImages
-          .map((img: unknown) => (typeof img === 'string' ? img : (img as { url?: string })?.url))
-          .filter(Boolean) as string[])
+        .map((img: unknown) => (typeof img === 'string' ? img : (img as { url?: string })?.url))
+        .filter(Boolean) as string[])
       : property?.main_image_url
         ? [property.main_image_url]
         : []
@@ -301,193 +301,190 @@ export function PropertyDrawer({ property, open, onClose, onDelete, valuation }:
             <TabsContent value="propiedad" className="mt-0 flex-1 flex flex-col min-h-0 data-[state=inactive]:hidden">
               <ScrollArea className="flex-1 min-h-0">
                 <div className="pb-8">
-              {/* Galería más grande (4:3 como la tarjeta); el resto hace scroll */}
-              <div className="group/gallery relative aspect-[4/3] min-h-[280px] rounded-xl overflow-hidden bg-gray-100 mx-6 flex-shrink-0">
-                {currentImage ? (
-                  <Image
-                    src={currentImage}
-                    alt={property.title}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 672px) 100vw, 672px"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center text-gray-500">
-                    Sin imagen
-                  </div>
-                )}
-                {totalImages > 1 && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={goPrev}
-                      className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition-all duration-200 opacity-0 group-hover/gallery:opacity-100"
-                    >
-                      <ChevronLeft className="h-5 w-5" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={goNext}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition-all duration-200 opacity-0 group-hover/gallery:opacity-100"
-                    >
-                      <ChevronRight className="h-5 w-5" />
-                    </button>
-                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/50 text-white text-xs font-medium transition-opacity duration-200 opacity-0 group-hover/gallery:opacity-100">
-                      {galleryIndex + 1}/{totalImages} fotos
-                    </div>
-                  </>
-                )}
-              </div>
-              {/* Barra de medios compacta */}
-              <div className="flex flex-wrap justify-center gap-1.5 mx-6 mt-3">
-                {[
-                  { id: 'fotos', label: 'Fotos', icon: ImageIcon },
-                  { id: 'video', label: 'Video', icon: Video },
-                  { id: '360', label: '360', icon: Maximize2 },
-                  { id: 'planos', label: 'Planos', icon: LayoutGrid },
-                  { id: 'mapa', label: 'Ubicación', icon: MapPin },
-                  { id: 'street', label: 'Street View', icon: Navigation },
-                ].map(({ id, label, icon: Icon }) => (
-                  <button
-                    key={id}
-                    type="button"
-                    onClick={() => setMediaTab(id as typeof mediaTab)}
-                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                      mediaTab === id
-                        ? 'bg-gray-900 text-white'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200'
-                    }`}
-                  >
-                    <Icon className="h-3.5 w-3.5" />
-                    {label}
-                  </button>
-                ))}
-              </div>
-
-              {/* Características obligatorias de captación: todas en todas las fichas salvo oficina, terreno, bodega, nave */}
-              {(() => {
-                const yearBuilt = (property as { year_built?: number | null }).year_built
-                const antiguedad = yearBuilt != null && Number.isFinite(yearBuilt)
-                  ? `${new Date().getFullYear() - Number(yearBuilt)} años`
-                  : '—'
-                const mantenimiento = property.maintenance_fee != null && Number.isFinite(property.maintenance_fee)
-                  ? formatPrice(Number(property.maintenance_fee), property.currency ?? 'MXN')
-                  : '—'
-                const mascotas = property.pets_allowed != null ? (property.pets_allowed ? 'Sí' : 'No') : '—'
-                const constructionM2 = Number(property.construction_m2) || 0
-                const terraceM2 = Number(property.terrace_m2) || 0
-                const balconyM2 = Number(property.balcony_m2) || 0
-                const roofGardenM2 = Number(property.roof_garden_m2) || 0
-                const openAreasSum = terraceM2 + balconyM2 + roofGardenM2
-                const hasTerrace = terraceM2 > 0
-                const hasBalcony = balconyM2 > 0
-                const hasRoofGarden = roofGardenM2 > 0
-                const openAreasCount = [hasTerrace, hasBalcony, hasRoofGarden].filter(Boolean).length
-                // 1 elemento → nombre (Balcón, Terraza o Roof garden); 2 o más → Áreas abiertas; sin datos → Áreas abiertas con "—"
-                const outdoorLabel =
-                  openAreasSum > 0
-                    ? openAreasCount >= 2
-                      ? { label: 'Áreas Abiertas', value: `${Math.round(openAreasSum)} m²` }
-                      : hasRoofGarden
-                        ? { label: 'Roof garden', value: `${Math.round(roofGardenM2)} m²` }
-                        : hasTerrace
-                          ? { label: 'Terraza', value: `${Math.round(terraceM2)} m²` }
-                          : { label: 'Balcón', value: `${Math.round(balconyM2)} m²` }
-                    : { label: 'Áreas Abiertas', value: '—' as string }
-                const totalM2Computed = constructionM2 + openAreasSum
-                const totalM2Display = totalM2Computed > 0 ? totalM2Computed : (property.total_area ?? property.land_m2 ?? null)
-                const totalM2Str = totalM2Display != null && Number(totalM2Display) > 0 ? `${Math.round(Number(totalM2Display))} m²` : '—'
-                const piso = property.floor_number != null && Number.isFinite(property.floor_number) ? String(property.floor_number) : '—'
-                const isSinCaractResidenciales = TIPOS_SIN_CARACT_RESIDENCIALES.includes(property.property_type ?? '')
-                const dash = '—'
-                const fullRow1: { emoji: string; label: string; value: string }[] = [
-                  { emoji: '🛏️', label: 'Recámaras', value: property.bedrooms != null ? String(property.bedrooms) : dash },
-                  { emoji: '🚿', label: 'Baños', value: property.bathrooms != null ? String(property.bathrooms) : dash },
-                  { emoji: '🚗', label: 'Estacionamientos', value: property.parking_spaces != null ? String(property.parking_spaces) : dash },
-                  { emoji: '💰', label: 'Mantenimiento', value: mantenimiento },
-                  { emoji: '📅', label: 'Antigüedad', value: antiguedad },
-                ]
-                const fullRow2: { emoji: string; label: string; value: string }[] = [
-                  { emoji: '🏢', label: 'Piso', value: piso },
-                  { emoji: '🐕', label: 'Mascotas', value: mascotas },
-                  { emoji: '🏗️', label: 'Construcción', value: property.construction_m2 != null ? `${property.construction_m2} m²` : dash },
-                  { emoji: '🌿', label: outdoorLabel.label, value: outdoorLabel.value },
-                  { emoji: '📐', label: 'Totales', value: totalM2Str },
-                ]
-                const reducedItems: { emoji: string; label: string; value: string }[] = [
-                  { emoji: '🚗', label: 'Estacionamientos', value: property.parking_spaces != null ? String(property.parking_spaces) : dash },
-                  { emoji: '💰', label: 'Mantenimiento', value: mantenimiento },
-                  { emoji: '📅', label: 'Antigüedad', value: antiguedad },
-                  { emoji: '🏢', label: 'Piso', value: piso },
-                  { emoji: '🏗️', label: 'Construcción', value: property.construction_m2 != null ? `${property.construction_m2} m²` : dash },
-                  { emoji: '📐', label: 'Totales', value: totalM2Str },
-                ]
-                const items = isSinCaractResidenciales ? reducedItems : [...fullRow1, ...fullRow2]
-                const cardClass = 'flex flex-col items-center justify-center gap-0 py-2 px-1.5 rounded-lg bg-gradient-to-b from-gray-50 to-gray-100/80 border border-gray-200/80 shadow-sm flex-1 min-w-0'
-                const cardClassSingleLine = 'flex flex-col items-center justify-center gap-0 py-2 px-1.5 rounded-lg bg-gradient-to-b from-gray-50 to-gray-100/80 border border-gray-200/80 shadow-sm flex-shrink-0 min-w-[56px] max-w-[20%]'
-                const Card = ({ emoji, label, value, maxW = true, singleLine = false }: { emoji: string; label: string; value: string; maxW?: boolean; singleLine?: boolean }) => (
-                  <div key={label} className={singleLine ? cardClassSingleLine : `${cardClass} ${maxW ? 'max-w-[20%]' : 'min-w-[56px] max-w-[20%]'}`}>
-                    <span className="text-2xl leading-none opacity-90" aria-hidden>{emoji}</span>
-                    <span className="text-[11px] font-bold text-gray-800 tabular-nums mt-1 leading-tight text-center break-words">{value}</span>
-                    <span className="text-[10px] font-semibold text-gray-700 leading-tight text-center break-words whitespace-normal mt-0.5">{label}</span>
-                  </div>
-                )
-                return (
-                  <div className="mx-6 mt-5">
-                    <p className="text-sm font-semibold text-gray-900 mb-2">Características</p>
-                    {isSinCaractResidenciales ? (
-                      <div className="flex items-stretch justify-center gap-2 overflow-x-auto pb-1 flex-wrap">
-                        {items.map((item) => <Card key={item.label} {...item} singleLine />)}
-                      </div>
+                  {/* Galería más grande (4:3 como la tarjeta); el resto hace scroll */}
+                  <div className="group/gallery relative aspect-[4/3] min-h-[280px] rounded-xl overflow-hidden bg-gray-100 mx-6 flex-shrink-0">
+                    {currentImage ? (
+                      <OptimizedImage
+                        src={currentImage}
+                        alt={property.title}
+                        fill
+                        className="object-cover"
+                      />
                     ) : (
+                      <div className="absolute inset-0 flex items-center justify-center text-gray-500">
+                        Sin imagen
+                      </div>
+                    )}
+                    {totalImages > 1 && (
                       <>
-                        <div className="flex justify-center gap-2 mb-2 flex-wrap">
-                          {fullRow1.map((item) => <Card key={item.label} {...item} />)}
-                        </div>
-                        <div className="flex justify-center gap-2 flex-wrap">
-                          {fullRow2.map((item) => <Card key={item.label} {...item} maxW={false} />)}
+                        <button
+                          type="button"
+                          onClick={goPrev}
+                          className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition-all duration-200 opacity-0 group-hover/gallery:opacity-100"
+                        >
+                          <ChevronLeft className="h-5 w-5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={goNext}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition-all duration-200 opacity-0 group-hover/gallery:opacity-100"
+                        >
+                          <ChevronRight className="h-5 w-5" />
+                        </button>
+                        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/50 text-white text-xs font-medium transition-opacity duration-200 opacity-0 group-hover/gallery:opacity-100">
+                          {galleryIndex + 1}/{totalImages} fotos
                         </div>
                       </>
                     )}
                   </div>
-                )
-              })()}
+                  {/* Barra de medios compacta */}
+                  <div className="flex flex-wrap justify-center gap-1.5 mx-6 mt-3">
+                    {[
+                      { id: 'fotos', label: 'Fotos', icon: ImageIcon },
+                      { id: 'video', label: 'Video', icon: Video },
+                      { id: '360', label: '360', icon: Maximize2 },
+                      { id: 'planos', label: 'Planos', icon: LayoutGrid },
+                      { id: 'mapa', label: 'Ubicación', icon: MapPin },
+                      { id: 'street', label: 'Street View', icon: Navigation },
+                    ].map(({ id, label, icon: Icon }) => (
+                      <button
+                        key={id}
+                        type="button"
+                        onClick={() => setMediaTab(id as typeof mediaTab)}
+                        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${mediaTab === id
+                            ? 'bg-gray-900 text-white'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200'
+                          }`}
+                      >
+                        <Icon className="h-3.5 w-3.5" />
+                        {label}
+                      </button>
+                    ))}
+                  </div>
 
-              {/* Amenidades: estilo neutro como la tarjeta */}
-              <div className="mx-6 mt-5">
-                <p className="text-sm font-semibold text-gray-900 mb-3">Amenidades</p>
-                <div className="flex flex-wrap gap-2">
-                  {DEFAULT_AMENITIES.map((a) => (
-                    <span
-                      key={a}
-                      className="rounded-full bg-gray-100 text-gray-700 px-3 py-1 text-xs font-medium border border-gray-200/80"
-                    >
-                      {a}
-                    </span>
-                  ))}
-                </div>
-              </div>
+                  {/* Características obligatorias de captación: todas en todas las fichas salvo oficina, terreno, bodega, nave */}
+                  {(() => {
+                    const yearBuilt = (property as { year_built?: number | null }).year_built
+                    const antiguedad = yearBuilt != null && Number.isFinite(yearBuilt)
+                      ? `${new Date().getFullYear() - Number(yearBuilt)} años`
+                      : '—'
+                    const mantenimiento = property.maintenance_fee != null && Number.isFinite(property.maintenance_fee)
+                      ? formatPrice(Number(property.maintenance_fee), property.currency ?? 'MXN')
+                      : '—'
+                    const mascotas = property.pets_allowed != null ? (property.pets_allowed ? 'Sí' : 'No') : '—'
+                    const constructionM2 = Number(property.construction_m2) || 0
+                    const terraceM2 = Number(property.terrace_m2) || 0
+                    const balconyM2 = Number(property.balcony_m2) || 0
+                    const roofGardenM2 = Number(property.roof_garden_m2) || 0
+                    const openAreasSum = terraceM2 + balconyM2 + roofGardenM2
+                    const hasTerrace = terraceM2 > 0
+                    const hasBalcony = balconyM2 > 0
+                    const hasRoofGarden = roofGardenM2 > 0
+                    const openAreasCount = [hasTerrace, hasBalcony, hasRoofGarden].filter(Boolean).length
+                    // 1 elemento → nombre (Balcón, Terraza o Roof garden); 2 o más → Áreas abiertas; sin datos → Áreas abiertas con "—"
+                    const outdoorLabel =
+                      openAreasSum > 0
+                        ? openAreasCount >= 2
+                          ? { label: 'Áreas Abiertas', value: `${Math.round(openAreasSum)} m²` }
+                          : hasRoofGarden
+                            ? { label: 'Roof garden', value: `${Math.round(roofGardenM2)} m²` }
+                            : hasTerrace
+                              ? { label: 'Terraza', value: `${Math.round(terraceM2)} m²` }
+                              : { label: 'Balcón', value: `${Math.round(balconyM2)} m²` }
+                        : { label: 'Áreas Abiertas', value: '—' as string }
+                    const totalM2Computed = constructionM2 + openAreasSum
+                    const totalM2Display = totalM2Computed > 0 ? totalM2Computed : (property.total_area ?? property.land_m2 ?? null)
+                    const totalM2Str = totalM2Display != null && Number(totalM2Display) > 0 ? `${Math.round(Number(totalM2Display))} m²` : '—'
+                    const piso = property.floor_number != null && Number.isFinite(property.floor_number) ? String(property.floor_number) : '—'
+                    const isSinCaractResidenciales = TIPOS_SIN_CARACT_RESIDENCIALES.includes(property.property_type ?? '')
+                    const dash = '—'
+                    const fullRow1: { emoji: string; label: string; value: string }[] = [
+                      { emoji: '🛏️', label: 'Recámaras', value: property.bedrooms != null ? String(property.bedrooms) : dash },
+                      { emoji: '🚿', label: 'Baños', value: property.bathrooms != null ? String(property.bathrooms) : dash },
+                      { emoji: '🚗', label: 'Estacionamientos', value: property.parking_spaces != null ? String(property.parking_spaces) : dash },
+                      { emoji: '💰', label: 'Mantenimiento', value: mantenimiento },
+                      { emoji: '📅', label: 'Antigüedad', value: antiguedad },
+                    ]
+                    const fullRow2: { emoji: string; label: string; value: string }[] = [
+                      { emoji: '🏢', label: 'Piso', value: piso },
+                      { emoji: '🐕', label: 'Mascotas', value: mascotas },
+                      { emoji: '🏗️', label: 'Construcción', value: property.construction_m2 != null ? `${property.construction_m2} m²` : dash },
+                      { emoji: '🌿', label: outdoorLabel.label, value: outdoorLabel.value },
+                      { emoji: '📐', label: 'Totales', value: totalM2Str },
+                    ]
+                    const reducedItems: { emoji: string; label: string; value: string }[] = [
+                      { emoji: '🚗', label: 'Estacionamientos', value: property.parking_spaces != null ? String(property.parking_spaces) : dash },
+                      { emoji: '💰', label: 'Mantenimiento', value: mantenimiento },
+                      { emoji: '📅', label: 'Antigüedad', value: antiguedad },
+                      { emoji: '🏢', label: 'Piso', value: piso },
+                      { emoji: '🏗️', label: 'Construcción', value: property.construction_m2 != null ? `${property.construction_m2} m²` : dash },
+                      { emoji: '📐', label: 'Totales', value: totalM2Str },
+                    ]
+                    const items = isSinCaractResidenciales ? reducedItems : [...fullRow1, ...fullRow2]
+                    const cardClass = 'flex flex-col items-center justify-center gap-0 py-2 px-1.5 rounded-lg bg-gradient-to-b from-gray-50 to-gray-100/80 border border-gray-200/80 shadow-sm flex-1 min-w-0'
+                    const cardClassSingleLine = 'flex flex-col items-center justify-center gap-0 py-2 px-1.5 rounded-lg bg-gradient-to-b from-gray-50 to-gray-100/80 border border-gray-200/80 shadow-sm flex-shrink-0 min-w-[56px] max-w-[20%]'
+                    const Card = ({ emoji, label, value, maxW = true, singleLine = false }: { emoji: string; label: string; value: string; maxW?: boolean; singleLine?: boolean }) => (
+                      <div key={label} className={singleLine ? cardClassSingleLine : `${cardClass} ${maxW ? 'max-w-[20%]' : 'min-w-[56px] max-w-[20%]'}`}>
+                        <span className="text-2xl leading-none opacity-90" aria-hidden>{emoji}</span>
+                        <span className="text-[11px] font-bold text-gray-800 tabular-nums mt-1 leading-tight text-center break-words">{value}</span>
+                        <span className="text-[10px] font-semibold text-gray-700 leading-tight text-center break-words whitespace-normal mt-0.5">{label}</span>
+                      </div>
+                    )
+                    return (
+                      <div className="mx-6 mt-5">
+                        <p className="text-sm font-semibold text-gray-900 mb-2">Características</p>
+                        {isSinCaractResidenciales ? (
+                          <div className="flex items-stretch justify-center gap-2 overflow-x-auto pb-1 flex-wrap">
+                            {items.map((item) => <Card key={item.label} {...item} singleLine />)}
+                          </div>
+                        ) : (
+                          <>
+                            <div className="flex justify-center gap-2 mb-2 flex-wrap">
+                              {fullRow1.map((item) => <Card key={item.label} {...item} />)}
+                            </div>
+                            <div className="flex justify-center gap-2 flex-wrap">
+                              {fullRow2.map((item) => <Card key={item.label} {...item} maxW={false} />)}
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    )
+                  })()}
 
-              {/* Descripción */}
-              <div className="mx-6 mt-5">
-                <p className="text-sm font-semibold text-gray-900 mb-2">Descripción</p>
-                <div className="rounded-xl border border-gray-200 bg-gray-50/80 p-4 min-h-[100px]">
-                  {property.description ? (
-                    <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{property.description}</p>
-                  ) : (
-                    <p className="text-sm text-gray-400 italic">Sin descripción.</p>
-                  )}
-                </div>
-              </div>
+                  {/* Amenidades: estilo neutro como la tarjeta */}
+                  <div className="mx-6 mt-5">
+                    <p className="text-sm font-semibold text-gray-900 mb-3">Amenidades</p>
+                    <div className="flex flex-wrap gap-2">
+                      {DEFAULT_AMENITIES.map((a) => (
+                        <span
+                          key={a}
+                          className="rounded-full bg-gray-100 text-gray-700 px-3 py-1 text-xs font-medium border border-gray-200/80"
+                        >
+                          {a}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
 
-              {/* Reservado: mapa con ubicación exacta de la propiedad (próximamente). Contenedor listo para integrar lat/lng. */}
-              <div
-                id="property-drawer-map-container"
-                data-map-placeholder
-                className="mx-6 mt-6 mb-10 min-h-[120px] rounded-xl border border-dashed border-gray-200 bg-gray-50/50"
-                aria-label="Ubicación en mapa (próximamente)"
-              />
+                  {/* Descripción */}
+                  <div className="mx-6 mt-5">
+                    <p className="text-sm font-semibold text-gray-900 mb-2">Descripción</p>
+                    <div className="rounded-xl border border-gray-200 bg-gray-50/80 p-4 min-h-[100px]">
+                      {property.description ? (
+                        <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{property.description}</p>
+                      ) : (
+                        <p className="text-sm text-gray-400 italic">Sin descripción.</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Reservado: mapa con ubicación exacta de la propiedad (próximamente). Contenedor listo para integrar lat/lng. */}
+                  <div
+                    id="property-drawer-map-container"
+                    data-map-placeholder
+                    className="mx-6 mt-6 mb-10 min-h-[120px] rounded-xl border border-dashed border-gray-200 bg-gray-50/50"
+                    aria-label="Ubicación en mapa (próximamente)"
+                  />
                 </div>
               </ScrollArea>
             </TabsContent>
@@ -495,45 +492,45 @@ export function PropertyDrawer({ property, open, onClose, onDelete, valuation }:
             <TabsContent value="interno" className="mt-0 flex flex-col h-full data-[state=inactive]:hidden">
               <ScrollArea className="flex-1">
                 <div className="pb-8">
-                {/* Detalles técnicos – cards por fila, estilo tarjeta */}
-                <div className="mx-6 mb-6">
-                  <p className="text-sm font-bold text-gray-900 mb-3">Detalles técnicos</p>
-                  <div className="rounded-2xl bg-gradient-to-b from-gray-50 to-gray-100/80 border border-gray-200/80 shadow-sm overflow-hidden">
-                    {[
-                      { label: 'Título', value: property.title },
-                      { label: 'Estado', value: STATUS_LABELS[property.status] },
-                      { label: 'Tipo de operación', value: getOperationLabel(property.operation_type) },
-                      { label: 'Moneda', value: property.currency ?? 'MXN' },
-                      { label: 'Público', value: property.published ? 'Sí' : 'No' },
-                      { label: 'Tipo', value: property.mls_shared ? 'Opción' : 'Exclusiva' },
-                      { label: 'Comisión', value: property.commission_percentage != null ? (property.operation_type === 'renta' ? `${property.commission_percentage} ${Number(property.commission_percentage) === 1 ? 'mes' : 'meses'}` : `${property.commission_percentage}%`) : '—' },
-                      { label: 'Estado Legal', value: property.legal_status ? LEGAL_STATUS_LABELS[property.legal_status] ?? property.legal_status : '—' },
-                    ].map(({ label, value }) => (
-                      <div key={label} className="flex items-center justify-between py-3.5 px-4 border-b border-gray-200/80 last:border-0">
-                        <span className="text-sm font-semibold text-gray-600">{label}</span>
-                        <span className="text-sm font-bold text-gray-900 text-right max-w-[60%] truncate">{value}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Datos del propietario: solo productor o admin/manager de la inmobiliaria */}
-                {canSeeOwnerData && (
-                  <div className="mx-6 mb-6 p-5 rounded-2xl bg-gradient-to-b from-amber-50/80 to-amber-100/50 border border-amber-200/80 shadow-sm">
-                    <p className="text-sm font-bold text-gray-900 mb-3">Datos del propietario</p>
-                    <div className="space-y-2.5 text-sm">
-                      <p className="flex justify-between gap-2"><span className="font-semibold text-gray-600 shrink-0">Nombre</span><span className="font-medium text-gray-900 text-right">{property.owner_name ?? '—'}</span></p>
-                      <p className="flex justify-between gap-2"><span className="font-semibold text-gray-600 shrink-0">Teléfono</span><span className="font-medium text-gray-900 text-right">{property.owner_phone ?? '—'}</span></p>
-                      <p className="flex justify-between gap-2"><span className="font-semibold text-gray-600 shrink-0">Correo</span><span className="font-medium text-gray-900 text-right truncate max-w-[60%]">{property.owner_email ?? '—'}</span></p>
-                      {property.description && (
-                        <p className="pt-3 mt-3 border-t border-amber-200/80">
-                          <span className="font-semibold text-gray-600 block mb-1">Notas privadas</span>
-                          <span className="text-gray-700">{property.description}</span>
-                        </p>
-                      )}
+                  {/* Detalles técnicos – cards por fila, estilo tarjeta */}
+                  <div className="mx-6 mb-6">
+                    <p className="text-sm font-bold text-gray-900 mb-3">Detalles técnicos</p>
+                    <div className="rounded-2xl bg-gradient-to-b from-gray-50 to-gray-100/80 border border-gray-200/80 shadow-sm overflow-hidden">
+                      {[
+                        { label: 'Título', value: property.title },
+                        { label: 'Estado', value: STATUS_LABELS[property.status] },
+                        { label: 'Tipo de operación', value: getOperationLabel(property.operation_type) },
+                        { label: 'Moneda', value: property.currency ?? 'MXN' },
+                        { label: 'Público', value: property.published ? 'Sí' : 'No' },
+                        { label: 'Tipo', value: property.mls_shared ? 'Opción' : 'Exclusiva' },
+                        { label: 'Comisión', value: property.commission_percentage != null ? (property.operation_type === 'renta' ? `${property.commission_percentage} ${Number(property.commission_percentage) === 1 ? 'mes' : 'meses'}` : `${property.commission_percentage}%`) : '—' },
+                        { label: 'Estado Legal', value: property.legal_status ? LEGAL_STATUS_LABELS[property.legal_status] ?? property.legal_status : '—' },
+                      ].map(({ label, value }) => (
+                        <div key={label} className="flex items-center justify-between py-3.5 px-4 border-b border-gray-200/80 last:border-0">
+                          <span className="text-sm font-semibold text-gray-600">{label}</span>
+                          <span className="text-sm font-bold text-gray-900 text-right max-w-[60%] truncate">{value}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                )}
+
+                  {/* Datos del propietario: solo productor o admin/manager de la inmobiliaria */}
+                  {canSeeOwnerData && (
+                    <div className="mx-6 mb-6 p-5 rounded-2xl bg-gradient-to-b from-amber-50/80 to-amber-100/50 border border-amber-200/80 shadow-sm">
+                      <p className="text-sm font-bold text-gray-900 mb-3">Datos del propietario</p>
+                      <div className="space-y-2.5 text-sm">
+                        <p className="flex justify-between gap-2"><span className="font-semibold text-gray-600 shrink-0">Nombre</span><span className="font-medium text-gray-900 text-right">{property.owner_name ?? '—'}</span></p>
+                        <p className="flex justify-between gap-2"><span className="font-semibold text-gray-600 shrink-0">Teléfono</span><span className="font-medium text-gray-900 text-right">{property.owner_phone ?? '—'}</span></p>
+                        <p className="flex justify-between gap-2"><span className="font-semibold text-gray-600 shrink-0">Correo</span><span className="font-medium text-gray-900 text-right truncate max-w-[60%]">{property.owner_email ?? '—'}</span></p>
+                        {property.description && (
+                          <p className="pt-3 mt-3 border-t border-amber-200/80">
+                            <span className="font-semibold text-gray-600 block mb-1">Notas privadas</span>
+                            <span className="text-gray-700">{property.description}</span>
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </ScrollArea>
             </TabsContent>

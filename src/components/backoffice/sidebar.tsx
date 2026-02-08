@@ -15,7 +15,7 @@ import {
     Bookmark,
     Headphones,
     ListChecks
-} from "lucide-react";
+} from "@/components/icons";
 import Link from "next/link";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";

@@ -3,7 +3,7 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { registerSchema, type RegisterInput } from '@/lib/validations/auth'
-import { signUp } from '@/app/auth/actions'
+import { signUp } from '@/app/(public)/auth/actions'
 import { useState, useTransition } from 'react'
 
 export function RegisterForm() {

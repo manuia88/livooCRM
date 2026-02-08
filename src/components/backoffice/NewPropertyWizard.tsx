@@ -8,6 +8,7 @@ import { PageContainer } from '@/components/backoffice/PageContainer'
 import { Input } from '@/components/ui/input'
 import { ChevronLeft, ChevronRight, Check, Plus, Home, Building2, TreePine, Store, Warehouse, Building, Factory, MoreHorizontal, Minus, Tag, FileText, MapPin, Ruler, Sparkles, FolderOpen, Waves, Dumbbell, Lock, Dog, Leaf, Car, ChefHat, Snowflake, Flame, MoveVertical, Flower2, PartyPopper, BookOpen, Bath, Package, Droplets, Sun, Armchair, Square, Shirt, CircleDollarSign, BedDouble, LocateFixed, Search, Camera, Baby, Footprints, Mountain, Users, Coffee, DoorOpen, ShieldCheck, User, Phone, Mail, FileSignature, Calendar, Percent, Banknote, CheckCircle2, CreditCard, Calculator } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import ImageUpload from '@/components/upload/ImageUpload'
 
 // TEMPORAL: Mapa comentado para ver los cambios de diseño
 // const LocationMapFullScreen = dynamic(
@@ -32,7 +33,7 @@ const STEPS = [
   { id: 2, name: 'Operación y Datos', Icon: FileText, color: STEP_COLORS[1] },
   { id: 3, name: 'Ubicación', Icon: MapPin, color: STEP_COLORS[2] },
   { id: 4, name: 'Amenidades', Icon: Sparkles, color: STEP_COLORS[3] },
-  { id: 5, name: 'Contenido', Icon: Sparkles, color: STEP_COLORS[4] },
+  { id: 5, name: 'Contenido y Fotos', Icon: Camera, color: STEP_COLORS[4] },
   { id: 6, name: 'Legal y Documentos', Icon: FolderOpen, color: STEP_COLORS[5] },
 ]
 
@@ -1057,6 +1058,32 @@ function Step5ContentIA({ formData, updateFormData }: any) {
             />
           </div>
         </div>
+      </div>
+
+      {/* Image Upload Section */}
+      <div className="pt-10 border-t border-[#F8F7F4]">
+        <div className="flex items-center gap-4 mb-8">
+          <div className="w-14 h-14 rounded-2xl bg-[#E0F2FE] flex items-center justify-center border border-[#BAE6FD] shadow-inner text-[#0284C7]">
+            <Camera className="w-7 h-7" />
+          </div>
+          <div>
+            <h3 className="text-2xl font-black text-[#2C3E2C] tracking-tight">Fotos de la Propiedad</h3>
+            <p className="text-[14px] text-[#6B7B6B]">Sube imágenes de alta calidad para atraer más clientes.</p>
+          </div>
+        </div>
+
+        <ImageUpload
+          propertyId={formData.title || 'temp-property'}
+          maxFiles={12}
+          onUploadComplete={(images) => {
+            const urls = images.map(img => img.large_url)
+            const mainUrl = images.find(img => img.is_primary)?.large_url || urls[0]
+            updateFormData('images', urls)
+            if (!formData.main_image_url) {
+              updateFormData('main_image_url', mainUrl)
+            }
+          }}
+        />
       </div>
     </div>
   )

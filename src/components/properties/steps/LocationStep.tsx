@@ -1,16 +1,15 @@
-
 'use client';
 
 import { useState, useCallback, useMemo, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { GoogleMap, useLoadScript, Marker, StandaloneSearchBox } from '@react-google-maps/api';
+import dynamic from 'next/dynamic';
 import { propertySchema } from '@/lib/validations/property';
 import { usePropertyFormStore } from '@/stores/usePropertyFormStore';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
 import {
     Form,
     FormControl,
@@ -20,6 +19,16 @@ import {
     FormMessage,
     FormDescription,
 } from '@/components/ui/form';
+import AddressAutocomplete from '@/components/forms/AddressAutocomplete';
+
+// Dynamic import for LocationPicker (Map container requires window)
+const LocationPicker = dynamic(
+    () => import('@/components/maps/LocationPicker'),
+    {
+        ssr: false,
+        loading: () => <div className="h-[400px] w-full bg-gray-100 animate-pulse rounded-lg flex items-center justify-center text-gray-400">Cargando Mapa...</div>
+    }
+);
 
 // Schema for this step
 const locationSchema = propertySchema.pick({
@@ -30,18 +39,8 @@ const locationSchema = propertySchema.pick({
 
 type LocationValues = z.infer<typeof locationSchema>;
 
-const libraries: ("places" | "geometry" | "drawing" | "visualization")[] = ["places"];
-
 export function LocationStep() {
     const { formData, updateFormData, nextStep, prevStep } = usePropertyFormStore();
-    const [map, setMap] = useState<google.maps.Map | null>(null);
-    const [searchBox, setSearchBox] = useState<google.maps.places.SearchBox | null>(null);
-
-    const { isLoaded, loadError } = useLoadScript({
-        googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY || '',
-        libraries,
-        language: 'es',
-    });
 
     const form = useForm<LocationValues>({
         resolver: zodResolver(locationSchema) as any,
@@ -63,65 +62,26 @@ export function LocationStep() {
         },
     });
 
-    // Map center logic
-    const center = useMemo(() => {
-        return form.getValues('coordinates') || { lat: 19.432608, lng: -99.133209 };
-    }, [form.getValues('coordinates')]);
+    const handleAddressSelect = (address: string, coordinates: { lat: number; lng: number }, details: any) => {
+        form.setValue('coordinates', coordinates);
+        form.setValue('address.formatted_address', address);
 
-    const onLoadMap = useCallback((map: google.maps.Map) => {
-        setMap(map);
-    }, []);
-
-    const onUnmountMap = useCallback(() => {
-        setMap(null);
-    }, []);
-
-    const onLoadSearchBox = (ref: google.maps.places.SearchBox) => {
-        setSearchBox(ref);
-    };
-
-    const onPlacesChanged = () => {
-        if (searchBox) {
-            const places = searchBox.getPlaces();
-            if (places && places.length > 0) {
-                const place = places[0];
-                const location = place.geometry?.location;
-
-                if (location) {
-                    const newLat = location.lat();
-                    const newLng = location.lng();
-
-                    form.setValue('coordinates', { lat: newLat, lng: newLng });
-                    form.setValue('address.formatted_address', place.formatted_address || '');
-                    form.setValue('address.place_id', place.place_id || '');
-
-                    // Parse address components
-                    place.address_components?.forEach(component => {
-                        const types = component.types;
-                        if (types.includes('route')) form.setValue('address.street', component.long_name);
-                        if (types.includes('street_number')) form.setValue('address.exterior_number', component.long_name);
-                        if (types.includes('sublocality') || types.includes('sublocality_level_1')) form.setValue('address.neighborhood', component.long_name);
-                        if (types.includes('locality')) form.setValue('address.city', component.long_name);
-                        if (types.includes('administrative_area_level_1')) form.setValue('address.state', component.long_name);
-                        if (types.includes('postal_code')) form.setValue('address.postal_code', component.long_name);
-                        if (types.includes('country')) form.setValue('address.country', component.long_name);
-                    });
-
-                    if (map) {
-                        map.panTo({ lat: newLat, lng: newLng });
-                        map.setZoom(17);
-                    }
-                }
+        // Map OSM details to our form (OSM details vary by result)
+        if (details) {
+            if (details.road) form.setValue('address.street', details.road);
+            if (details.house_number) form.setValue('address.exterior_number', details.house_number);
+            if (details.suburb) form.setValue('address.neighborhood', details.suburb);
+            if (details.city || details.town || details.village) {
+                form.setValue('address.city', details.city || details.town || details.village);
             }
+            if (details.state) form.setValue('address.state', details.state);
+            if (details.postcode) form.setValue('address.postal_code', details.postcode);
+            if (details.country) form.setValue('address.country', details.country);
         }
     };
 
-    const onMarkerDragEnd = (e: google.maps.MapMouseEvent) => {
-        if (e.latLng) {
-            const newLat = e.latLng.lat();
-            const newLng = e.latLng.lng();
-            form.setValue('coordinates', { lat: newLat, lng: newLng });
-        }
+    const handleLocationSelect = (lat: number, lng: number) => {
+        form.setValue('coordinates', { lat, lng });
     };
 
     const onSubmit = (data: LocationValues) => {
@@ -129,8 +89,7 @@ export function LocationStep() {
         nextStep();
     };
 
-    if (loadError) return <div>Error loading maps</div>;
-    if (!isLoaded) return <div>Loading Maps...</div>;
+    const currentCoords = form.watch('coordinates');
 
     return (
         <Form {...form}>
@@ -139,33 +98,20 @@ export function LocationStep() {
                 {/* Search Map */}
                 <div className="space-y-2">
                     <FormLabel>Buscar Ubicación</FormLabel>
-                    <StandaloneSearchBox
-                        onLoad={onLoadSearchBox}
-                        onPlacesChanged={onPlacesChanged}
-                    >
-                        <Input placeholder="Escribe la dirección para buscar en el mapa..." className="w-full" />
-                    </StandaloneSearchBox>
+                    <AddressAutocomplete
+                        onAddressSelect={handleAddressSelect}
+                        defaultValue={form.getValues('address.formatted_address')}
+                        placeholder="Escribe la dirección para buscar en el mapa..."
+                    />
                 </div>
 
-                <div className="h-[400px] w-full rounded-md overflow-hidden border border-gray-200 relative">
-                    <GoogleMap
-                        mapContainerStyle={{ width: '100%', height: '100%' }}
-                        center={form.getValues('coordinates')}
-                        zoom={14}
-                        onLoad={onLoadMap}
-                        onUnmount={onUnmountMap}
-                        onClick={(e) => {
-                            if (e.latLng) {
-                                form.setValue('coordinates', { lat: e.latLng.lat(), lng: e.latLng.lng() });
-                            }
-                        }}
-                    >
-                        <Marker
-                            position={form.getValues('coordinates') || { lat: 0, lng: 0 }}
-                            draggable
-                            onDragEnd={onMarkerDragEnd}
-                        />
-                    </GoogleMap>
+                <div className="space-y-2">
+                    <FormLabel>Ubica la propiedad en el mapa (puedes arrastrar el marcador)</FormLabel>
+                    <LocationPicker
+                        initialPosition={currentCoords ? [currentCoords.lat, currentCoords.lng] : [19.432608, -99.133209]}
+                        onLocationSelect={handleLocationSelect}
+                        height="400px"
+                    />
                 </div>
 
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-6">

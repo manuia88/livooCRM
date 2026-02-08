@@ -1,16 +1,17 @@
-// src/hooks/useTasks.ts
 'use client'
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
+
+const supabase = createClient()
 
 export interface Task {
     id: string
     title: string
     description?: string
     task_type: string
-    priority: 'alta' | 'media' | 'baja'
+    priority: 'alta' | 'media' | 'baja' | 'urgente'
     status: 'pendiente' | 'en_proceso' | 'completada' | 'pospuesta' | 'vencida' | 'cancelada'
     due_date?: string
     created_at: string
@@ -30,12 +31,26 @@ export interface Task {
     related_visit_id?: string
 }
 
-export interface TaskFilters {
+export interface UseTasksParams {
+    page?: number
+    pageSize?: number
     status?: string
     priority?: string
-    task_type?: string
-    assigned_to?: string
-    search?: string
+    taskType?: string
+    assignedTo?: string
+    includeOverdue?: boolean
+    searchQuery?: string
+    sortBy?: 'due_date' | 'created_at' | 'priority'
+    sortOrder?: 'asc' | 'desc'
+}
+
+export interface TasksResponse {
+    data: Task[]
+    count: number
+    page: number
+    pageSize: number
+    totalPages: number
+    hasMore: boolean
 }
 
 export interface TaskMetrics {
@@ -50,53 +65,111 @@ export interface TaskMetrics {
     completion_rate: number
 }
 
-// ============================================================================
-// QUERY: Get all tasks with filters
-// ============================================================================
-export function useTasks(filters?: TaskFilters) {
-    const supabase = createClient()
+// Hook principal con paginación
+export function useTasks(params: UseTasksParams = {}) {
+    const {
+        page = 1,
+        pageSize = 20,
+        status,
+        priority,
+        taskType,
+        assignedTo,
+        includeOverdue = true,
+        searchQuery,
+        sortBy = 'due_date',
+        sortOrder = 'asc'
+    } = params
 
-    return useQuery({
-        queryKey: ['tasks', filters],
+    return useQuery<TasksResponse>({
+        queryKey: ['tasks', { page, pageSize, status, priority, taskType, assignedTo, includeOverdue, searchQuery, sortBy, sortOrder }],
         queryFn: async () => {
+            const from = (page - 1) * pageSize
+            const to = from + pageSize - 1
+
             let query = supabase
                 .from('v_tasks_with_details')
-                .select('*')
-                .order('created_at', { ascending: false })
+                .select('*', { count: 'exact' })
 
-            // Apply filters
-            if (filters?.status) {
-                query = query.eq('status', filters.status)
-            }
-            if (filters?.priority) {
-                query = query.eq('priority', filters.priority)
-            }
-            if (filters?.task_type) {
-                query = query.eq('task_type', filters.task_type)
-            }
-            if (filters?.assigned_to) {
-                query = query.eq('assigned_to', filters.assigned_to)
-            }
-            if (filters?.search) {
-                query = query.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%`)
+            if (status) query = query.eq('status', status)
+            if (priority) query = query.eq('priority', priority)
+            if (taskType) query = query.eq('task_type', taskType)
+            if (assignedTo) query = query.eq('assigned_to', assignedTo)
+            if (searchQuery) {
+                query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`)
             }
 
-            const { data, error } = await query
+            // Lógica especial para incluir vencidas al inicio si no se filtra por status específico
+            // o aplicar ordenamiento solicitado
+            const { data, count, error } = await query
+                .order(sortBy, { ascending: sortOrder === 'asc' })
+                .range(from, to)
 
             if (error) throw error
-            return data as Task[]
+
+            const totalPages = count ? Math.ceil(count / pageSize) : 0
+
+            return {
+                data: (data as Task[]) || [],
+                count: count || 0,
+                page,
+                pageSize,
+                totalPages,
+                hasMore: page < totalPages
+            }
         },
-        staleTime: 30000, // 30 seconds
+        placeholderData: keepPreviousData,
+        staleTime: 30 * 1000,
     })
 }
 
-// ============================================================================
-// QUERY: Get single task
-// ============================================================================
-export function useTask(taskId: string | null) {
-    const supabase = createClient()
+export function usePrefetchTasks() {
+    const queryClient = useQueryClient()
 
-    return useQuery({
+    return (params: UseTasksParams = {}) => {
+        const { page = 1, pageSize = 20 } = params
+        const nextPage = page + 1
+
+        return queryClient.prefetchQuery({
+            queryKey: ['tasks', { ...params, page: nextPage, pageSize }],
+            queryFn: async () => {
+                const from = page * pageSize
+                const to = from + pageSize - 1
+
+                let query = supabase
+                    .from('v_tasks_with_details')
+                    .select('*', { count: 'exact' })
+
+                if (params.status) query = query.eq('status', params.status)
+                if (params.priority) query = query.eq('priority', params.priority)
+                if (params.taskType) query = query.eq('task_type', params.taskType)
+                if (params.assignedTo) query = query.eq('assigned_to', params.assignedTo)
+                if (params.searchQuery) {
+                    query = query.or(`title.ilike.%${params.searchQuery}%,description.ilike.%${params.searchQuery}%`)
+                }
+
+                const { data, count, error } = await query
+                    .order(params.sortBy || 'due_date', { ascending: params.sortOrder === 'asc' })
+                    .range(from, to)
+
+                if (error) throw error
+
+                const totalPages = count ? Math.ceil(count / pageSize) : 0
+
+                return {
+                    data: (data as Task[]) || [],
+                    count: count || 0,
+                    page: nextPage,
+                    pageSize,
+                    totalPages,
+                    hasMore: nextPage < totalPages
+                }
+            }
+        })
+    }
+}
+
+export function useTask(taskId: string | null) {
+    return useQuery<Task | null>({
         queryKey: ['task', taskId],
         queryFn: async () => {
             if (!taskId) return null
@@ -111,28 +184,21 @@ export function useTask(taskId: string | null) {
             return data as Task
         },
         enabled: !!taskId,
+        staleTime: 5 * 60 * 1000
     })
 }
 
-// ============================================================================
-// QUERY: Get task metrics for current user
-// ============================================================================
 export function useTaskMetrics() {
-    const supabase = createClient()
-
-    return useQuery({
+    return useQuery<TaskMetrics>({
         queryKey: ['taskMetrics'],
         queryFn: async () => {
-            // Get current user
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) throw new Error('Not authenticated')
 
-            // Get current month/year
             const now = new Date()
             const month = now.getMonth() + 1
             const year = now.getFullYear()
 
-            // Get metrics
             const { data, error } = await supabase
                 .from('task_performance_metrics')
                 .select('*')
@@ -141,9 +207,8 @@ export function useTaskMetrics() {
                 .eq('period_year', year)
                 .single()
 
-            if (error && error.code !== 'PGRST116') throw error // Ignore "not found" error
+            if (error && error.code !== 'PGRST116') throw error
 
-            // Calculate completion rate
             const completionRate = data?.total_tasks_assigned > 0
                 ? Math.round((data.tasks_completed / data.total_tasks_assigned) * 100)
                 : 0
@@ -153,16 +218,12 @@ export function useTaskMetrics() {
                 completion_rate: completionRate
             } as TaskMetrics
         },
-        staleTime: 60000, // 1 minute
+        staleTime: 60 * 1000,
     })
 }
 
-// ============================================================================
-// MUTATION: Create new task
-// ============================================================================
 export function useCreateTask() {
     const queryClient = useQueryClient()
-    const supabase = createClient()
 
     return useMutation({
         mutationFn: async (task: Partial<Task>) => {
@@ -181,24 +242,40 @@ export function useCreateTask() {
             if (error) throw error
             return data
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['tasks'] })
-            toast.success('Tarea creada exitosamente')
-        },
-        onError: (error: any) => {
-            toast.error('Error al crear tarea', {
-                description: error.message
+        onMutate: async (newTask) => {
+            await queryClient.cancelQueries({ queryKey: ['tasks'] })
+            const previousTasks = queryClient.getQueryData(['tasks'])
+
+            queryClient.setQueriesData({ queryKey: ['tasks'] }, (old: any) => {
+                if (!old?.data) return old
+                if (old.page === 1) {
+                    return {
+                        ...old,
+                        data: [{ ...newTask, id: 'temp-id', created_at: new Date().toISOString() }, ...old.data].slice(0, old.pageSize),
+                        count: (old.count || 0) + 1
+                    }
+                }
+                return old
             })
+
+            return { previousTasks }
+        },
+        onError: (err, newTask, context) => {
+            if (context?.previousTasks) {
+                queryClient.setQueryData(['tasks'], context.previousTasks)
+            }
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ['tasks'] })
+            queryClient.invalidateQueries({ queryKey: ['taskMetrics'] })
+            queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+            toast.success('Tarea creada exitosamente')
         }
     })
 }
 
-// ============================================================================
-// MUTATION: Update task
-// ============================================================================
 export function useUpdateTask() {
     const queryClient = useQueryClient()
-    const supabase = createClient()
 
     return useMutation({
         mutationFn: async ({ taskId, updates }: { taskId: string; updates: Partial<Task> }) => {
@@ -212,24 +289,29 @@ export function useUpdateTask() {
             if (error) throw error
             return data
         },
-        onSuccess: (_, variables) => {
-            queryClient.invalidateQueries({ queryKey: ['tasks'] })
-            queryClient.invalidateQueries({ queryKey: ['task', variables.taskId] })
-        },
-        onError: (error: any) => {
-            toast.error('Error al actualizar tarea', {
-                description: error.message
+        onMutate: async ({ taskId, updates }) => {
+            await queryClient.cancelQueries({ queryKey: ['tasks'] })
+            await queryClient.cancelQueries({ queryKey: ['task', taskId] })
+
+            queryClient.setQueriesData({ queryKey: ['tasks'] }, (old: any) => {
+                if (!old?.data) return old
+                return {
+                    ...old,
+                    data: old.data.map((t: Task) =>
+                        t.id === taskId ? { ...t, ...updates } : t
+                    )
+                }
             })
+        },
+        onSettled: (data) => {
+            queryClient.invalidateQueries({ queryKey: ['tasks'] })
+            if (data) queryClient.invalidateQueries({ queryKey: ['task', data.id] })
         }
     })
 }
 
-// ============================================================================
-// MUTATION: Complete task
-// ============================================================================
 export function useCompleteTask() {
     const queryClient = useQueryClient()
-    const supabase = createClient()
 
     return useMutation({
         mutationFn: async (taskId: string) => {
@@ -246,24 +328,28 @@ export function useCompleteTask() {
             if (error) throw error
             return data
         },
-        onSuccess: () => {
+        onMutate: async (taskId) => {
+            await queryClient.cancelQueries({ queryKey: ['tasks'] })
+            queryClient.setQueriesData({ queryKey: ['tasks'] }, (old: any) => {
+                if (!old?.data) return old
+                return {
+                    ...old,
+                    data: old.data.map((t: Task) =>
+                        t.id === taskId ? { ...t, status: 'completada' } : t
+                    )
+                }
+            })
+        },
+        onSettled: () => {
             queryClient.invalidateQueries({ queryKey: ['tasks'] })
             queryClient.invalidateQueries({ queryKey: ['taskMetrics'] })
-        },
-        onError: (error: any) => {
-            toast.error('Error al completar tarea', {
-                description: error.message
-            })
+            queryClient.invalidateQueries({ queryKey: ['dashboard'] })
         }
     })
 }
 
-// ============================================================================
-// MUTATION: Postpone task
-// ============================================================================
 export function usePostponeTask() {
     const queryClient = useQueryClient()
-    const supabase = createClient()
 
     return useMutation({
         mutationFn: async ({ taskId, postponeUntil }: { taskId: string; postponeUntil: Date }) => {
@@ -280,28 +366,18 @@ export function usePostponeTask() {
             if (error) throw error
             return data
         },
-        onSuccess: () => {
+        onSettled: () => {
             queryClient.invalidateQueries({ queryKey: ['tasks'] })
             toast.success('Tarea pospuesta')
-        },
-        onError: (error: any) => {
-            toast.error('Error al posponer tarea', {
-                description: error.message
-            })
         }
     })
 }
 
-// ============================================================================
-// MUTATION: Delete task
-// ============================================================================
 export function useDeleteTask() {
     const queryClient = useQueryClient()
-    const supabase = createClient()
 
     return useMutation({
         mutationFn: async (taskId: string) => {
-            // Soft delete
             const { data, error } = await supabase
                 .from('tasks')
                 .update({
@@ -314,24 +390,25 @@ export function useDeleteTask() {
             if (error) throw error
             return data
         },
-        onSuccess: () => {
+        onMutate: async (taskId) => {
+            await queryClient.cancelQueries({ queryKey: ['tasks'] })
+            queryClient.setQueriesData({ queryKey: ['tasks'] }, (old: any) => {
+                if (!old?.data) return old
+                return {
+                    ...old,
+                    data: old.data.filter((t: Task) => t.id !== taskId),
+                    count: (old.count || 0) - 1
+                }
+            })
+        },
+        onSettled: () => {
             queryClient.invalidateQueries({ queryKey: ['tasks'] })
             toast.success('Tarea eliminada')
-        },
-        onError: (error: any) => {
-            toast.error('Error al eliminar tarea', {
-                description: error.message
-            })
         }
     })
 }
 
-// ============================================================================
-// QUERY: Get team leaderboard
-// ============================================================================
 export function useTeamLeaderboard() {
-    const supabase = createClient()
-
     return useQuery({
         queryKey: ['teamLeaderboard'],
         queryFn: async () => {
@@ -353,6 +430,6 @@ export function useTeamLeaderboard() {
             if (error) throw error
             return data
         },
-        staleTime: 60000, // 1 minute
+        staleTime: 5 * 60 * 1000,
     })
 }

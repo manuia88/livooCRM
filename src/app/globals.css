@@ -424,3 +424,10 @@ a,
     @apply bg-background text-foreground;
   }
 }
+/* Leaflet CSS */
+@import 'leaflet/dist/leaflet.css';
+
+/* Fix para iconos de Leaflet (Next.js issue) */
+.leaflet-default-icon-path {
+  background-image: url('https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png');
+}

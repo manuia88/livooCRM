@@ -1,10 +1,10 @@
-// src/hooks/useProperties.ts
 'use client'
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 import { useCurrentUser } from './useCurrentUser'
 
+// Tipos
 export interface Property {
   id: string
   agency_id: string
@@ -58,135 +58,220 @@ export interface Property {
 }
 
 export interface PropertiesFilters {
+  page?: number
+  pageSize?: number
   status?: string | string[]
-  property_type?: string
-  operation_type?: string
+  propertyType?: string
+  operationType?: string
   city?: string
   source?: 'own' | 'agency' | 'network' | 'mls' | 'all'
   search?: string
-  price_min?: number
-  price_max?: number
+  priceMin?: number
+  priceMax?: number
   bedrooms?: number
   bathrooms?: number
-  parking_spaces?: number
-  construction_m2_min?: number
-  construction_m2_max?: number
-  land_m2_min?: number
-  land_m2_max?: number
+  parkingSpaces?: number
+  constructionM2Min?: number
+  constructionM2Max?: number
+  landM2Min?: number
+  landM2Max?: number
+  sortBy?: string
+  sortOrder?: 'asc' | 'desc'
   bounds?: { ne: { lat: number; lng: number }; sw: { lat: number; lng: number } }
 }
 
-export function useProperties(filters: PropertiesFilters = {}) {
-  const supabase = createClient()
-  const { data: currentUser } = useCurrentUser()
+export interface PropertiesResponse {
+  data: Property[]
+  count: number
+  page: number
+  pageSize: number
+  totalPages: number
+  hasMore: boolean
+}
 
-  return useQuery<Property[]>({
-    queryKey: ['properties', filters],
+const supabase = createClient()
+
+// Hook principal con paginación
+export function useProperties(params: PropertiesFilters = {}) {
+  const { data: currentUser } = useCurrentUser()
+  const {
+    page = 1,
+    pageSize = 20,
+    status,
+    propertyType,
+    operationType,
+    city,
+    source = 'all',
+    search: searchQuery,
+    priceMin,
+    priceMax,
+    bedrooms,
+    bathrooms,
+    parkingSpaces,
+    sortBy = 'created_at',
+    sortOrder = 'desc',
+    bounds
+  } = params
+
+  return useQuery<PropertiesResponse>({
+    queryKey: ['properties', { ...params, page, pageSize }],
     queryFn: async () => {
-      if (!currentUser) return []
+      if (!currentUser) return { data: [], count: 0, page, pageSize, totalPages: 0, hasMore: false }
+
+      const from = (page - 1) * pageSize
+      const to = from + pageSize - 1
 
       let query = supabase
         .from('properties_safe')
-        .select('*')
-        .order('created_at', { ascending: false })
+        .select('*', { count: 'exact' })
 
-      if (filters.source === 'own') {
+      if (source === 'own') {
         query = query.eq('producer_id', currentUser.id)
-      } else if (filters.source === 'agency') {
+      } else if (source === 'agency') {
         query = query.eq('agency_id', currentUser.agency_id)
-      } else if (filters.source === 'network') {
+      } else if (source === 'network') {
         query = query.neq('agency_id', currentUser.agency_id)
-      } else if (filters.source === 'mls') {
+      } else if (source === 'mls') {
         query = query.not('published_at', 'is', null)
       }
 
-      if (filters.status) {
-        const statuses = Array.isArray(filters.status) ? filters.status : [filters.status]
+      if (status) {
+        const statuses = Array.isArray(status) ? status : [status]
         if (statuses.length > 0) query = query.in('status', statuses)
       }
-      if (filters.property_type) query = query.eq('property_type', filters.property_type)
-      if (filters.operation_type) query = query.eq('operation_type', filters.operation_type)
-      if (filters.city) query = query.eq('city', filters.city)
-      if (filters.bedrooms != null) query = query.gte('bedrooms', filters.bedrooms)
-      if (filters.bathrooms != null) query = query.gte('bathrooms', filters.bathrooms)
-      if (filters.parking_spaces != null) query = query.gte('parking_spaces', filters.parking_spaces)
-      if (filters.price_min != null && filters.price_min > 0) query = query.gte('price', filters.price_min)
-      if (filters.price_max != null && filters.price_max > 0) query = query.lte('price', filters.price_max)
-      if (filters.construction_m2_min != null) query = query.gte('construction_m2', filters.construction_m2_min)
-      if (filters.construction_m2_max != null) query = query.lte('construction_m2', filters.construction_m2_max)
-      if (filters.land_m2_min != null) query = query.gte('land_m2', filters.land_m2_min)
-      if (filters.land_m2_max != null) query = query.lte('land_m2', filters.land_m2_max)
-      if (filters.search) {
-        const term = filters.search.trim()
+      if (propertyType) query = query.eq('property_type', propertyType)
+      if (operationType) query = query.eq('operation_type', operationType)
+      if (city) query = query.eq('city', city)
+      if (bedrooms != null) query = query.gte('bedrooms', bedrooms)
+      if (bathrooms != null) query = query.gte('bathrooms', bathrooms)
+      if (parkingSpaces != null) query = query.gte('parking_spaces', parkingSpaces)
+      if (priceMin != null && priceMin > 0) query = query.gte('price', priceMin)
+      if (priceMax != null && priceMax > 0) query = query.lte('price', priceMax)
+
+      if (searchQuery) {
+        const term = searchQuery.trim()
         query = query.or(`title.ilike.%${term}%,city.ilike.%${term}%,address.ilike.%${term}%,neighborhood.ilike.%${term}%`)
       }
 
-      const { data, error } = await query
-      if (error) throw error
-      let result = (data ?? []) as Property[]
+      const { data, count, error } = await query
+        .order(sortBy, { ascending: sortOrder === 'asc' })
+        .range(from, to)
 
-      if (filters.bounds && result.length > 0) {
-        const { ne, sw } = filters.bounds
-        result = result.filter((p) => {
+      if (error) throw error
+
+      let resultData = (data as Property[]) || []
+
+      if (bounds && resultData.length > 0) {
+        const { ne, sw } = bounds
+        resultData = resultData.filter((p) => {
           const lat = p.lat ?? (p as any).latitude
           const lng = p.lng ?? (p as any).longitude
           if (lat == null || lng == null || typeof lat !== 'number' || typeof lng !== 'number') return false
           return lat >= sw.lat && lat <= ne.lat && lng >= sw.lng && lng <= ne.lng
         })
       }
-      return result
+
+      const totalPages = count ? Math.ceil(count / pageSize) : 0
+
+      return {
+        data: resultData,
+        count: count || 0,
+        page,
+        pageSize,
+        totalPages,
+        hasMore: page < totalPages
+      }
     },
     enabled: !!currentUser,
-    staleTime: 30 * 1000,
+    placeholderData: keepPreviousData,
+    staleTime: 2 * 60 * 1000,
   })
 }
 
-export function useProperty(propertyId?: string) {
-  const supabase = createClient()
+// Hook para prefetch de página siguiente
+export function usePrefetchProperties() {
+  const queryClient = useQueryClient()
+  const { data: currentUser } = useCurrentUser()
 
-  return useQuery<Property | null>({
-    queryKey: ['property', propertyId],
-    queryFn: async () => {
-      if (!propertyId) return null
+  return (params: PropertiesFilters = {}) => {
+    if (!currentUser) return
 
-      const { data, error } = await supabase
-        .from('properties_safe')
-        .select('*')
-        .eq('id', propertyId)
-        .single()
+    const { page = 1, pageSize = 20 } = params
+    const nextPage = page + 1
 
-      if (error) throw error
-      return data as Property
-    },
-    enabled: !!propertyId,
-  })
+    return queryClient.prefetchQuery({
+      queryKey: ['properties', { ...params, page: nextPage, pageSize }],
+      queryFn: async () => {
+        const from = page * pageSize
+        const to = from + pageSize - 1
+
+        let query = supabase
+          .from('properties_safe')
+          .select('*', { count: 'exact' })
+
+        if (params.source === 'own') {
+          query = query.eq('producer_id', currentUser.id)
+        } else if (params.source === 'agency') {
+          query = query.eq('agency_id', currentUser.agency_id)
+        } else if (params.source === 'network') {
+          query = query.neq('agency_id', currentUser.agency_id)
+        } else if (params.source === 'mls') {
+          query = query.not('published_at', 'is', null)
+        }
+
+        if (params.status) {
+          const statuses = Array.isArray(params.status) ? params.status : [params.status]
+          if (statuses.length > 0) query = query.in('status', statuses)
+        }
+        if (params.propertyType) query = query.eq('property_type', params.propertyType)
+        if (params.operationType) query = query.eq('operation_type', params.operationType)
+        if (params.city) query = query.eq('city', params.city)
+        if (params.bedrooms != null) query = query.gte('bedrooms', params.bedrooms)
+        if (params.bathrooms != null) query = query.gte('bathrooms', params.bathrooms)
+        if (params.parkingSpaces != null) query = query.gte('parking_spaces', params.parkingSpaces)
+        if (params.priceMin != null && params.priceMin > 0) query = query.gte('price', params.priceMin)
+        if (params.priceMax != null && params.priceMax > 0) query = query.lte('price', params.priceMax)
+
+        if (params.search) {
+          const term = params.search.trim()
+          query = query.or(`title.ilike.%${term}%,city.ilike.%${term}%,address.ilike.%${term}%,neighborhood.ilike.%${term}%`)
+        }
+
+        const { data, count, error } = await query
+          .order(params.sortBy || 'created_at', { ascending: params.sortOrder === 'asc' })
+          .range(from, to)
+
+        if (error) throw error
+
+        let resultData = (data as Property[]) || []
+
+        if (params.bounds && resultData.length > 0) {
+          const { ne, sw } = params.bounds
+          resultData = resultData.filter((p) => {
+            const lat = p.lat ?? (p as any).latitude
+            const lng = p.lng ?? (p as any).longitude
+            if (lat == null || lng == null || typeof lat !== 'number' || typeof lng !== 'number') return false
+            return lat >= sw.lat && lat <= ne.lat && lng >= sw.lng && lng <= ne.lng
+          })
+        }
+
+        const totalPages = count ? Math.ceil(count / pageSize) : 0
+
+        return {
+          data: resultData,
+          count: count || 0,
+          page: nextPage,
+          pageSize,
+          totalPages,
+          hasMore: nextPage < totalPages
+        }
+      }
+    })
+  }
 }
 
-/**
- * Reglas de visibilidad (dónde se muestra la propiedad en el módulo Propiedades):
- * - Propias: producer_id = usuario que la subió.
- * - Inmobiliaria: agency_id = agencia del creador (todos los de la agencia la ven).
- * - Red: propiedades de otras agencias (agency_id ≠ mi agencia).
- * - MLS: published_at IS NOT NULL (todas las publicadas se muestran siempre en MLS).
- * Los datos del propietario solo son visibles para el productor y admin/manager de la inmobiliaria.
- */
-export const PROPERTY_VISIBILITY_SOURCES = {
-  own: 'producer_id = usuario actual',
-  agency: 'agency_id = agencia del usuario',
-  network: 'agency_id ≠ mi agencia',
-  mls: 'published_at IS NOT NULL',
-} as const
-
-/**
- * Crea una propiedad. Usado por Captaciones y Propiedades/nueva (mismo wizard).
- * - Identifica al usuario: producer_id = currentUser.id (quien la sube).
- * - Ubicación: agency_id = currentUser.agency_id (se acomoda en esa inmobiliaria).
- * - Visibilidad: Propias (producer_id), Inmobiliaria (agency_id), Red (otras agencias), MLS (publicadas).
- * producer_id y agency_id siempre se fijan en el servidor y no se aceptan del payload.
- */
 export function useCreateProperty() {
   const queryClient = useQueryClient()
-  const supabase = createClient()
   const { data: currentUser } = useCurrentUser()
 
   return useMutation({
@@ -209,17 +294,39 @@ export function useCreateProperty() {
       if (error) throw error
       return data
     },
-    onSuccess: async () => {
+    onMutate: async (newProperty) => {
+      await queryClient.cancelQueries({ queryKey: ['properties'] })
+      const previousProperties = queryClient.getQueryData(['properties'])
+
+      queryClient.setQueriesData({ queryKey: ['properties'] }, (old: any) => {
+        if (!old?.data) return old
+        if (old.page === 1) {
+          return {
+            ...old,
+            data: [{ ...newProperty, id: 'temp-id', created_at: new Date().toISOString() }, ...old.data].slice(0, old.pageSize),
+            count: (old.count || 0) + 1
+          }
+        }
+        return old
+      })
+
+      return { previousProperties }
+    },
+    onError: (err, newProperty, context) => {
+      if (context?.previousProperties) {
+        queryClient.setQueryData(['properties'], context.previousProperties)
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['properties'] })
       queryClient.invalidateQueries({ queryKey: ['properties-stats'] })
-      await queryClient.refetchQueries({ queryKey: ['properties'] })
-    },
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+    }
   })
 }
 
 export function useUpdateProperty() {
   const queryClient = useQueryClient()
-  const supabase = createClient()
 
   return useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<Property> }) => {
@@ -233,53 +340,33 @@ export function useUpdateProperty() {
       if (error) throw error
       return data
     },
-    onSuccess: (_, variables) => {
+    onMutate: async ({ id, updates }) => {
+      await queryClient.cancelQueries({ queryKey: ['properties'] })
+      await queryClient.cancelQueries({ queryKey: ['property', id] })
+
+      queryClient.setQueriesData({ queryKey: ['properties'] }, (old: any) => {
+        if (!old?.data) return old
+        return {
+          ...old,
+          data: old.data.map((p: Property) =>
+            p.id === id ? { ...p, ...updates } : p
+          )
+        }
+      })
+    },
+    onSettled: (data) => {
       queryClient.invalidateQueries({ queryKey: ['properties'] })
-      queryClient.invalidateQueries({ queryKey: ['property', variables.id] })
+      if (data) queryClient.invalidateQueries({ queryKey: ['property', data.id] })
       queryClient.invalidateQueries({ queryKey: ['properties-stats'] })
-    },
+    }
   })
-}
-
-export function useTogglePublishProperty() {
-  const queryClient = useQueryClient()
-  const supabase = createClient()
-
-  return useMutation({
-    mutationFn: async ({ id, published }: { id: string; published: boolean }) => {
-      const { data, error } = await supabase
-        .from('properties')
-        .update({ 
-          published,
-          published_at: published ? new Date().toISOString() : null
-        })
-        .eq('id', id)
-        .select()
-        .single()
-
-      if (error) throw error
-      return data
-    },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['properties'] })
-      queryClient.invalidateQueries({ queryKey: ['property', variables.id] })
-      queryClient.invalidateQueries({ queryKey: ['properties-stats'] })
-    },
-  })
-}
-
-export interface DeletePropertyPayload {
-  id: string
-  /** Motivo de baja (obligatorio en UI; se guarda en deletion_reason) */
-  reason?: string
 }
 
 export function useDeleteProperty() {
   const queryClient = useQueryClient()
-  const supabase = createClient()
 
   return useMutation({
-    mutationFn: async (payload: DeletePropertyPayload | string) => {
+    mutationFn: async (payload: { id: string; reason?: string } | string) => {
       const id = typeof payload === 'string' ? payload : payload.id
       const reason = typeof payload === 'string' ? undefined : payload.reason
       const updates: { deleted_at: string; deletion_reason?: string } = {
@@ -295,23 +382,73 @@ export function useDeleteProperty() {
       if (error) throw error
       return id
     },
-    onSuccess: () => {
+    onMutate: async (payload) => {
+      const id = typeof payload === 'string' ? payload : payload.id
+      await queryClient.cancelQueries({ queryKey: ['properties'] })
+
+      queryClient.setQueriesData({ queryKey: ['properties'] }, (old: any) => {
+        if (!old?.data) return old
+        return {
+          ...old,
+          data: old.data.filter((p: Property) => p.id !== id),
+          count: (old.count || 0) - 1
+        }
+      })
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['properties'] })
+      queryClient.invalidateQueries({ queryKey: ['properties-stats'] })
+    }
+  })
+}
+
+export function useProperty(propertyId?: string) {
+  return useQuery<Property | null>({
+    queryKey: ['property', propertyId],
+    queryFn: async () => {
+      if (!propertyId) return null
+
+      const { data, error } = await supabase
+        .from('properties_safe')
+        .select('*')
+        .eq('id', propertyId)
+        .single()
+
+      if (error) throw error
+      return data as Property
+    },
+    enabled: !!propertyId,
+    staleTime: 5 * 60 * 1000
+  })
+}
+
+export function useTogglePublishProperty() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ id, published }: { id: string; published: boolean }) => {
+      const { data, error } = await supabase
+        .from('properties')
+        .update({
+          published,
+          published_at: published ? new Date().toISOString() : null
+        })
+        .eq('id', id)
+        .select()
+        .single()
+
+      if (error) throw error
+      return data
+    },
+    onSettled: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['properties'] })
+      if (data) queryClient.invalidateQueries({ queryKey: ['property', data.id] })
       queryClient.invalidateQueries({ queryKey: ['properties-stats'] })
     },
   })
 }
 
-/**
- * Conteos por segmento para las pestañas del módulo Propiedades.
- * Misma vista (properties_safe) y mismos criterios que useProperties:
- * - mine (Propias): producer_id = usuario actual
- * - total (Inmobiliaria): agency_id = agencia del usuario (incluye propias + resto de la agencia)
- * - network (Red): agency_id distinto a mi agencia
- * - mls: published_at IS NOT NULL
- */
 export function usePropertiesStats() {
-  const supabase = createClient()
   const { data: currentUser } = useCurrentUser()
 
   return useQuery({
