@@ -6,9 +6,17 @@ Bienvenido a la documentación técnica de livooCRM. Este directorio contiene to
 
 ## 📖 Índice de Documentación
 
+### 🎯 **PLAN_MAESTRO_MEJORAS.md** ⭐ DOCUMENTO PRINCIPAL
+- 📋 Plan completo de 6 fases de mejora
+- 👥 12 equipos especializados (Alpha a Lima)
+- 💰 Ahorro de $7,500/año
+- ⚡ Mejoras de performance (73% ↓ bundle size)
+- 🔒 Seguridad multi-tenant
+- 📊 Estado actual y próximos pasos
+
 ### 🔒 Seguridad y Fundamentos
 
-#### 1. **IMPLEMENTATION_COMPLETE.md** 🌟 EMPEZAR AQUÍ
+#### 1. **IMPLEMENTATION_COMPLETE.md** 🌟 RESUMEN EJECUTIVO
 - 📊 Resumen ejecutivo de TODAS las mejoras
 - ✅ Checklist completo de implementación
 - 🚀 Guía de deployment a producción
@@ -21,7 +29,12 @@ Bienvenido a la documentación técnica de livooCRM. Este directorio contiene to
 - 🛡️ Protección de endpoints
 - ✅ Guías de verificación
 
-#### 3. **PHASE_3_IMPROVEMENTS.md**
+#### 3. **RLS_SECURITY.md**
+- 🔐 Políticas de Row Level Security detalladas
+- 👥 Roles y permisos por agencia
+- 🛡️ Aislamiento de datos multi-tenant
+
+#### 4. **PHASE_3_IMPROVEMENTS.md**
 - 📦 Consolidación de tipos TypeScript
 - 🔐 WhatsApp session persistence
 - 📝 Script de validación
@@ -30,13 +43,134 @@ Bienvenido a la documentación técnica de livooCRM. Este directorio contiene to
 
 ---
 
+### ⚡ Performance y Optimización
+
+#### 5. **DATABASE_PERFORMANCE.md**
+- 📊 Índices optimizados (GIST, GIN, compuestos)
+- 🚀 Vistas materializadas para dashboard
+- ⚡ Funciones SQL optimizadas
+- 📈 Métricas: <100ms queries
+
+#### 6. **BUNDLE_OPTIMIZATION.md**
+- 📦 Code splitting estratégico
+- ⚡ Lazy loading de componentes
+- 🎯 First Load JS < 100KB
+- 📊 Métricas Web Vitals
+
+#### 7. **REACT_QUERY_PATTERNS.md**
+- 🔄 Paginación cursor-based
+- 💾 Caché inteligente (staleTime)
+- ⚡ Optimistic updates
+- ♾️ Infinite scroll
+
+---
+
+### 💰 Optimización de Costos
+
+#### 8. **MAPS_MIGRATION.md**
+- 🗺️ Migración Google Maps → Leaflet + OSM
+- 💰 Ahorro: $200/mes ($2,400/año)
+- 📍 Componentes reutilizables
+
+#### 9. **GEOCODING_SERVICE.md**
+- 📍 Geocoding con Nominatim (gratuito)
+- 🔄 Reverse geocoding
+- 💾 Caché en base de datos
+- 💰 Ahorro: $50/mes ($600/año)
+
+#### 10. **IMAGE_OPTIMIZATION.md**
+- 🖼️ Procesamiento con Sharp
+- 📏 Thumbnails automáticos
+- 🚀 WebP optimization
+- ⚡ Lazy loading
+
+---
+
+### 📱 Comunicaciones
+
+#### 11. **WHATSAPP_INTEGRATION.md**
+- 📱 Integración con Baileys
+- 🔐 QR Code authentication
+- 📤 Envío y recepción de mensajes
+- 💰 Ahorro: $360/mes ($4,320/año)
+
+#### 12. **WHATSAPP_SETUP.md**
+- 🛠️ Guía de configuración
+- 📋 Pasos de implementación
+- 🔧 Troubleshooting
+
+#### 13. **NOTIFICATIONS_SYSTEM.md**
+- 🔔 Notificaciones en tiempo real (WebSocket)
+- 🔄 Triggers automáticos (tareas, contactos, propiedades)
+- 📬 NotificationBell component
+- ⚡ Latencia <200ms
+
+#### 14. **EMAIL_SERVICE.md**
+- 📧 Emails transaccionales con Resend
+- 📝 Plantillas con React Email
+- 💰 Free tier: 100 emails/día ($0/mes)
+- ✉️ WelcomeEmail, TaskReminderEmail
+
+---
+
+---
+
+### 🗄️ Base de Datos
+
+#### 15. **DATABASE.md**
+- 📊 Schema completo de la base de datos
+- 🔗 Relaciones entre tablas
+- 📝 Descripción de campos
+
+#### 16. **DATABASE_SUMMARY.md**
+- 📋 Resumen de tablas principales
+- 🔑 Claves primarias y foráneas
+- 📊 Estadísticas
+
+---
+
+### 🚀 Deployment y Verificación
+
+#### 17. **DEPLOYMENT_CHECKLIST.md**
+- ✅ Checklist pre-deployment
+- 🔐 Variables de entorno
+- 📝 Migraciones SQL
+- 🧪 Tests de verificación
+
+#### 18. **VERIFICACION_PRODUCCION.md**
+- 🔍 Verificación post-deployment
+- ✅ Tests de funcionalidad
+- 📊 Monitoreo de métricas
+
+#### 19. **PR_CHECKLIST.md**
+- ✅ Checklist para Pull Requests
+- 📝 Plantilla de PR
+- 🔍 Code review guidelines
+
+---
+
+### 📖 Otros Documentos
+
+#### 20. **MIGRATION_GUIDE.md**
+- 🔄 Guías de migración
+- 📝 Breaking changes
+- 🛠️ Pasos de actualización
+
+#### 21. **AUTH_ANALYSIS.md**
+- 🔐 Análisis del sistema de autenticación
+- 👤 Flujos de usuario
+- 🔑 Tokens y sesiones
+
+---
+
 ## 🗺️ Guías Rápidas
 
 ### Para Developers Nuevos
 
-1. Lee **IMPLEMENTATION_COMPLETE.md** para contexto completo
-2. Revisa **SECURITY_FIXES.md** para entender fundamentos de seguridad
-3. Consulta **PHASE_3_IMPROVEMENTS.md** para mejoras arquitectónicas
+1. Lee **PLAN_MAESTRO_MEJORAS.md** para visión completa del proyecto
+2. Revisa **IMPLEMENTATION_COMPLETE.md** para contexto de implementación
+3. Consulta **SECURITY_FIXES.md** para entender fundamentos de seguridad
+4. Explora documentos específicos según tu área de trabajo
 
 ### Para Deployment
 
@@ -184,8 +318,10 @@ Para reportar bugs:
 
 | Fecha | Cambio | Documento |
 |-------|--------|-----------|
+| 2026-02-08 | Plan Maestro de 6 Fases creado | PLAN_MAESTRO_MEJORAS.md |
+| 2026-02-08 | Sistema de notificaciones + emails | NOTIFICATIONS_SYSTEM.md, EMAIL_SERVICE.md |
 | 2026-02-01 | Fase 1 & 2 completadas | SECURITY_FIXES.md |
-| 2026-02-01 | Fase 3 (parcial) completada | PHASE_3_IMPROVEMENTS.md |
+| 2026-02-01 | Fase 3 completada | PHASE_3_IMPROVEMENTS.md |
 | 2026-02-01 | Documentación consolidada | IMPLEMENTATION_COMPLETE.md |
 
 ---
