@@ -41,3 +41,12 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .env*.local
+
+# tools output
+repomix-output.xml
+
+# swc cache
+.swc
+
+# whatsapp session
+whatsapp-auth-session
