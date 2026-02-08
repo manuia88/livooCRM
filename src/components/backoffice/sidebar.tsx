@@ -19,6 +19,7 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import NotificationBell from "@/components/notifications/NotificationBell";
 
 interface SidebarProps {
     user: any;
@@ -62,7 +63,7 @@ export function Sidebar({ user, logoutAction }: SidebarProps) {
     return (
         <aside className="fixed top-0 left-0 h-full w-64 bg-white border-r border-[#E5E3DB] z-50 flex flex-col">
             {/* Logo Section */}
-            <div className="p-6 flex items-center justify-center border-b border-[#F8F7F4]">
+            <div className="p-6 flex items-center justify-between border-b border-[#F8F7F4]">
                 <Link href="/backoffice" className="flex items-center gap-2">
                     <div className="relative w-8 h-8">
                         <Image
@@ -74,6 +75,7 @@ export function Sidebar({ user, logoutAction }: SidebarProps) {
                     </div>
                     <span className="text-xl font-bold tracking-tight text-[#2C3E2C] uppercase">livoo</span>
                 </Link>
+                <NotificationBell />
             </div>
 
             {/* Navigation Container */}
