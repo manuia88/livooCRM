@@ -27,20 +27,36 @@ export function Step2Location({ data, onChange }: Step2LocationProps) {
         onChange({ ...data, show_exact_location: checked });
     };
 
-    // Mock function to simulate getting coordinates from address
-    const handleGeocode = () => {
-        // In a real implementation, this would call Google Maps Geocoding API
-        // For now, we'll just simulate setting coordinates to enable health score points
-        const mockLat = 19.4326;
-        const mockLng = -99.1332;
+    // Geocode address using the new Nominatim service
+    const handleGeocode = async () => {
+        const addressParts = [
+            data.address?.street,
+            data.address?.exterior_number,
+            data.address?.neighborhood,
+            data.address?.city,
+            data.address?.state,
+            data.address?.postal_code,
+            'México'
+        ].filter(Boolean).join(', ');
 
-        onChange({
-            ...data,
-            coordinates: {
-                lat: mockLat,
-                lng: mockLng
+        if (!addressParts) return;
+
+        try {
+            const response = await fetch(`/api/geocoding?action=geocode&address=${encodeURIComponent(addressParts)}`);
+            const { result } = await response.json();
+
+            if (result) {
+                onChange({
+                    ...data,
+                    coordinates: {
+                        lat: parseFloat(result.lat),
+                        lng: parseFloat(result.lon)
+                    }
+                });
             }
-        });
+        } catch (error) {
+            console.error('Failed to geocode address:', error);
+        }
     };
 
     return (
@@ -166,7 +182,7 @@ export function Step2Location({ data, onChange }: Step2LocationProps) {
                                 onClick={handleGeocode}
                                 className="z-10"
                             >
-                                Ubicar en Mapa (Simulado)
+                                Ubicar en Mapa
                             </Button>
                         )}
                     </div>

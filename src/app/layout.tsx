@@ -32,7 +32,6 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <QueryProvider>
-          <ConditionalNavbar />
           {children}
           <Toaster />
           <SonnerToaster position="top-right" richColors />

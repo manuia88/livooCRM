@@ -1,18 +1,71 @@
 import type { NextConfig } from "next";
 import path from "path";
+import bundleAnalyzer from '@next/bundle-analyzer';
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+});
 
 const nextConfig: NextConfig = {
   typescript: { ignoreBuildErrors: true },
+
+  // Optimizaciones de compilación
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn']
+    } : false,
+  },
+
+  // Experimental features
+  experimental: {
+    // Optimizar imports de paquetes grandes
+    optimizePackageImports: [
+      'lucide-react',
+      '@radix-ui/react-icons',
+      'recharts',
+      'date-fns',
+      'lodash-es',
+      'framer-motion'
+    ],
+  },
+
   turbopack: {
     root: path.resolve(__dirname),
   },
+
+  // Webpack optimizations
+  webpack: (config, { dev, isServer }) => {
+    // Tree-shaking más agresivo en producción
+    if (!dev && !isServer) {
+      config.optimization = {
+        ...config.optimization,
+        usedExports: true,
+        sideEffects: true, // Cambiado a true por defecto en Next.js, pero podemos forzarlo si sabemos qué hacemos
+      }
+    }
+
+    // Resolver aliases para tree-shaking
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      'lodash': 'lodash-es', // Versión ES6 permite tree-shaking
+    }
+
+    return config
+  },
+
+  // Configuración de imágenes
   images: {
+    formats: ['image/avif', 'image/webp'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    minimumCacheTTL: 60 * 60 * 24 * 365, // 1 año
     remotePatterns: [
       { protocol: 'https', hostname: 'picsum.photos' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: '*.supabase.co' },
     ],
   },
+
   async headers() {
     // Content Security Policy
     const ContentSecurityPolicy = `
@@ -82,4 +135,5 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);
+

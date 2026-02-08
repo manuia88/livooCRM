@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
+import OptimizedImage from "@/components/ui/OptimizedImage";
 import Link from "next/link";
 import { Property } from "@/types/property";
-import { MapPin, BedDouble, Bath, Ruler, Heart, Handshake } from "lucide-react";
+import { MapPin, BedDouble, Bath, Ruler, Heart, Handshake } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { SharingModal } from "@/features/mls/components/sharing-modal";
@@ -47,12 +47,10 @@ export function PropertyCard({ property, isMls = false }: PropertyCardProps) {
             <Link href={isMls ? `/mls/${property.id}` : `/propiedades/${property.id}`}>
                 {/* Image Container with carousel */}
                 <div className="relative h-56 overflow-hidden bg-[#F8F7F4]">
-                    <Image
+                    <OptimizedImage
                         src={property.images[currentImageIndex]}
                         alt={property.title}
                         fill
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                        loading={currentImageIndex === 0 ? "eager" : "lazy"}
                         className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
 

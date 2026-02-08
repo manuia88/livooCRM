@@ -12,7 +12,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Slider } from "@/components/ui/slider";
-import { Filter, Map as MapIcon, ChevronDown, Bell, BedDouble, Bath, Car } from "lucide-react";
+import { Filter, Map as MapIcon, ChevronDown, Bell, BedDouble, Bath, Car } from "@/components/icons";
 
 interface PropertiesListingProps {
     properties: Property[];
@@ -164,11 +164,10 @@ export function PropertiesListing({
                                                         key={opt}
                                                         type="button"
                                                         onClick={() => setRecamaras(opt)}
-                                                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                                                            recamaras === opt
+                                                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${recamaras === opt
                                                                 ? "border-2 border-[#2C3E2C] bg-[#F8F7F4] text-[#2C3E2C]"
                                                                 : "border border-[#E5E3DB] bg-white text-[#6B7B6B] hover:bg-[#F8F7F4]"
-                                                        }`}
+                                                            }`}
                                                     >
                                                         {opt}
                                                     </button>
@@ -186,11 +185,10 @@ export function PropertiesListing({
                                                         key={opt}
                                                         type="button"
                                                         onClick={() => setBanos(opt)}
-                                                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                                                            banos === opt
+                                                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${banos === opt
                                                                 ? "border-2 border-[#2C3E2C] bg-[#F8F7F4] text-[#2C3E2C]"
                                                                 : "border border-[#E5E3DB] bg-white text-[#6B7B6B] hover:bg-[#F8F7F4]"
-                                                        }`}
+                                                            }`}
                                                     >
                                                         {opt}
                                                     </button>
@@ -208,11 +206,10 @@ export function PropertiesListing({
                                                         key={opt}
                                                         type="button"
                                                         onClick={() => setEstacionamientos(opt)}
-                                                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                                                            estacionamientos === opt
+                                                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${estacionamientos === opt
                                                                 ? "border-2 border-[#2C3E2C] bg-[#F8F7F4] text-[#2C3E2C]"
                                                                 : "border border-[#E5E3DB] bg-white text-[#6B7B6B] hover:bg-[#F8F7F4]"
-                                                        }`}
+                                                            }`}
                                                     >
                                                         {opt}
                                                     </button>
@@ -302,11 +299,10 @@ export function PropertiesListing({
                             variant={showMap ? "default" : "outline"}
                             size="sm"
                             onClick={() => setShowMap(!showMap)}
-                            className={`rounded-xl font-medium ${
-                                showMap
+                            className={`rounded-xl font-medium ${showMap
                                     ? "bg-[#2C3E2C] text-white hover:bg-[#3F5140]"
                                     : "border-[#E5E3DB] text-[#2C3E2C] hover:bg-[#F8F7F4]"
-                            }`}
+                                }`}
                         >
                             <MapIcon className="w-4 h-4 mr-2" />
                             Ver mapa
@@ -347,18 +343,16 @@ export function PropertiesListing({
                     className={`flex gap-0 ${showMap ? "w-full md:flex-row" : "w-full"}`}
                 >
                     <div
-                        className={`overflow-y-auto ${
-                            showMap
+                        className={`overflow-y-auto ${showMap
                                 ? "w-full md:w-1/2 lg:w-[55%] p-4 md:p-6"
                                 : "w-full p-4 md:p-6 container mx-auto"
-                        }`}
+                            }`}
                     >
                         <div
-                            className={`grid gap-6 ${
-                                showMap
+                            className={`grid gap-6 ${showMap
                                     ? "grid-cols-1 md:grid-cols-2"
                                     : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-                            }`}
+                                }`}
                         >
                             {properties.map((property) => (
                                 <PropertyCard key={property.id} property={property} />
