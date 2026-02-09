@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: livoo-n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_USER}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD}
+      - WEBHOOK_URL=${N8N_WEBHOOK_URL}
+      - GENERIC_TIMEZONE=America/Mexico_City
+      - N8N_ENCRYPTION_KEY=your-encryption-key-min-10-chars
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=${SUPABASE_DB_HOST}
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=postgres
+      - DB_POSTGRESDB_USER=postgres
+      - DB_POSTGRESDB_PASSWORD=${SUPABASE_DB_PASSWORD}
+      - N8N_METRICS=true
+      - EXECUTIONS_PROCESS=main
+      - EXECUTIONS_MODE=regular
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./n8n/workflows:/home/node/.n8n/workflows:ro
+    networks:
+      - livoo_network
+
+  n8n-mcp:
+    image: ghcr.io/czlonkowski/n8n-mcp:latest
+    container_name: livoo-n8n-mcp
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - N8N_API_URL=http://n8n:5678
+      - N8N_API_KEY=${N8N_API_KEY}
+      - MCP_MODE=http
+      - PORT=3001
+    depends_on:
+      - n8n
+    networks:
+      - livoo_network
+
+volumes:
+  n8n_data:
+    driver: local
+
+networks:
+  livoo_network:
+    driver: bridge

@@ -37,6 +37,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.local.example
 
 # vercel
 .vercel
@@ -52,5 +53,14 @@ repomix-output.xml
 # swc cache
 .swc
 
-# whatsapp session
+# WhatsApp session data
 whatsapp-auth-session
+.data/
+whatsapp-auth/
+*.session
+*.data.json
+baileys_store*
+
+# n8n data
+n8n-data/
+.n8n/
