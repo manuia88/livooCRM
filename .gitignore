@@ -13,6 +13,10 @@
 # testing
 /coverage
 __tests__/security/test-ids.json
+/test-results/
+/playwright-report/
+/blob-report/
+e2e/.auth/user.json
 
 # next.js
 /.next/

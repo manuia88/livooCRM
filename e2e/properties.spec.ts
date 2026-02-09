@@ -1,51 +1,105 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '@playwright/test'
+import { PropertyFormPage } from './pages/PropertyFormPage'
 
-test.describe('Property Creation Flow', () => {
+test.describe('Property Creation Wizard', () => {
+  test('should navigate to new property form and show step 1', async ({ page }) => {
+    const propertyForm = new PropertyFormPage(page)
+    await propertyForm.goto()
 
-    test('should navigate to new property form and fill basic info', async ({ page }) => {
-        // Direct navigation
-        await page.goto('/properties/new');
+    // Step 1 should show category selection
+    await propertyForm.expectStepVisible(1)
+    await expect(page.getByText('Casa')).toBeVisible()
+    await expect(page.getByText('Departamento')).toBeVisible()
+    await expect(page.getByText('Oficina')).toBeVisible()
+  })
 
-        // Validate Stepper
-        const stepper = page.getByRole('navigation', { name: 'Progress' });
-        await expect(stepper).toBeVisible();
+  test('should select category and advance to step 2', async ({ page }) => {
+    const propertyForm = new PropertyFormPage(page)
+    await propertyForm.goto()
 
-        // Fill Basic Info
-        await page.getByLabel('Título del Anuncio').fill('Casa de Prueba E2E');
-        await page.getByLabel('Descripción').fill('Esta es una propiedad de prueba creada por Playwright.');
+    // Select Casa category
+    await propertyForm.selectCategory('Casa')
 
-        // Type Select
-        const typeTrigger = page.locator('button[role="combobox"]').filter({ hasText: 'Seleccionar tipo' });
-        if (await typeTrigger.count() > 0) {
-            await typeTrigger.click();
-        } else {
-            await page.locator('button[role="combobox"]').first().click();
-        }
-        await page.getByRole('option', { name: 'Casa' }).click();
+    // Verify we're on step 2
+    await propertyForm.expectStepVisible(2)
+    await expect(page.getByText('VENTA').first()).toBeVisible()
+    await expect(page.getByText('RENTA').first()).toBeVisible()
+  })
 
-        // Verify Selection
-        await expect(page.locator('button[role="combobox"]').filter({ hasText: 'Casa' })).toBeVisible();
+  test('should fill operation data and advance to step 3', async ({ page }) => {
+    const propertyForm = new PropertyFormPage(page)
+    await propertyForm.goto()
 
-        // Operation Select
-        await page.getByText('Seleccionar operación').click();
-        await page.getByRole('option', { name: 'Venta' }).click();
+    // Step 1: Category
+    await propertyForm.selectCategory('Casa')
 
-        // Verify Selection
-        await expect(page.locator('button[role="combobox"]').filter({ hasText: 'Venta' })).toBeVisible();
+    // Step 2: Operation and data
+    await propertyForm.fillOperationAndData({
+      operationType: 'VENTA',
+      price: '5000000',
+      bedrooms: 3,
+      bathrooms: 2,
+      constructionM2: '150',
+    })
 
-        // Fill Price
-        await page.getByLabel('Precio Venta').fill('5000000');
+    // Verify step 3 (location)
+    await propertyForm.expectStepVisible(3)
+  })
 
-        // Click Siguiente
-        await page.getByRole('button', { name: 'Siguiente: Ubicación' }).click();
+  test('should navigate back from step 2 to step 1', async ({ page }) => {
+    const propertyForm = new PropertyFormPage(page)
+    await propertyForm.goto()
 
-        // Verify Step 2
-        // We check for "Paso 2" and "Ubicación" which confirms we moved to the next step.
-        await expect(page.getByText('Paso 2')).toBeVisible();
+    await propertyForm.selectCategory('Departamento')
+    await propertyForm.expectStepVisible(2)
 
-        // Validating "Ubicación" header is sufficient to prove transition.
-        // Map loading depend on API Keys which might be missing in CI/Test env.
-        await expect(page.getByRole('heading', { level: 1, name: 'Nueva Propiedad' })).toBeVisible();
-    });
+    // Go back
+    await propertyForm.backButton.click()
+    await propertyForm.expectStepVisible(1)
+  })
 
-});
+  test('should show all 8 property categories', async ({ page }) => {
+    const propertyForm = new PropertyFormPage(page)
+    await propertyForm.goto()
+
+    const categories = ['Casa', 'Departamento', 'Oficina', 'Local Comercial', 'Terreno', 'Bodega', 'Nave industrial', 'Otro']
+    for (const category of categories) {
+      await expect(page.getByText(category, { exact: true })).toBeVisible()
+    }
+  })
+})
+
+test.describe('Property Listing (Backoffice)', () => {
+  test('should load property inventory page', async ({ page }) => {
+    await page.goto('/backoffice/propiedades')
+    await page.waitForLoadState('networkidle')
+
+    // Page should have a heading or title for properties
+    await expect(page.getByText(/Propiedades|Inventario/i).first()).toBeVisible({ timeout: 10000 })
+  })
+
+  test('should navigate to property detail from list', async ({ page }) => {
+    await page.goto('/backoffice/propiedades')
+    await page.waitForLoadState('networkidle')
+
+    // Click on first property link/card if available
+    const propertyLink = page.locator('a[href*="/backoffice/propiedades/"]').first()
+    if (await propertyLink.count() > 0) {
+      await propertyLink.click()
+      await expect(page).toHaveURL(/\/backoffice\/propiedades\//)
+    }
+  })
+
+  test('should navigate to new property page from listing', async ({ page }) => {
+    await page.goto('/backoffice/propiedades')
+    await page.waitForLoadState('networkidle')
+
+    const newButton = page.getByRole('link', { name: /Nueva|Agregar/i }).or(
+      page.getByRole('button', { name: /Nueva|Agregar/i })
+    )
+    if (await newButton.count() > 0) {
+      await newButton.first().click()
+      await expect(page).toHaveURL(/\/backoffice\/propiedades\/nueva/)
+    }
+  })
+})
