@@ -34,7 +34,7 @@ interface TaskCardProps {
         title: string
         description?: string
         task_type: string
-        priority: 'alta' | 'media' | 'baja'
+        priority: 'alta' | 'media' | 'baja' | 'urgente'
         status: 'pendiente' | 'en_proceso' | 'completada' | 'pospuesta' | 'vencida' | 'cancelada'
         due_date?: string
         created_at: string

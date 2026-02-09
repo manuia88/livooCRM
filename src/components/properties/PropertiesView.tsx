@@ -34,14 +34,15 @@ export default function PropertiesView() {
 
     // Convert FilterState to PropertiesFilters
     const propertiesFilters = useMemo(() => {
-        if (!filters) return {}
+        if (!filters) return undefined
         return {
-            operation_type: filters.operationType !== 'all' ? filters.operationType : undefined,
-            property_type: filters.propertyTypes.length > 0 ? filters.propertyTypes[0] : undefined,
+            operationType: filters.operationType !== 'all' ? filters.operationType : undefined,
+            propertyType: filters.propertyTypes.length > 0 ? filters.propertyTypes[0] : undefined,
         }
     }, [filters])
 
-    const { data: properties = [], isLoading: loading } = useProperties(propertiesFilters)
+    const { data: propertiesResponse, isLoading: loading } = useProperties(propertiesFilters)
+    const properties = propertiesResponse?.data || []
     const createPropertyMutation = useCreateProperty()
     const updatePropertyMutation = useUpdateProperty()
     const deletePropertyMutation = useDeleteProperty()
