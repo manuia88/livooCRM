@@ -3,6 +3,8 @@ import { createServerAdminClient } from '@/lib/supabase/server-admin';
 import { withAuth, errorResponse, successResponse } from '@/lib/auth/middleware';
 import { withRateLimit, RateLimitPresets } from '@/lib/rate-limit';
 
+export const dynamic = 'force-dynamic'
+
 /**
  * Endpoint para crear campañas de broadcast
  * 

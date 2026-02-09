@@ -4,6 +4,8 @@ import { textWhatsAppService } from '@/lib/whatsapp/service';
 import { withAuth, errorResponse, successResponse } from '@/lib/auth/middleware';
 import { withRateLimit, RateLimitPresets } from '@/lib/rate-limit';
 
+export const dynamic = 'force-dynamic'
+
 /**
  * Endpoint para procesar broadcasts pendientes
  * 

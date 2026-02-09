@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { geocodeAddress, buildAddressFromParts } from '@/lib/geocode'
 
+export const dynamic = 'force-dynamic'
+
 /**
  * GET /api/geocode?address=...
  * o

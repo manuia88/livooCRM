@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
 import { scrapePages, PortalSource, ScrapedProperty } from '@/lib/scraping'
 
+export const dynamic = 'force-dynamic'
+
 const MAX_PAGES = 5
 
 export async function POST(request: NextRequest) {

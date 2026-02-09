@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getWhatsAppClient } from '@/lib/whatsapp/baileys-client'
 import { createClient } from '@/utils/supabase/server'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
