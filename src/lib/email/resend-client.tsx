@@ -2,7 +2,13 @@ import { Resend } from 'resend'
 import { render } from '@react-email/render'
 import { createClient } from '@/utils/supabase/server'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+let _resend: Resend | null = null
+function getResend() {
+  if (!_resend) {
+    _resend = new Resend(process.env.RESEND_API_KEY)
+  }
+  return _resend
+}
 
 const FROM_EMAIL = 'Livoo CRM <notifications@livoocrm.com>'
 
@@ -36,7 +42,7 @@ export async function sendEmail({
   try {
     const html = await render(react)
 
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await getResend().emails.send({
       from: FROM_EMAIL,
       to: Array.isArray(to) ? to : [to],
       subject,
