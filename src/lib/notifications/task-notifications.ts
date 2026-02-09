@@ -51,7 +51,7 @@ export async function sendTaskAssignedEmail(task: Task, user: User) {
     }
 
     await resend.emails.send({
-      from: 'NEXUS OS <tareas@nexusos.com>',
+      from: 'Livoo CRM <notifications@livoocrm.com>',
       to: user.email,
       subject: `${priorityEmoji[task.priority]} Nueva tarea: ${task.title}`,
       html: `
@@ -101,7 +101,7 @@ export async function sendTaskAssignedEmail(task: Task, user: User) {
                 </a>
               </div>
               <div class="footer">
-                <p>NEXUS OS - Tu CRM inmobiliario inteligente</p>
+                <p>Livoo CRM - Tu CRM inmobiliario inteligente</p>
                 <p style="font-size: 12px; color: #9ca3af;">
                   Puedes cambiar tus preferencias de notificaciones en tu perfil
                 </p>
@@ -130,7 +130,7 @@ export async function sendTaskDueSoonEmail(task: Task, user: User) {
     const resend = new Resend(process.env.RESEND_API_KEY)
 
     await resend.emails.send({
-      from: 'NEXUS OS <tareas@nexusos.com>',
+      from: 'Livoo CRM <notifications@livoocrm.com>',
       to: user.email,
       subject: `⏰ Tarea próxima a vencer: ${task.title}`,
       html: `

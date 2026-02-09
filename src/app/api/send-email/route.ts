@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { sendWelcomeEmail, sendTaskReminderEmail } from '@/lib/email/resend-client'
+import {
+  sendWelcomeEmail,
+  sendTaskReminderEmail,
+  sendTareaAsignadaEmail,
+  sendNuevaCaptacionEmail,
+  sendNuevoLeadEmail
+} from '@/lib/email/resend-client'
 
 export async function POST(request: NextRequest) {
   try {
@@ -7,11 +13,23 @@ export async function POST(request: NextRequest) {
 
     switch (type) {
       case 'welcome':
-        await sendWelcomeEmail(params.email, params.firstName)
+        await sendWelcomeEmail(params.email, params.firstName, params.agencyId)
         break
 
       case 'task_reminder':
-        await sendTaskReminderEmail(params.email, params.firstName, params.task)
+        await sendTaskReminderEmail(params.email, params.firstName, params.task, params.agencyId)
+        break
+
+      case 'task_assigned':
+        await sendTareaAsignadaEmail(params.email, params, params.agencyId)
+        break
+
+      case 'nueva_captacion':
+        await sendNuevaCaptacionEmail(params.email, params, params.agencyId)
+        break
+
+      case 'nuevo_lead':
+        await sendNuevoLeadEmail(params.email, params, params.agencyId)
         break
 
       default:
@@ -23,10 +41,11 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true })
 
-  } catch (error: any) {
-    console.error('Send email API error:', error)
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    console.error('Send email API error:', message)
     return NextResponse.json(
-      { error: error.message },
+      { error: message },
       { status: 500 }
     )
   }
