@@ -5,6 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "sonner";
 import { ConditionalNavbar } from "@/components/conditional-navbar";
 import QueryProvider from "@/components/providers/query-provider";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,6 +38,8 @@ export default function RootLayout({
           <Toaster />
           <SonnerToaster position="top-right" richColors />
         </QueryProvider>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

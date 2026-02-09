@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 import path from "path";
 import bundleAnalyzer from '@next/bundle-analyzer';
+import { withSentryConfig } from '@sentry/nextjs';
 
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
@@ -74,7 +75,7 @@ const nextConfig: NextConfig = {
       style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
       img-src 'self' blob: data: https://*.supabase.co https://maps.googleapis.com https://maps.gstatic.com https://picsum.photos https://images.unsplash.com https://*.tile.openstreetmap.org;
       font-src 'self' data: https://fonts.gstatic.com;
-      connect-src 'self' https://*.supabase.co wss://*.supabase.co https://maps.googleapis.com https://nominatim.openstreetmap.org;
+      connect-src 'self' https://*.supabase.co wss://*.supabase.co https://maps.googleapis.com https://nominatim.openstreetmap.org https://*.sentry.io https://*.ingest.sentry.io https://va.vercel-scripts.com;
       frame-src 'self' https://maps.googleapis.com;
       worker-src 'self' blob:;
       object-src 'none';
@@ -135,5 +136,25 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withBundleAnalyzer(nextConfig);
+const configWithPlugins = withBundleAnalyzer(nextConfig);
+
+export default withSentryConfig(configWithPlugins, {
+  // Sentry options
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+
+  // Only upload source maps in CI with auth token
+  silent: !process.env.CI,
+
+  // Widens the scope of source maps uploaded to Sentry
+  widenClientFileUpload: true,
+
+  // Automatically tree-shake Sentry logger statements
+  disableLogger: true,
+
+  // Source maps config
+  sourcemaps: {
+    deleteSourcemapsAfterUpload: true,
+  },
+});
 

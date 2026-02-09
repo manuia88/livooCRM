@@ -1,15 +1,15 @@
 /**
  * Sistema de Logging Estructurado
- * 
+ *
  * Proporciona logging consistente con niveles de severidad
  * y metadata estructurada para debugging y monitoring.
- * 
- * En producción, estos logs pueden enviarse a servicios como:
+ *
+ * Integrado con:
  * - Sentry (error tracking)
- * - LogRocket (session replay)
- * - Datadog (metrics & logs)
- * - Vercel Analytics
+ * - Vercel Analytics (performance)
  */
+
+import * as Sentry from '@sentry/nextjs'
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'fatal'
 
@@ -103,17 +103,24 @@ class Logger {
   }
 
   /**
-   * Envía errores a servicio externo
-   * TODO: Integrar con Sentry, LogRocket, etc.
+   * Envía errores a Sentry
    */
   private sendToErrorTracking(entry: LogEntry): void {
-    // En producción, enviar a Sentry u otro servicio
     if (process.env.NODE_ENV === 'production') {
-      // TODO: Integrar con Sentry
-      // Sentry.captureException(entry.error, {
-      //   level: entry.level,
-      //   extra: entry.metadata
-      // })
+      if (entry.error) {
+        const error = new Error(entry.error.message)
+        error.name = entry.error.name
+        error.stack = entry.error.stack
+        Sentry.captureException(error, {
+          level: entry.level === 'fatal' ? 'fatal' : 'error',
+          contexts: { custom: entry.metadata },
+        })
+      } else {
+        Sentry.captureMessage(entry.message, {
+          level: entry.level === 'fatal' ? 'fatal' : 'error',
+          contexts: { custom: entry.metadata },
+        })
+      }
     }
   }
 
@@ -229,7 +236,7 @@ class Logger {
 export const logger = new Logger()
 
 /**
- * Helper para medir performance de funciones
+ * Helper para medir performance de funciones con Sentry tracing
  */
 export async function measurePerformance<T>(
   operation: string,
@@ -237,25 +244,30 @@ export async function measurePerformance<T>(
   metadata?: LogMetadata
 ): Promise<T> {
   const start = Date.now()
-  
-  try {
-    const result = await fn()
-    const duration = Date.now() - start
-    
-    logger.performance(operation, duration, metadata)
-    
-    return result
-  } catch (error) {
-    const duration = Date.now() - start
-    
-    logger.error(
-      `Operation "${operation}" failed after ${duration}ms`,
-      error as Error,
-      metadata
-    )
-    
-    throw error
-  }
+
+  return Sentry.startSpan(
+    { name: operation, op: 'function' },
+    async () => {
+      try {
+        const result = await fn()
+        const duration = Date.now() - start
+
+        logger.performance(operation, duration, metadata)
+
+        return result
+      } catch (error) {
+        const duration = Date.now() - start
+
+        logger.error(
+          `Operation "${operation}" failed after ${duration}ms`,
+          error as Error,
+          metadata
+        )
+
+        throw error
+      }
+    }
+  )
 }
 
 /**
