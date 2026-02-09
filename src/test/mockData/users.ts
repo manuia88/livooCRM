@@ -1,0 +1,60 @@
+import type { CurrentUser } from '@/types'
+
+export const mockCurrentUser: CurrentUser = {
+  id: 'user-123',
+  agency_id: 'agency-123',
+  first_name: 'Agent',
+  last_name: 'Smith',
+  full_name: 'Agent Smith',
+  email: 'agent@example.com',
+  avatar_url: 'https://example.com/avatar.jpg',
+  phone: '+5215512345678',
+  whatsapp: '+5215512345678',
+  role: 'agent',
+  permissions: ['properties:read', 'properties:write', 'contacts:read', 'contacts:write'],
+  license_number: 'LIC-001',
+  specialties: ['residential', 'luxury'],
+  bio: 'Agente inmobiliario con 5 años de experiencia',
+  is_active: true,
+  last_login_at: '2024-01-15T10:00:00Z',
+  created_at: '2023-01-01T00:00:00Z',
+  updated_at: '2024-01-15T10:00:00Z',
+  agency: {
+    id: 'agency-123',
+    name: 'Inmobiliaria Test',
+    slug: 'inmobiliaria-test',
+    logo_url: null,
+    website: 'https://example.com',
+    phone: '+5215500000000',
+    email: 'info@example.com',
+    address: null,
+    settings: {},
+    timezone: 'America/Mexico_City',
+    plan_type: 'pro',
+    plan_expires_at: null,
+    is_active: true,
+    created_at: '2023-01-01T00:00:00Z',
+    updated_at: '2023-01-01T00:00:00Z',
+    deleted_at: null,
+  },
+}
+
+export const mockAdminUser: CurrentUser = {
+  ...mockCurrentUser,
+  id: 'admin-123',
+  role: 'admin',
+  full_name: 'Admin User',
+  first_name: 'Admin',
+  last_name: 'User',
+  email: 'admin@example.com',
+}
+
+export const mockManagerUser: CurrentUser = {
+  ...mockCurrentUser,
+  id: 'manager-123',
+  role: 'manager',
+  full_name: 'Manager User',
+  first_name: 'Manager',
+  last_name: 'User',
+  email: 'manager@example.com',
+}
