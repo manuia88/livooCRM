@@ -3,6 +3,8 @@ import { MOCK_PROPERTIES } from '@/data/mock-properties';
 import { NextResponse, NextRequest } from 'next/server';
 import { onlyDevelopment, errorResponse } from '@/lib/auth/middleware';
 
+export const dynamic = 'force-dynamic'
+
 /**
  * Endpoint de Seeding - SOLO DESARROLLO
  * 

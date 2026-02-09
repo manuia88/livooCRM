@@ -78,6 +78,7 @@ describe('PropertyHealthScore', () => {
 
   describe('Detailed view with breakdown', () => {
     const mockBreakdown = {
+      total_score: 75,
       items: {
         photos: {
           completed: true,
@@ -97,6 +98,26 @@ describe('PropertyHealthScore', () => {
           completed: false,
           points: 0,
           max_points: 15,
+        },
+        video: {
+          completed: false,
+          points: 0,
+          max_points: 10,
+        },
+        virtual_tour: {
+          completed: false,
+          points: 0,
+          max_points: 10,
+        },
+        documents: {
+          completed: false,
+          points: 0,
+          max_points: 10,
+        },
+        amenities: {
+          completed: false,
+          points: 0,
+          max_points: 5,
         },
       },
       suggestions: [

@@ -26,18 +26,20 @@ export default function BackofficeTasksPage() {
     const [selectedTask, setSelectedTask] = useState<string | null>(null);
 
     // Fetch tasks and metrics
-    const { data: tasks, isLoading } = useTasks({ status: 'pendiente' });
+    const { data: tasksResponse, isLoading } = useTasks({ status: 'pendiente' });
     const { data: metrics } = useTaskMetrics();
 
+    const tasks = tasksResponse?.data || [];
+
     // Group tasks by priority
-    const urgentTasks = tasks?.filter(t => t.priority === 'alta') || [];
-    const normalTasks = tasks?.filter(t => t.priority === 'media') || [];
-    const lowTasks = tasks?.filter(t => t.priority === 'baja') || [];
+    const urgentTasks = tasks.filter(t => t.priority === 'alta');
+    const normalTasks = tasks.filter(t => t.priority === 'media');
+    const lowTasks = tasks.filter(t => t.priority === 'baja');
 
     // Count overdue tasks
-    const overdueTasks = tasks?.filter(t =>
+    const overdueTasks = tasks.filter(t =>
         t.due_date && new Date(t.due_date) < new Date() && t.status === 'pendiente'
-    ) || [];
+    );
 
     return (
         <PageContainer

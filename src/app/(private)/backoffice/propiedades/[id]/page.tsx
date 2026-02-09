@@ -336,7 +336,7 @@ export default function PropertyDetailPage() {
                   ? `${new Date().getFullYear() - Number(yearBuilt)} años`
                   : '—'
                 const mantenimiento = prop.maintenance_fee != null && Number.isFinite(prop.maintenance_fee)
-                  ? formatPrice(Number(prop.maintenance_fee), 'MXN')
+                  ? formatPrice(Number(prop.maintenance_fee))
                   : '—'
                 const mascotas = prop.pets_allowed != null ? (prop.pets_allowed ? 'Sí' : 'No') : '—'
                 const constructionM2 = Number(property.construction_m2) || 0
@@ -405,7 +405,7 @@ export default function PropertyDetailPage() {
                               <Input
                                 type="number"
                                 step={editKey === 'bathrooms' ? '0.5' : undefined}
-                                value={(editData as Record<string, unknown>)[editKey] ?? ''}
+                                value={String((editData as Record<string, unknown>)[editKey] ?? '')}
                                 onChange={(e) => setEditData({ ...editData, [editKey]: e.target.value })}
                                 className="text-center"
                               />

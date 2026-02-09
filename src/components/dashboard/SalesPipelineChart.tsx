@@ -93,7 +93,7 @@ export default function SalesPipelineChart() {
             borderRadius: '8px',
             boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
           }}
-          formatter={(value: number) => [`${value} contactos`, 'Cantidad']}
+          formatter={(value) => [`${value} contactos`, 'Cantidad']}
         />
         <Bar dataKey="count" radius={[0, 6, 6, 0]} barSize={28}>
           {data?.map((entry, index) => (

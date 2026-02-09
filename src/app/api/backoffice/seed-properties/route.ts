@@ -7,6 +7,8 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
 import { createServerAdminClient } from '@/lib/supabase/server-admin'
 
+export const dynamic = 'force-dynamic'
+
 const SEED_PROPERTIES = [
   {
     title: 'Departamento en Renta',

@@ -15,8 +15,10 @@ export default function TasksPage() {
     const [showQueue, setShowQueue] = useState(false)
     const [filters, setFilters] = useState({})
 
-    const { data: tasks = [], isLoading } = useTasks(filters)
+    const { data: tasksResponse, isLoading } = useTasks(filters)
     const { data: metrics } = useTaskMetrics()
+
+    const tasks = tasksResponse?.data || []
 
     // Group tasks by priority
     const urgentTasks = tasks.filter(t => t.priority === 'alta' && t.status === 'pendiente')

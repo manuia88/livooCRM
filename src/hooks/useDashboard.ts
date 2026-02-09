@@ -19,6 +19,8 @@ export interface DashboardMetrics {
     tasks_overdue: number
     conversion_rate: number
     deals_closed: number
+    new_leads: number
+    sales_this_month: number
 }
 
 export interface DashboardSummary {
@@ -121,6 +123,24 @@ export function usePriorityActions() {
         enabled: !!currentUser,
         staleTime: 30 * 1000,
     })
+}
+
+/**
+ * Métricas de la agencia
+ */
+export interface AgencyMetrics {
+    total_properties: number
+    total_leads: number
+    total_sales: number
+    active_agents: number
+    agents_performance: Array<{
+        user_id: string
+        full_name: string
+        level: string
+        properties_count: number
+        leads_count: number
+        sales_amount: number
+    }>
 }
 
 /**

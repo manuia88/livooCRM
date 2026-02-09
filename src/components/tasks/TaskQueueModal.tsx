@@ -32,14 +32,14 @@ interface TaskQueueModalProps {
 
 export function TaskQueueModal({ open, onClose, initialTaskId }: TaskQueueModalProps) {
     const router = useRouter()
-    const { data: allTasks } = useTasks({ status: 'pendiente' })
+    const { data: allTasksResponse } = useTasks({ status: 'pendiente' })
     const completeTaskMutation = useCompleteTask()
 
     const [currentIndex, setCurrentIndex] = useState(0)
     const [completedInSession, setCompletedInSession] = useState<string[]>([])
 
     // Filter tasks for queue (pending only)
-    const tasks = allTasks || []
+    const tasks = allTasksResponse?.data || []
     const currentTask = tasks[currentIndex]
     const totalTasks = tasks.length
     const progress = totalTasks > 0 ? ((currentIndex + 1) / totalTasks) * 100 : 0

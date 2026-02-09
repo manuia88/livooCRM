@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { geocodeAddress, reverseGeocode, searchAddresses } from '@/lib/geocoding/nominatim'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const action = searchParams.get('action')
