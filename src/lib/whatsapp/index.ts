@@ -96,7 +96,7 @@ export async function sendMessage(
   phoneNumber: string,
   message: string,
   options?: { mediaUrl?: string; contactId?: string; agencyId?: string }
-): Promise<proto.WebMessageInfo | undefined> {
+): Promise<any> {
   console.log('[WhatsApp] Sending message:', { phoneNumber, hasMedia: !!options?.mediaUrl })
 
   const sock = await getWhatsAppSocket()
@@ -109,7 +109,7 @@ export async function sendMessage(
   const cleanPhone = phoneNumber.replace(/\D/g, '')
 
   try {
-    let result: proto.WebMessageInfo | undefined
+    let result: any
 
     if (options?.mediaUrl) {
       const response = await fetch(options.mediaUrl)
@@ -422,7 +422,7 @@ async function handleConnection(sock: WASocket) {
 }
 
 async function handleIncomingMessage(msg: proto.IWebMessageInfo) {
-  if (msg.key.fromMe) return
+  if (!msg.key || msg.key.fromMe) return
 
   const remoteJid = msg.key.remoteJid
   if (!remoteJid) return
@@ -462,7 +462,7 @@ async function handleIncomingMessage(msg: proto.IWebMessageInfo) {
       message_type: 'text',
       direction: 'inbound',
       status: 'delivered',
-      whatsapp_message_id: msg.key.id,
+      whatsapp_message_id: msg.key?.id,
       metadata: {
         timestamp: msg.messageTimestamp,
         pushName: msg.pushName,
@@ -555,7 +555,7 @@ async function syncToConversation(
         .update({
           last_message_at: new Date().toISOString(),
           last_message_preview: text.substring(0, 100),
-          unread_count: supabase.rpc ? 1 : 1, // Increment would need RPC
+          unread_count: 1,
           status: 'open',
         })
         .eq('id', conversationId)
@@ -567,7 +567,7 @@ async function syncToConversation(
         direction: 'inbound',
         content: text,
         status: 'received',
-        platform_message_id: msg.key.id,
+        platform_message_id: msg.key?.id,
         created_at: msg.messageTimestamp
           ? new Date(Number(msg.messageTimestamp) * 1000).toISOString()
           : new Date().toISOString(),
