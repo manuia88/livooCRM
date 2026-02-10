@@ -2,9 +2,12 @@ import { embed, generateText } from 'ai';
 import { geminiFlashModel, textEmbeddingModel } from './config';
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
+function getSupabase() {
+    return createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+}
 
 // 1. Ingest/Embed Document
 export async function embedLegalDocument(content: string, metadata: any = {}) {
@@ -14,7 +17,7 @@ export async function embedLegalDocument(content: string, metadata: any = {}) {
             value: content,
         });
 
-        const { error } = await supabase.from('legal_documents').insert({
+        const { error } = await getSupabase().from('legal_documents').insert({
             content,
             metadata,
             embedding,
@@ -38,7 +41,7 @@ export async function queryLegalAssistant(question: string) {
         });
 
         // B. Search closely related docs
-        const { data: documents, error } = await supabase.rpc('match_legal_docs', {
+        const { data: documents, error } = await getSupabase().rpc('match_legal_docs', {
             query_embedding: embedding,
             match_threshold: 0.5,
             match_count: 3,

@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { createServerAdminClient } from '@/lib/supabase/server-admin';
-import { textWhatsAppService } from '@/lib/whatsapp/service';
+import { getWhatsAppService } from '@/lib/whatsapp/service';
 import { withAuth, errorResponse, successResponse } from '@/lib/auth/middleware';
 import { withRateLimit, RateLimitPresets } from '@/lib/rate-limit';
 
@@ -87,7 +87,7 @@ export const POST = withRateLimit(
 
             try {
                 // Send via Service
-                await textWhatsAppService.sendMessage(phone, content);
+                await getWhatsAppService().sendMessage(phone, content);
                 await updateRecipientStatus(recipient.id, 'sent');
                 sentCount++;
             } catch (error: any) {
