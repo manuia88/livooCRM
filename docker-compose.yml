@@ -1,0 +1,91 @@
+# =============================================================
+# LIVOO CRM - Docker Compose: n8n Automation Platform
+# Phase 7: WhatsApp + Automation Infrastructure
+#
+# Usage:
+#   docker compose up -d          # Start all services
+#   docker compose logs -f n8n    # Follow n8n logs
+#   docker compose down           # Stop all services
+# =============================================================
+
+services:
+  # ─── n8n Workflow Automation ───────────────────────────────
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    container_name: livoo-n8n
+    restart: unless-stopped
+    ports:
+      - "${N8N_PORT:-5678}:5678"
+    environment:
+      # Basic config
+      - N8N_HOST=${N8N_HOST:-localhost}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=${N8N_PROTOCOL:-http}
+      - WEBHOOK_URL=${N8N_WEBHOOK_URL:-http://localhost:5678}
+
+      # Security
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER:-admin}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD:-livoo2026}
+
+      # Database (use PostgreSQL for production, SQLite for dev)
+      - DB_TYPE=${N8N_DB_TYPE:-sqlite}
+      - DB_POSTGRESDB_HOST=${N8N_DB_HOST:-}
+      - DB_POSTGRESDB_PORT=${N8N_DB_PORT:-5432}
+      - DB_POSTGRESDB_DATABASE=${N8N_DB_NAME:-n8n}
+      - DB_POSTGRESDB_USER=${N8N_DB_USER:-}
+      - DB_POSTGRESDB_PASSWORD=${N8N_DB_PASSWORD:-}
+
+      # Timezone
+      - GENERIC_TIMEZONE=${TZ:-America/Mexico_City}
+      - TZ=${TZ:-America/Mexico_City}
+
+      # Execution settings
+      - EXECUTIONS_DATA_SAVE_ON_ERROR=all
+      - EXECUTIONS_DATA_SAVE_ON_SUCCESS=all
+      - EXECUTIONS_DATA_SAVE_MANUAL_EXECUTIONS=true
+      - N8N_DIAGNOSTICS_ENABLED=false
+      - N8N_HIRING_BANNER_ENABLED=false
+
+      # External hooks - connect to Livoo CRM
+      - N8N_EXTERNAL_HOOKS_URLS=${NEXT_PUBLIC_APP_URL:-http://host.docker.internal:3000}/api/n8n/webhook
+    volumes:
+      - n8n_data:/home/node/.n8n
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:5678/healthz || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ─── n8n MCP Server (Model Context Protocol) ──────────────
+  n8n-mcp:
+    image: docker.n8n.io/n8nio/n8n:latest
+    container_name: livoo-n8n-mcp
+    restart: unless-stopped
+    ports:
+      - "${N8N_MCP_PORT:-5679}:5678"
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_MCP_USER:-mcp-admin}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_MCP_PASSWORD:-livoo-mcp-2026}
+      - GENERIC_TIMEZONE=${TZ:-America/Mexico_City}
+      - TZ=${TZ:-America/Mexico_City}
+      - N8N_DIAGNOSTICS_ENABLED=false
+    volumes:
+      - n8n_mcp_data:/home/node/.n8n
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      n8n:
+        condition: service_healthy
+
+volumes:
+  n8n_data:
+    driver: local
+  n8n_mcp_data:
+    driver: local
