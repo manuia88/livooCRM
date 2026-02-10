@@ -2,10 +2,12 @@ import { embed } from 'ai';
 import { geminiVisionModel, textEmbeddingModel } from './config';
 import { createClient } from '@supabase/supabase-js';
 
-// Initialize Supabase client for vector search
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
+function getSupabase() {
+    return createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+}
 
 export async function generateImageDescription(imageUrl: string): Promise<string> {
     // 1. We might want to use a multimodal approach: Get description first
@@ -30,7 +32,7 @@ export async function findSimilarProperties(description: string) {
         });
 
         // 2. Search in Supabase using pgvector
-        const { data: properties, error } = await supabase.rpc('match_properties', {
+        const { data: properties, error } = await getSupabase().rpc('match_properties', {
             query_embedding: embedding,
             match_threshold: 0.7, // Similarity threshold
             match_count: 5,       // Top 5 results

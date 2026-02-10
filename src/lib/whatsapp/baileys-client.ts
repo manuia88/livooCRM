@@ -10,12 +10,18 @@ import makeWASocket, {
 } from '@whiskeysockets/baileys'
 import { Boom } from '@hapi/boom'
 import P from 'pino'
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+let _supabase: SupabaseClient | null = null
+function getSupabase() {
+    if (!_supabase) {
+        _supabase = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY!
+        )
+    }
+    return _supabase
+}
 
 interface WhatsAppClientConfig {
     agencyId: string
@@ -150,7 +156,7 @@ class WhatsAppClient {
     }
 
     private async loadAuthState() {
-        const { data: session } = await supabase
+        const { data: session } = await getSupabase()
             .from('whatsapp_agency_auth')
             .select('session_data')
             .eq('agency_id', this.agencyId)
@@ -176,7 +182,7 @@ class WhatsAppClient {
         return {
             state,
             saveCreds: async () => {
-                await supabase
+                await getSupabase()
                     .from('whatsapp_agency_auth')
                     .upsert({
                         agency_id: this.agencyId,
@@ -189,7 +195,7 @@ class WhatsAppClient {
     }
 
     private async saveQRCode(qr: string) {
-        await supabase
+        await getSupabase()
             .from('whatsapp_agency_auth')
             .upsert({
                 agency_id: this.agencyId,
@@ -200,7 +206,7 @@ class WhatsAppClient {
     }
 
     private async markAsConnected(phoneNumber: string) {
-        await supabase
+        await getSupabase()
             .from('whatsapp_agency_auth')
             .update({
                 phone_number: phoneNumber,
@@ -212,7 +218,7 @@ class WhatsAppClient {
     }
 
     private async markAsDisconnected() {
-        await supabase
+        await getSupabase()
             .from('whatsapp_agency_auth')
             .update({
                 is_active: false,
@@ -232,7 +238,7 @@ class WhatsAppClient {
     }) {
         // Note: This run on server side, we don't always have a user session here
         // But we have the agencyId
-        await supabase.from('whatsapp_messages').insert({
+        await getSupabase().from('whatsapp_messages').insert({
             agency_id: this.agencyId,
             contact_id: data.contactId,
             phone_number: data.phoneNumber,
@@ -244,7 +250,7 @@ class WhatsAppClient {
         })
 
         if (data.contactId && data.status === 'sent') {
-            await supabase.from('contact_interactions').insert({
+            await getSupabase().from('contact_interactions').insert({
                 contact_id: data.contactId,
                 interaction_type: 'message',
                 channel: 'whatsapp',

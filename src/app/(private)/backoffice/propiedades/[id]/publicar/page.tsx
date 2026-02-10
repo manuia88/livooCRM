@@ -22,8 +22,6 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase/client'
 import { PageContainer } from '@/components/backoffice/PageContainer'
 
-const supabase = createClient()
-
 // Portal metadata
 const PORTAL_INFO: Record<string, { label: string; color: string; icon: string }> = {
   inmuebles24: { label: 'Inmuebles24', color: 'bg-blue-600', icon: '🏠' },
@@ -58,6 +56,7 @@ export default function PublicarPropertyPage() {
   const params = useParams()
   const router = useRouter()
   const propertyId = params.id as string
+  const supabase = createClient()
 
   const [property, setProperty] = useState<any>(null)
   const [publications, setPublications] = useState<PortalPublication[]>([])

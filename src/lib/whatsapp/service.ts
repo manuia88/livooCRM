@@ -320,4 +320,10 @@ export class WhatsAppService {
     }
 }
 
-export const textWhatsAppService = new WhatsAppService();
+let _textWhatsAppService: WhatsAppService | null = null;
+export function getWhatsAppService(): WhatsAppService {
+    if (!_textWhatsAppService) {
+        _textWhatsAppService = new WhatsAppService();
+    }
+    return _textWhatsAppService;
+}

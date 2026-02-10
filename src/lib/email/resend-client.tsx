@@ -1,11 +1,12 @@
-import { Resend } from 'resend'
 import { render } from '@react-email/render'
 import { createClient } from '@/utils/supabase/server'
 
-let _resend: Resend | null = null
-function getResend() {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let _resend: any = null
+async function getResend() {
   if (!_resend) {
-    _resend = new Resend(process.env.RESEND_API_KEY)
+    const { Resend } = await import('resend')
+    _resend = new Resend(process.env.RESEND_API_KEY!)
   }
   return _resend
 }
@@ -42,7 +43,8 @@ export async function sendEmail({
   try {
     const html = await render(react)
 
-    const { data, error } = await getResend().emails.send({
+    const resend = await getResend()
+    const { data, error } = await resend.emails.send({
       from: FROM_EMAIL,
       to: Array.isArray(to) ? to : [to],
       subject,
